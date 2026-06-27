@@ -1,2 +1,14 @@
-# cbeave-auction-platform
-Modern online auction platform built with Next.js, NestJS, Prisma, PostgreSQL, and WebSockets.
+# CBeave
+Modern online auction platform
+
+## Tech Stack
+
+-Frontend : Next.js + TypeScript
+-Backend : NestJs + TypeScript
+-Database : PostgreSQL + Prisma
+-Real-time : Websockets
+-Deployment : Docker
+
+## Status
+
+Planing Phase (Software Requirement Specification)
