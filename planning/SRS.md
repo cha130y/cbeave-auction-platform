@@ -7,8 +7,8 @@
 | Project Name | CBeave                  |
 | Repository   | cbeave-auction-platform |
 | Version      | 0.1.0                   |
-| Author       | *Your Name*             |
-| Date         | *YYYY-MM-DD*            |
+| Author       | Chanon Sawaengphon      |
+| Date         | 2026-06-27              |
 | Status       | Draft                   |
 
 ---
