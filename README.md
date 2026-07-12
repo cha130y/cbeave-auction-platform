@@ -2,7 +2,7 @@
 
 CBeave is a production-oriented, real-time online auction platform where one standard user account can both sell items and bid on other users' auctions. The project is designed as a responsive web application with scheduled auctions, real-time bidding, anti-sniping, watchlists, in-app notifications, moderation, and an immersive Live Arena.
 
-## One-month delivery target
+## Delivery target
 
 The current milestone is intentionally limited to a complete auction journey:
 
@@ -86,4 +86,4 @@ DRAFT / SCHEDULED ───────→ CANCELLED
 
 **Planning complete; implementation-ready.**
 
-The Version 1 requirements and data model are frozen for the one-month delivery window. New features should be added only after the core auction flow is working end to end.
+The Version 1 requirements and data model are frozen for the delivery window. New features should be added only after the core auction flow is working end to end.
