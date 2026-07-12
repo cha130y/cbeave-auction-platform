@@ -1,8 +1,7 @@
 # CBeave — Software Requirements Specification
 
 **Version:** 1.1  
-**Status:** Approved implementation baseline  
-**Delivery constraint:** Solo project, one month  
+**Status:** Approved implementation baseline
 **Approved date:** 2026-07-11  
 
 ## 1. Purpose
