@@ -18,6 +18,8 @@ The original SRS, Figma prototype, Version 1 ERD, and full future-state ERD used
 - A User cannot bid on an auction they own.
 - An Admin cannot create marketplace auctions or bid.
 - Version 1 supports email/password and Google login only.
+- User profiles store required `first_name` and optional `last_name`; a separate editable `full_name` is not persisted.
+- The application derives full name when needed, while `display_name` remains the independent public identity used in auctions and Live Arena.
 
 ### Auction workflow
 

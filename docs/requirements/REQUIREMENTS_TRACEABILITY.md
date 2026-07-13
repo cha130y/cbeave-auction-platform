@@ -8,11 +8,11 @@ Status values:
 
 | Requirement | Priority | ERD tables | Planned backend location | Planned frontend location | Verification | Status |
 |---|:---:|---|---|---|---|---|
-| AUTH-001 Local registration | P0 | `users`, `user_profiles` | `apps/api/src/auth` | `apps/web/app/(auth)` | Registration E2E | Planned |
+| AUTH-001 Local registration | P0 | `users`, `user_profiles.first_name`, `user_profiles.last_name`, `user_profiles.display_name` | `apps/api/src/auth` | `apps/web/app/(auth)` | Registration E2E including single-name and two-part-name cases | Planned |
 | AUTH-002 Local login | P0 | `users`, `user_sessions` | `apps/api/src/auth` | `apps/web/app/(auth)` | Login/session E2E | Planned |
 | AUTH-003 Google login | P1 | `users`, `auth_accounts`, `user_sessions` | `apps/api/src/auth/google` | Google auth callback | Google login integration | Planned |
 | AUTH-005 Password reset | P0 | `password_reset_tokens` | `apps/api/src/auth/password-reset` | Forgot/reset pages | Token expiry/reuse tests | Planned |
-| USR-001 Profile | P0 | `user_profiles` | `apps/api/src/users` | Profile page | Profile authorization E2E | Planned |
+| USR-001 Profile | P0 | `user_profiles.first_name`, `user_profiles.last_name`, `user_profiles.display_name` | `apps/api/src/users` | Profile page | Profile update and derived-full-name tests | Planned |
 | CAT-001 Category management | P0 | `categories`, `admin_actions` | `apps/api/src/categories` | Browse/admin category UI | CRUD and deactivation tests | Planned |
 | AUC-001 Create draft | P0 | `auctions`, `auction_images` | `apps/api/src/auctions` | Create auction flow | Draft ownership E2E | Planned |
 | AUC-004 Preview/publish | P0 | `auctions`, `auction_events` | Auction publish use case | Preview page | State-transition tests | Planned |
@@ -34,3 +34,5 @@ Status values:
 | OPS-001 Docker environment | P0 | N/A | `infra/docker` | N/A | Clean startup check | Planned |
 
 Update the Status column in the same pull request that implements or verifies a requirement.
+
+Name-model rule: `first_name` is required, `last_name` is optional, and `full_name` is derived in application code rather than persisted.

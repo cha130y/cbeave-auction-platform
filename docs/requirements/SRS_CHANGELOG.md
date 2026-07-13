@@ -21,6 +21,15 @@ Status: **Approved for implementation**
 | CHG-013 | Auction reports | Version 1.1 roadmap item | Included as user report plus admin resolution | Provides minimum moderation workflow |
 | CHG-014 | Future architecture | Payments, shipping, storefronts, analytics shown in full ERD | Future-state reference only | Prevents 51-table implementation in one month |
 
+
+## Version 1.1 amendment — 2026-07-13
+
+Status: **Approved for implementation**
+
+| ID | Change | Previous position | Updated decision | Impact |
+|---|---|---|---|---|
+| CHG-015 | User profile name structure | `user_profiles.full_name` stored as one required field | Replace it with required `first_name` and optional `last_name`; derive the full name in the application; retain independent `display_name` | Supports single-name users, OAuth profile data, and avoids duplicated/inconsistent full-name storage |
+
 ## Migration note
 
 Version 1.0 remains available as the historical baseline. Version 1.1 is the source of truth for implementation and testing during the one-month project.

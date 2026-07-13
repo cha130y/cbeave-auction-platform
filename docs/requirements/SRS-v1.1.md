@@ -123,7 +123,7 @@ An Administrator may not:
 
 ### AUTH-001 — Local registration
 
-A new User can register with full name, display name, unique email, and password. The password must be validated and securely hashed.
+A new User can register with first name, optional last name, display name, unique email, and password. The password must be validated and securely hashed. The application derives a full name from first and last name rather than storing a separate editable `full_name` value.
 
 ### AUTH-002 — Local login
 
@@ -145,7 +145,7 @@ A local account can request and complete a time-limited, single-use password res
 
 ### USR-001 — Profile
 
-A User can view and update full name, display name, avatar, bio, phone, and location. Public auction views must use display name or an appropriately masked form.
+A User can view and update first name, optional last name, display name, avatar, bio, phone, and location. The application derives the full name from first and last name. Public auction views must use display name or an appropriately masked form.
 
 ## 7. Auction lifecycle
 

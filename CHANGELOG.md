@@ -22,6 +22,7 @@ The format follows Keep a Changelog principles. Product releases will use semant
 - Normalized auction terminal states to `SOLD` and `UNSOLD`.
 - Made minimum bid increment mandatory.
 - Defined Preview as a frontend step and Publish as a command.
+- Replaced persisted `user_profiles.full_name` with required `first_name` and optional `last_name`; full name is derived while `display_name` remains the public identity.
 - Limited Version 1 social authentication to Google login.
 - Added Watchlist, in-app outbid notification, bounded Live Arena polish, and auction reporting to the one-month scope.
 - Deferred Buy Now, payments, shipping, messaging, reviews, storefronts, native applications, PWA support, and advanced analytics.
