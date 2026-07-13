@@ -340,8 +340,9 @@ Table users {
 
 Table user_profiles {
   user_id uuid [pk, ref: - users.id]
-  full_name varchar(160) [not null]
-  display_name varchar(80) [not null]
+  first_name varchar(100) [not null, note: 'Given or preferred first name']
+  last_name varchar(100) [note: 'Optional to support single-name users and incomplete OAuth profiles']
+  display_name varchar(80) [not null, note: 'Public identity; independent from legal/profile name']
   avatar_url text
   bio varchar(500)
   phone varchar(40)

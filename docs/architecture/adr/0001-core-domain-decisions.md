@@ -18,6 +18,9 @@ The original SRS, Figma prototype, Version 1 ERD, and full future-state ERD used
 - A User cannot bid on an auction they own.
 - An Admin cannot create marketplace auctions or bid.
 - Version 1 supports email/password and Google login only.
+- Forgot-password recovery and external reset-email delivery are deferred beyond Version 1.
+- User profiles store required `first_name` and optional `last_name`; a separate editable `full_name` is not persisted.
+- The application derives full name when needed, while `display_name` remains the independent public identity used in auctions and Live Arena.
 
 ### Auction workflow
 
@@ -45,9 +48,15 @@ The original SRS, Figma prototype, Version 1 ERD, and full future-state ERD used
 
 The delivery includes Google login, Watchlist, in-app outbid notification, a bounded polished Live Arena, and auction reporting.
 
+### Administration and audit
+
+- Version 1 audit actions cover user suspension/reactivation, auction cancellation, category creation/update/deactivation, and report resolution.
+- Categories referenced by auctions are deactivated rather than destructively deleted.
+- Auction reinstatement is deferred because Version 1 does not define a safe reinstatement transition after cancellation, scheduling, or bidding activity.
+
 ### Deferred architecture
 
-The complete ERD remains a future-state reference. Payments, orders, shipping, payouts, disputes, messaging, reviews, storefronts, multi-channel notifications, mobile apps, and advanced analytics are not implemented in this milestone.
+The complete ERD remains a future-state reference. Password recovery, external email delivery, payments, orders, shipping, payouts, disputes, messaging, reviews, storefronts, multi-channel notifications, mobile apps, and advanced analytics are not implemented in this milestone.
 
 ## Consequences
 
@@ -61,7 +70,7 @@ The complete ERD remains a future-state reference. Payments, orders, shipping, p
 
 ### Trade-offs
 
-- Facebook login and Buy Now are postponed.
+- Facebook login, password recovery, external email delivery, and Buy Now are postponed.
 - Live Arena polish is bounded by time and accessibility.
 - Auction reports are moderation reports, not analytical reports.
 - The future ERD may change before its modules are implemented.

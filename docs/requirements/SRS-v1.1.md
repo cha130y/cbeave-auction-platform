@@ -70,7 +70,7 @@ An Administrator may not:
 
 ### 3.1 Required capabilities
 
-- Email/password registration, login, logout, password reset, and JWT sessions
+- Email/password registration, login, logout, and JWT sessions
 - Google login
 - User profile management
 - Category browsing and administrator category management
@@ -92,6 +92,7 @@ An Administrator may not:
 ### 3.2 Explicit exclusions
 
 - Facebook login
+- Forgot-password recovery and external reset-email delivery
 - Buy Now
 - Payments, refunds, disputes, and seller payouts
 - Orders and shipping
@@ -123,7 +124,7 @@ An Administrator may not:
 
 ### AUTH-001 — Local registration
 
-A new User can register with full name, display name, unique email, and password. The password must be validated and securely hashed.
+A new User can register with first name, optional last name, display name, unique email, and password. The password must be validated and securely hashed. The application derives a full name from first and last name rather than storing a separate editable `full_name` value.
 
 ### AUTH-002 — Local login
 
@@ -137,15 +138,15 @@ A User can register or log in through Google. A Google identity must be linked u
 
 Refresh tokens must be stored as hashes, have an expiry, and support revocation on logout.
 
-### AUTH-005 — Password reset
+### AUTH-005 — Password reset (Deferred)
 
-A local account can request and complete a time-limited, single-use password reset.
+Forgot-password recovery is deferred beyond Version 1 because the release does not include external email delivery. Version 1 must not expose reset tokens through API responses or production logs. Authenticated password changes may be added separately without introducing email-based recovery.
 
 ## 6. User profile requirements
 
 ### USR-001 — Profile
 
-A User can view and update full name, display name, avatar, bio, phone, and location. Public auction views must use display name or an appropriately masked form.
+A User can view and update first name, optional last name, display name, avatar, bio, phone, and location. The application derives the full name from first and last name. Public auction views must use display name or an appropriately masked form.
 
 ## 7. Auction lifecycle
 
