@@ -82,12 +82,10 @@ Enum auction_event_type {
 Enum admin_action_type {
   SUSPEND_USER
   REACTIVATE_USER
-  RESET_PASSWORD
   CANCEL_AUCTION
-  REINSTATE_AUCTION
   CREATE_CATEGORY
   UPDATE_CATEGORY
-  DELETE_CATEGORY
+  DEACTIVATE_CATEGORY
   RESOLVE_REPORT
 }
 
@@ -150,15 +148,6 @@ Table user_sessions {
   indexes {
     (user_id, expires_at)
   }
-}
-
-Table password_reset_tokens {
-  id uuid [pk, default: `gen_random_uuid()`]
-  user_id uuid [not null, ref: > users.id]
-  token_hash varchar(255) [not null, unique]
-  expires_at timestamptz [not null]
-  used_at timestamptz
-  created_at timestamptz [not null, default: `now()`]
 }
 
 Table categories {
@@ -362,7 +351,6 @@ TableGroup identity_and_access {
   user_profiles
   auth_accounts
   user_sessions
-  password_reset_tokens
 }
 
 TableGroup auction_core {

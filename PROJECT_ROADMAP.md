@@ -120,6 +120,7 @@ The following are polish-only and may be reduced when the schedule is at risk:
 
 ### Version 2
 
+- Forgot-password recovery and transactional reset-email delivery
 - Payment gateway and orders
 - Shipping and fulfilment
 - Email/push notification channels

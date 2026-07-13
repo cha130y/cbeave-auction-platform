@@ -29,6 +29,8 @@ Status: **Approved for implementation**
 | ID | Change | Previous position | Updated decision | Impact |
 |---|---|---|---|---|
 | CHG-015 | User profile name structure | `user_profiles.full_name` stored as one required field | Replace it with required `first_name` and optional `last_name`; derive the full name in the application; retain independent `display_name` | Supports single-name users, OAuth profile data, and avoids duplicated/inconsistent full-name storage |
+| CHG-016 | Password recovery | Password reset and `password_reset_tokens` were required in Version 1 despite external email delivery being excluded | Defer forgot-password recovery, reset-email delivery, the V1 token table, and the related admin action; retain the design in the future-state model | Removes an external integration from the one-month scope and keeps the core authentication and auction journey focused |
+| CHG-017 | Administrator audit actions | The V1 ERD allowed auction reinstatement and destructive category deletion without corresponding safe workflows | Remove `REINSTATE_AUCTION` from V1 and replace `DELETE_CATEGORY` with `DEACTIVATE_CATEGORY`; retain broader actions only in the future-state model | Aligns audit values with implemented moderation behavior and prevents unsafe lifecycle or category operations |
 
 ## Migration note
 

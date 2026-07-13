@@ -70,7 +70,7 @@ An Administrator may not:
 
 ### 3.1 Required capabilities
 
-- Email/password registration, login, logout, password reset, and JWT sessions
+- Email/password registration, login, logout, and JWT sessions
 - Google login
 - User profile management
 - Category browsing and administrator category management
@@ -92,6 +92,7 @@ An Administrator may not:
 ### 3.2 Explicit exclusions
 
 - Facebook login
+- Forgot-password recovery and external reset-email delivery
 - Buy Now
 - Payments, refunds, disputes, and seller payouts
 - Orders and shipping
@@ -137,9 +138,9 @@ A User can register or log in through Google. A Google identity must be linked u
 
 Refresh tokens must be stored as hashes, have an expiry, and support revocation on logout.
 
-### AUTH-005 — Password reset
+### AUTH-005 — Password reset (Deferred)
 
-A local account can request and complete a time-limited, single-use password reset.
+Forgot-password recovery is deferred beyond Version 1 because the release does not include external email delivery. Version 1 must not expose reset tokens through API responses or production logs. Authenticated password changes may be added separately without introducing email-based recovery.
 
 ## 6. User profile requirements
 
