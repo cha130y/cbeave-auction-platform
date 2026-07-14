@@ -19,6 +19,7 @@ The original SRS, Figma prototype, Version 1 ERD, and full future-state ERD used
 - An Admin cannot create marketplace auctions or bid.
 - Version 1 supports email/password and Google login only.
 - Forgot-password recovery and external reset-email delivery are deferred beyond Version 1.
+- Version 1 refresh sessions persist only identity, ownership, token hash, expiry, revocation, and creation time; IP-address, geolocation, and user-agent metadata are deferred.
 - User profiles store required `first_name` and optional `last_name`; a separate editable `full_name` is not persisted.
 - The application derives full name when needed, while `display_name` remains the independent public identity used in auctions and Live Arena.
 

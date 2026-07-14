@@ -207,7 +207,7 @@
 <!-- user_sessions -->
 <g id="node4" class="node">
 <title>user_sessions</title>
-<polygon fill="#0f172a" stroke="transparent" points="859,-1886.5 859,-2111.5 1106,-2111.5 1106,-1886.5 859,-1886.5"/>
+<polygon fill="#0f172a" stroke="transparent" points="859,-1936.5 859,-2111.5 1106,-2111.5 1106,-1936.5 859,-1936.5"/>
 <polygon fill="#162033" stroke="transparent" points="859.5,-2086 859.5,-2111 1106.5,-2111 1106.5,-2086 859.5,-2086"/>
 <polygon fill="none" stroke="#334155" points="859.5,-2086 859.5,-2111 1106.5,-2111 1106.5,-2086 859.5,-2086"/>
 <text text-anchor="start" x="864.5" y="-2095.8" font-family="Arial" font-weight="bold" font-size="14.00" fill="#f8fafc">user_sessions</text>
@@ -230,32 +230,22 @@
 <polygon fill="none" stroke="#334155" points="1076.5,-2011 1076.5,-2036 1106.5,-2036 1106.5,-2011 1076.5,-2011"/>
 <text text-anchor="start" x="1081.5" y="-2020.8" font-family="Arial" font-weight="bold" font-size="14.00" fill="#67e8f9">NN</text>
 <polygon fill="none" stroke="#334155" points="859.5,-1986 859.5,-2011 989.5,-2011 989.5,-1986 859.5,-1986"/>
-<text text-anchor="start" x="864.5" y="-1994.8" font-family="Arial" font-size="14.00" fill="#e2e8f0">ip_address</text>
+<text text-anchor="start" x="864.5" y="-1994.8" font-family="Arial" font-size="14.00" fill="#e2e8f0">expires_at</text>
 <polygon fill="none" stroke="#334155" points="989.5,-1986 989.5,-2011 1076.5,-2011 1076.5,-1986 989.5,-1986"/>
-<text text-anchor="start" x="994.5" y="-1994.8" font-family="Arial" font-size="14.00" fill="#94a3b8">inet</text>
+<text text-anchor="start" x="994.5" y="-1994.8" font-family="Arial" font-size="14.00" fill="#94a3b8">timestamptz</text>
 <polygon fill="none" stroke="#334155" points="1076.5,-1986 1076.5,-2011 1106.5,-2011 1106.5,-1986 1076.5,-1986"/>
+<text text-anchor="start" x="1081.5" y="-1995.8" font-family="Arial" font-weight="bold" font-size="14.00" fill="#67e8f9">NN</text>
 <polygon fill="none" stroke="#334155" points="859.5,-1961 859.5,-1986 989.5,-1986 989.5,-1961 859.5,-1961"/>
-<text text-anchor="start" x="864.5" y="-1969.8" font-family="Arial" font-size="14.00" fill="#e2e8f0">user_agent</text>
+<text text-anchor="start" x="864.5" y="-1969.8" font-family="Arial" font-size="14.00" fill="#e2e8f0">revoked_at</text>
 <polygon fill="none" stroke="#334155" points="989.5,-1961 989.5,-1986 1076.5,-1986 1076.5,-1961 989.5,-1961"/>
-<text text-anchor="start" x="994.5" y="-1969.8" font-family="Arial" font-size="14.00" fill="#94a3b8">text</text>
+<text text-anchor="start" x="994.5" y="-1969.8" font-family="Arial" font-size="14.00" fill="#94a3b8">timestamptz</text>
 <polygon fill="none" stroke="#334155" points="1076.5,-1961 1076.5,-1986 1106.5,-1986 1106.5,-1961 1076.5,-1961"/>
 <polygon fill="none" stroke="#334155" points="859.5,-1936 859.5,-1961 989.5,-1961 989.5,-1936 859.5,-1936"/>
-<text text-anchor="start" x="864.5" y="-1944.8" font-family="Arial" font-size="14.00" fill="#e2e8f0">expires_at</text>
+<text text-anchor="start" x="864.5" y="-1944.8" font-family="Arial" font-size="14.00" fill="#e2e8f0">created_at</text>
 <polygon fill="none" stroke="#334155" points="989.5,-1936 989.5,-1961 1076.5,-1961 1076.5,-1936 989.5,-1936"/>
 <text text-anchor="start" x="994.5" y="-1944.8" font-family="Arial" font-size="14.00" fill="#94a3b8">timestamptz</text>
 <polygon fill="none" stroke="#334155" points="1076.5,-1936 1076.5,-1961 1106.5,-1961 1106.5,-1936 1076.5,-1936"/>
 <text text-anchor="start" x="1081.5" y="-1945.8" font-family="Arial" font-weight="bold" font-size="14.00" fill="#67e8f9">NN</text>
-<polygon fill="none" stroke="#334155" points="859.5,-1911 859.5,-1936 989.5,-1936 989.5,-1911 859.5,-1911"/>
-<text text-anchor="start" x="864.5" y="-1919.8" font-family="Arial" font-size="14.00" fill="#e2e8f0">revoked_at</text>
-<polygon fill="none" stroke="#334155" points="989.5,-1911 989.5,-1936 1076.5,-1936 1076.5,-1911 989.5,-1911"/>
-<text text-anchor="start" x="994.5" y="-1919.8" font-family="Arial" font-size="14.00" fill="#94a3b8">timestamptz</text>
-<polygon fill="none" stroke="#334155" points="1076.5,-1911 1076.5,-1936 1106.5,-1936 1106.5,-1911 1076.5,-1911"/>
-<polygon fill="none" stroke="#334155" points="859.5,-1886 859.5,-1911 989.5,-1911 989.5,-1886 859.5,-1886"/>
-<text text-anchor="start" x="864.5" y="-1894.8" font-family="Arial" font-size="14.00" fill="#e2e8f0">created_at</text>
-<polygon fill="none" stroke="#334155" points="989.5,-1886 989.5,-1911 1076.5,-1911 1076.5,-1886 989.5,-1886"/>
-<text text-anchor="start" x="994.5" y="-1894.8" font-family="Arial" font-size="14.00" fill="#94a3b8">timestamptz</text>
-<polygon fill="none" stroke="#334155" points="1076.5,-1886 1076.5,-1911 1106.5,-1911 1106.5,-1886 1076.5,-1886"/>
-<text text-anchor="start" x="1081.5" y="-1895.8" font-family="Arial" font-weight="bold" font-size="14.00" fill="#67e8f9">NN</text>
 </g>
 <!-- user_sessions&#45;&gt;users -->
 <g id="edge3" class="edge">

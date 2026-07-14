@@ -27,6 +27,7 @@ The format follows Keep a Changelog principles. Product releases will use semant
 - Added Watchlist, in-app outbid notification, bounded Live Arena polish, and auction reporting to the one-month scope.
 - Deferred forgot-password recovery and external reset-email delivery; removed `password_reset_tokens` and `RESET_PASSWORD` from the Version 1 data model while retaining them in the future-state reference.
 - Simplified Version 1 administrator audit actions by deferring auction reinstatement and replacing destructive category deletion with category deactivation.
+- Simplified Version 1 refresh sessions by deferring IP-address and user-agent metadata to the future-state model.
 - Deferred Buy Now, payments, shipping, messaging, reviews, storefronts, native applications, PWA support, and advanced analytics.
 
 > This entry records approved documentation and scope changes. It does not claim that application features are already implemented.
