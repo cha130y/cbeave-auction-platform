@@ -36,7 +36,16 @@ The original SRS, Figma prototype, Version 1 ERD, and full future-state ERD used
 - Starting price is required.
 - Minimum bid increment is required.
 - Reserve price is optional and private.
+- Version 1 does not persist `reserve_met_at`; current reserve-met state is derived from the private reserve price, accepted bid count, and current price.
+- The derived reserve-met state is included in Live Arena bid broadcasts without creating a persistent notification or revealing the reserve amount.
 - Buy Now is deferred.
+
+### Auction discovery
+
+- Version 1 includes a simple Hot Auctions list for Active, non-deleted auctions.
+- Hot Auctions are ordered by accepted `bid_count` descending, then `current_end_at` ascending and auction ID for deterministic ties.
+- Version 1 does not persist `is_hot` or a popularity score and does not rank by watchers, participants, or live WebSocket viewers.
+- Administrator-curated Featured Auctions and the `is_featured` field are deferred beyond Version 1.
 
 ### Real-time bidding
 
@@ -57,7 +66,7 @@ The delivery includes Google login, Watchlist, in-app outbid notification, a bou
 
 ### Deferred architecture
 
-The complete ERD remains a future-state reference. Password recovery, external email delivery, payments, orders, shipping, payouts, disputes, messaging, reviews, storefronts, multi-channel notifications, mobile apps, and advanced analytics are not implemented in this milestone.
+The complete ERD remains a future-state reference. Password recovery, external email delivery, administrator-curated Featured Auctions, advanced popularity ranking, payments, orders, shipping, payouts, disputes, messaging, reviews, storefronts, multi-channel notifications, mobile apps, and advanced analytics are not implemented in this milestone.
 
 ## Consequences
 
@@ -75,6 +84,7 @@ The complete ERD remains a future-state reference. Password recovery, external e
 - Live Arena polish is bounded by time and accessibility.
 - Auction reports are moderation reports, not analytical reports.
 - The future ERD may change before its modules are implemented.
+- The simple bid-count Hot Auctions list favors auctions with more accepted bids and is not a sophisticated trend score.
 
 ## Implementation rule
 

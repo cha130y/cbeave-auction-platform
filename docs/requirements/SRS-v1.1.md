@@ -76,6 +76,7 @@ An Administrator may not:
 - Category browsing and administrator category management
 - Auction draft creation, image management, preview, publish, scheduling, editing, and cancellation
 - Public auction discovery and details
+- Simple Hot Auctions discovery ranked by accepted bid count
 - Required minimum bid increment
 - Optional hidden reserve price
 - Real-time bidding through WebSockets
@@ -106,6 +107,7 @@ An Administrator may not:
 - Redis and horizontal scaling
 - PWA and native applications
 - Advanced seller/platform analytics
+- Administrator-curated Featured Auctions and advanced popularity scoring
 
 ## 4. Technology constraints
 
@@ -180,7 +182,7 @@ A User can create a private draft containing title, description, category, start
 
 ### AUC-003 — Hidden reserve
 
-The reserve amount is private. Buyer-facing API responses may expose only `reserveMet: true/false`. An auction with bids below reserve ends as `UNSOLD`.
+The reserve amount is private. Buyer-facing API responses may expose only a derived `reserveMet: true/false` value. Version 1 does not persist `reserve_met_at`; the service derives the current reserve state from `reserve_price`, `bid_count`, and `current_price`. An auction with bids below reserve ends as `UNSOLD`.
 
 ### AUC-004 — Preview and publish
 
@@ -201,6 +203,10 @@ The seller may edit or cancel a Draft or Scheduled auction. Once Active or once 
 - Bids below reserve: `UNSOLD`
 - The winner and winning bid must be persisted when Sold.
 
+### AUC-008 — Simple Hot Auctions
+
+The public Hot Auctions list contains Active, non-deleted auctions ordered by accepted `bid_count` descending. Ties are ordered by `current_end_at` ascending and then by auction identifier for deterministic results. Version 1 does not use `is_featured`, watcher counts, participant counts, live-viewer presence, time-decay scoring, or a persisted hot flag for this list.
+
 ## 8. Bidding requirements
 
 ### BID-001 — Valid bid
@@ -219,7 +225,7 @@ Bid validation, accepted-bid creation, current-price update, bid-count update, r
 
 ### BID-003 — Real-time update
 
-An accepted bid must be broadcast without a page refresh to connected clients in the auction room.
+An accepted bid must be broadcast without a page refresh to connected clients in the auction room. The authoritative bid broadcast includes the derived reserve-met state without exposing the private reserve amount; it does not create a persistent reserve notification.
 
 ### BID-004 — Anti-sniping
 

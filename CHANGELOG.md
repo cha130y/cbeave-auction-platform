@@ -28,6 +28,9 @@ The format follows Keep a Changelog principles. Product releases will use semant
 - Deferred forgot-password recovery and external reset-email delivery; removed `password_reset_tokens` and `RESET_PASSWORD` from the Version 1 data model while retaining them in the future-state reference.
 - Simplified Version 1 administrator audit actions by deferring auction reinstatement and replacing destructive category deletion with category deactivation.
 - Simplified Version 1 refresh sessions by deferring IP-address and user-agent metadata to the future-state model.
+- Removed redundant Version 1 `reserve_met_at`; reserve state is derived from accepted-bid data and broadcast to the Live Arena without exposing the reserve amount.
+- Deferred administrator-curated Featured Auctions and removed `is_featured` from the Version 1 model while retaining the concept in the future-state reference.
+- Added a simple Version 1 Hot Auctions discovery rule based on accepted `bid_count`, with deterministic deadline and auction-ID tie-breaking.
 - Deferred Buy Now, payments, shipping, messaging, reviews, storefronts, native applications, PWA support, and advanced analytics.
 
 > This entry records approved documentation and scope changes. It does not claim that application features are already implemented.

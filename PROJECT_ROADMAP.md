@@ -31,6 +31,7 @@ Finish one complete, stable auction journey before adding breadth. The project i
 - In-app outbid notification
 - Polished but bounded Live Arena
 - Auction reporting and administrator resolution
+- Simple Hot Auctions ranked by accepted bid count
 
 P1 features are committed, but their implementation must remain minimal and focused. Visual effects may be reduced before correctness, security, or testing is reduced.
 
@@ -55,6 +56,7 @@ P1 features are committed, but their implementation must remain minimal and focu
 - Implement preview without persisting a Preview status
 - Implement Publish command
 - Implement Scheduled and Active listings
+- Implement Starting Soon, Ending Soon, Recently Published, and simple bid-count Hot Auctions discovery queries
 - Implement auction details, countdown, filters, and seller dashboard
 - Implement hidden reserve handling
 - Implement watchlist
@@ -114,7 +116,8 @@ The following are polish-only and may be reduced when the schedule is at risk:
 2. Simplify auction reports to one report form and one admin resolution screen.
 3. Reduce admin statistics to essential counts.
 4. Reduce search and filter combinations.
-5. Preserve all P0 correctness, security, bidding, and lifecycle behavior.
+5. Remove the Hot Auctions homepage section while retaining ordinary discovery.
+6. Preserve all P0 correctness, security, bidding, and lifecycle behavior.
 
 ## Deferred roadmap
 
@@ -127,6 +130,7 @@ The following are polish-only and may be reduced when the schedule is at risk:
 - Seller verification
 - Messaging and reviews
 - Redis and horizontal WebSocket scaling
+- Administrator-curated Featured Auctions and advanced popularity ranking
 
 ### Version 3
 
