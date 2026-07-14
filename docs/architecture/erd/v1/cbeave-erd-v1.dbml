@@ -185,11 +185,9 @@ Table auctions {
   started_at timestamptz
   ended_at timestamptz
   extension_count smallint [not null, default: 0, note: 'Maximum 5']
-  reserve_met_at timestamptz
   winner_user_id uuid [ref: > users.id]
   winning_bid_id uuid
   sold_price decimal(18,2)
-  is_featured boolean [not null, default: false]
   cancellation_reason varchar(500)
   row_version int [not null, default: 1, note: 'Optimistic concurrency control']
   deleted_at timestamptz
@@ -201,7 +199,7 @@ Table auctions {
     (status, current_end_at)
     (category_id, status)
     (seller_id, status)
-    is_featured
+    (status, bid_count) [note: 'Simple V1 Hot Auctions ranking']
   }
 }
 

@@ -442,59 +442,48 @@
 <polygon fill="none" stroke="#334155" points="649.5,-907 649.5,-932 679.5,-932 679.5,-907 649.5,-907"/>
 <text text-anchor="start" x="654.5" y="-916.8" font-family="Arial" font-weight="bold" font-size="14.00" fill="#67e8f9">NN</text>
 <polygon fill="none" stroke="#334155" points="420.5,-882 420.5,-907 551.5,-907 551.5,-882 420.5,-882"/>
-<text text-anchor="start" x="425.5" y="-890.8" font-family="Arial" font-size="14.00" fill="#e2e8f0">reserve_met_at</text>
+<text text-anchor="start" x="425.5" y="-890.8" font-family="Arial" font-size="14.00" fill="#e2e8f0">winner_user_id</text>
 <polygon fill="none" stroke="#334155" points="551.5,-882 551.5,-907 649.5,-907 649.5,-882 551.5,-882"/>
-<text text-anchor="start" x="556.5" y="-890.8" font-family="Arial" font-size="14.00" fill="#94a3b8">timestamptz</text>
+<text text-anchor="start" x="556.5" y="-890.8" font-family="Arial" font-size="14.00" fill="#94a3b8">uuid</text>
 <polygon fill="none" stroke="#334155" points="649.5,-882 649.5,-907 679.5,-907 679.5,-882 649.5,-882"/>
 <polygon fill="none" stroke="#334155" points="420.5,-857 420.5,-882 551.5,-882 551.5,-857 420.5,-857"/>
-<text text-anchor="start" x="425.5" y="-865.8" font-family="Arial" font-size="14.00" fill="#e2e8f0">winner_user_id</text>
+<text text-anchor="start" x="425.5" y="-865.8" font-family="Arial" font-size="14.00" fill="#e2e8f0">winning_bid_id</text>
 <polygon fill="none" stroke="#334155" points="551.5,-857 551.5,-882 649.5,-882 649.5,-857 551.5,-857"/>
 <text text-anchor="start" x="556.5" y="-865.8" font-family="Arial" font-size="14.00" fill="#94a3b8">uuid</text>
 <polygon fill="none" stroke="#334155" points="649.5,-857 649.5,-882 679.5,-882 679.5,-857 649.5,-857"/>
 <polygon fill="none" stroke="#334155" points="420.5,-832 420.5,-857 551.5,-857 551.5,-832 420.5,-832"/>
-<text text-anchor="start" x="425.5" y="-840.8" font-family="Arial" font-size="14.00" fill="#e2e8f0">winning_bid_id</text>
+<text text-anchor="start" x="425.5" y="-840.8" font-family="Arial" font-size="14.00" fill="#e2e8f0">sold_price</text>
 <polygon fill="none" stroke="#334155" points="551.5,-832 551.5,-857 649.5,-857 649.5,-832 551.5,-832"/>
-<text text-anchor="start" x="556.5" y="-840.8" font-family="Arial" font-size="14.00" fill="#94a3b8">uuid</text>
+<text text-anchor="start" x="556.5" y="-840.8" font-family="Arial" font-size="14.00" fill="#94a3b8">decimal(18,2)</text>
 <polygon fill="none" stroke="#334155" points="649.5,-832 649.5,-857 679.5,-857 679.5,-832 649.5,-832"/>
 <polygon fill="none" stroke="#334155" points="420.5,-807 420.5,-832 551.5,-832 551.5,-807 420.5,-807"/>
-<text text-anchor="start" x="425.5" y="-815.8" font-family="Arial" font-size="14.00" fill="#e2e8f0">sold_price</text>
+<text text-anchor="start" x="425.5" y="-815.8" font-family="Arial" font-size="14.00" fill="#e2e8f0">cancellation_reason</text>
 <polygon fill="none" stroke="#334155" points="551.5,-807 551.5,-832 649.5,-832 649.5,-807 551.5,-807"/>
-<text text-anchor="start" x="556.5" y="-815.8" font-family="Arial" font-size="14.00" fill="#94a3b8">decimal(18,2)</text>
+<text text-anchor="start" x="556.5" y="-815.8" font-family="Arial" font-size="14.00" fill="#94a3b8">varchar(500)</text>
 <polygon fill="none" stroke="#334155" points="649.5,-807 649.5,-832 679.5,-832 679.5,-807 649.5,-807"/>
 <polygon fill="none" stroke="#334155" points="420.5,-782 420.5,-807 551.5,-807 551.5,-782 420.5,-782"/>
-<text text-anchor="start" x="425.5" y="-790.8" font-family="Arial" font-size="14.00" fill="#e2e8f0">is_featured</text>
+<text text-anchor="start" x="425.5" y="-790.8" font-family="Arial" font-size="14.00" fill="#e2e8f0">row_version</text>
 <polygon fill="none" stroke="#334155" points="551.5,-782 551.5,-807 649.5,-807 649.5,-782 551.5,-782"/>
-<text text-anchor="start" x="556.5" y="-790.8" font-family="Arial" font-size="14.00" fill="#94a3b8">boolean</text>
+<text text-anchor="start" x="556.5" y="-790.8" font-family="Arial" font-size="14.00" fill="#94a3b8">int</text>
 <polygon fill="none" stroke="#334155" points="649.5,-782 649.5,-807 679.5,-807 679.5,-782 649.5,-782"/>
 <text text-anchor="start" x="654.5" y="-791.8" font-family="Arial" font-weight="bold" font-size="14.00" fill="#67e8f9">NN</text>
 <polygon fill="none" stroke="#334155" points="420.5,-757 420.5,-782 551.5,-782 551.5,-757 420.5,-757"/>
-<text text-anchor="start" x="425.5" y="-765.8" font-family="Arial" font-size="14.00" fill="#e2e8f0">cancellation_reason</text>
+<text text-anchor="start" x="425.5" y="-765.8" font-family="Arial" font-size="14.00" fill="#e2e8f0">deleted_at</text>
 <polygon fill="none" stroke="#334155" points="551.5,-757 551.5,-782 649.5,-782 649.5,-757 551.5,-757"/>
-<text text-anchor="start" x="556.5" y="-765.8" font-family="Arial" font-size="14.00" fill="#94a3b8">varchar(500)</text>
+<text text-anchor="start" x="556.5" y="-765.8" font-family="Arial" font-size="14.00" fill="#94a3b8">timestamptz</text>
 <polygon fill="none" stroke="#334155" points="649.5,-757 649.5,-782 679.5,-782 679.5,-757 649.5,-757"/>
 <polygon fill="none" stroke="#334155" points="420.5,-732 420.5,-757 551.5,-757 551.5,-732 420.5,-732"/>
-<text text-anchor="start" x="425.5" y="-740.8" font-family="Arial" font-size="14.00" fill="#e2e8f0">row_version</text>
+<text text-anchor="start" x="425.5" y="-740.8" font-family="Arial" font-size="14.00" fill="#e2e8f0">created_at</text>
 <polygon fill="none" stroke="#334155" points="551.5,-732 551.5,-757 649.5,-757 649.5,-732 551.5,-732"/>
-<text text-anchor="start" x="556.5" y="-740.8" font-family="Arial" font-size="14.00" fill="#94a3b8">int</text>
+<text text-anchor="start" x="556.5" y="-740.8" font-family="Arial" font-size="14.00" fill="#94a3b8">timestamptz</text>
 <polygon fill="none" stroke="#334155" points="649.5,-732 649.5,-757 679.5,-757 679.5,-732 649.5,-732"/>
 <text text-anchor="start" x="654.5" y="-741.8" font-family="Arial" font-weight="bold" font-size="14.00" fill="#67e8f9">NN</text>
 <polygon fill="none" stroke="#334155" points="420.5,-707 420.5,-732 551.5,-732 551.5,-707 420.5,-707"/>
-<text text-anchor="start" x="425.5" y="-715.8" font-family="Arial" font-size="14.00" fill="#e2e8f0">deleted_at</text>
+<text text-anchor="start" x="425.5" y="-715.8" font-family="Arial" font-size="14.00" fill="#e2e8f0">updated_at</text>
 <polygon fill="none" stroke="#334155" points="551.5,-707 551.5,-732 649.5,-732 649.5,-707 551.5,-707"/>
 <text text-anchor="start" x="556.5" y="-715.8" font-family="Arial" font-size="14.00" fill="#94a3b8">timestamptz</text>
 <polygon fill="none" stroke="#334155" points="649.5,-707 649.5,-732 679.5,-732 679.5,-707 649.5,-707"/>
-<polygon fill="none" stroke="#334155" points="420.5,-682 420.5,-707 551.5,-707 551.5,-682 420.5,-682"/>
-<text text-anchor="start" x="425.5" y="-690.8" font-family="Arial" font-size="14.00" fill="#e2e8f0">created_at</text>
-<polygon fill="none" stroke="#334155" points="551.5,-682 551.5,-707 649.5,-707 649.5,-682 551.5,-682"/>
-<text text-anchor="start" x="556.5" y="-690.8" font-family="Arial" font-size="14.00" fill="#94a3b8">timestamptz</text>
-<polygon fill="none" stroke="#334155" points="649.5,-682 649.5,-707 679.5,-707 679.5,-682 649.5,-682"/>
-<text text-anchor="start" x="654.5" y="-691.8" font-family="Arial" font-weight="bold" font-size="14.00" fill="#67e8f9">NN</text>
-<polygon fill="none" stroke="#334155" points="420.5,-657 420.5,-682 551.5,-682 551.5,-657 420.5,-657"/>
-<text text-anchor="start" x="425.5" y="-665.8" font-family="Arial" font-size="14.00" fill="#e2e8f0">updated_at</text>
-<polygon fill="none" stroke="#334155" points="551.5,-657 551.5,-682 649.5,-682 649.5,-657 551.5,-657"/>
-<text text-anchor="start" x="556.5" y="-665.8" font-family="Arial" font-size="14.00" fill="#94a3b8">timestamptz</text>
-<polygon fill="none" stroke="#334155" points="649.5,-657 649.5,-682 679.5,-682 679.5,-657 649.5,-657"/>
-<text text-anchor="start" x="654.5" y="-666.8" font-family="Arial" font-weight="bold" font-size="14.00" fill="#67e8f9">NN</text>
+<text text-anchor="start" x="654.5" y="-716.8" font-family="Arial" font-weight="bold" font-size="14.00" fill="#67e8f9">NN</text>
 </g>
 <!-- auctions&#45;&gt;users -->
 <g id="edge7" class="edge">

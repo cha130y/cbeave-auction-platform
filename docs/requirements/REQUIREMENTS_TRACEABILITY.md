@@ -19,6 +19,7 @@ Status values:
 | AUC-004 Preview/publish | P0 | `auctions`, `auction_events` | Auction publish use case | Preview page | State-transition tests | Planned |
 | AUC-005 Scheduled visibility | P0 | `auctions` | Auction query/scheduler | Starting Soon/detail pages | Scheduler integration test | Planned |
 | AUC-007 Completion | P0 | `auctions`, `bids`, `auction_events` | Auction lifecycle worker | Result screen | Sold/unsold E2E | Planned |
+| AUC-008 Simple Hot Auctions | P1 | `auctions.bid_count`, `auctions.current_end_at` | Auction discovery query | Homepage Hot Auctions section | Active-only ranking and deterministic tie-order integration test | Planned |
 | BID-001 Valid bid | P0 | `bids`, `auctions` | `apps/api/src/bidding` | Bid panel | Validation matrix | Planned |
 | BID-002 Atomic/idempotent bid | P0 | `bids`, `auctions` | Bidding transaction service | Client request ID | Concurrency test | Planned |
 | BID-003 Real-time update | P0 | `auction_events` | Auction WebSocket gateway | Live Arena query cache | Two-client E2E | Planned |

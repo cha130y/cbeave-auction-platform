@@ -33,6 +33,16 @@ Status: **Approved for implementation**
 | CHG-017 | Administrator audit actions | The V1 ERD allowed auction reinstatement and destructive category deletion without corresponding safe workflows | Remove `REINSTATE_AUCTION` from V1 and replace `DELETE_CATEGORY` with `DEACTIVATE_CATEGORY`; retain broader actions only in the future-state model | Aligns audit values with implemented moderation behavior and prevents unsafe lifecycle or category operations |
 | CHG-018 | Refresh-session metadata | V1 `user_sessions` stored optional `ip_address` and `user_agent` metadata | Limit V1 sessions to `id`, `user_id`, `refresh_token_hash`, `expires_at`, `revoked_at`, and `created_at`; retain richer metadata in the future-state model | Reduces privacy considerations and implementation scope without affecting refresh, logout, or revocation behavior |
 
+## Version 1.1 amendment — 2026-07-15
+
+Status: **Approved for implementation**
+
+| ID | Change | Previous position | Updated decision | Impact |
+|---|---|---|---|---|
+| CHG-019 | Reserve-met persistence | V1 `auctions` stored `reserve_met_at` | Remove `reserve_met_at` from V1; derive the current buyer-facing reserve state from the private reserve price and accepted-bid aggregate, and include it in Live Arena bid broadcasts | Avoids redundant state and automatically reflects the current accepted highest bid |
+| CHG-020 | Featured auction promotion | V1 `auctions` stored `is_featured` without a defined administrator workflow | Defer curated Featured Auctions and `is_featured` beyond V1; retain the concept in the future-state reference | Removes an untraceable admin feature from the one-month schema |
+| CHG-021 | Hot Auctions | Public discovery did not define a V1 hot-ranking rule | Add a simple Active-auction list ordered by accepted `bid_count` descending, then `current_end_at` and auction ID; do not use watcher, participant, or live-viewer scoring | Adds an explainable homepage discovery feature without new persisted flags or infrastructure |
+
 ## Migration note
 
 Version 1.0 remains available as the historical baseline. Version 1.1 is the source of truth for implementation and testing during the one-month project.
