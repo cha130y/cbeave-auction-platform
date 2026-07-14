@@ -139,8 +139,6 @@ Table user_sessions {
   id uuid [pk, default: `gen_random_uuid()`]
   user_id uuid [not null, ref: > users.id]
   refresh_token_hash varchar(255) [not null, unique]
-  ip_address inet
-  user_agent text
   expires_at timestamptz [not null]
   revoked_at timestamptz
   created_at timestamptz [not null, default: `now()`]

@@ -17,6 +17,7 @@
 - Only `USER` and `ADMIN` are persisted roles.
 - Google is the only social provider in scope.
 - Forgot-password recovery and external reset-email delivery are deferred.
+- Refresh sessions omit IP-address and user-agent metadata in Version 1.
 - Preview and Publish are not statuses.
 - Canonical statuses are Draft, Scheduled, Active, Sold, Unsold, and Cancelled.
 - Minimum bid increment is required.
@@ -34,6 +35,7 @@
 - Messaging and reviews
 - Multi-channel notification delivery
 - Forgot-password recovery and `password_reset_tokens`
+- Session IP-address and user-agent metadata
 - Seller storefronts
 - Advanced analytics
 

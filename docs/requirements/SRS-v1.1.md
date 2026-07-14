@@ -93,6 +93,7 @@ An Administrator may not:
 
 - Facebook login
 - Forgot-password recovery and external reset-email delivery
+- Session IP history, geolocation, and user-agent/device metadata
 - Buy Now
 - Payments, refunds, disputes, and seller payouts
 - Orders and shipping
@@ -137,6 +138,8 @@ A User can register or log in through Google. A Google identity must be linked u
 ### AUTH-004 — Session management
 
 Refresh tokens must be stored as hashes, have an expiry, and support revocation on logout.
+
+The Version 1 `user_sessions` record is intentionally limited to an identifier, owning user, refresh-token hash, expiry, revocation timestamp, and creation timestamp. IP-address and user-agent metadata are deferred.
 
 ### AUTH-005 — Password reset (Deferred)
 
