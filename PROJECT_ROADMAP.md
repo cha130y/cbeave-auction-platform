@@ -20,17 +20,17 @@ Finish one complete, stable auction journey before adding breadth. The project i
 - Anti-sniping: two-minute extension, maximum five extensions
 - Automatic sold/unsold completion
 - Bid history
-- Basic administrator moderation
+- Basic administrator user/category management and emergency auction cancellation
 - Dockerized local environment
 - Critical unit, integration, and E2E tests
 
 ### P1 — Agreed one-month product features
 
 - Google login
+- Facebook login
 - Watchlist
 - In-app outbid notification
 - Polished but bounded Live Arena
-- Auction reporting and administrator resolution
 - Simple Hot Auctions ranked by accepted bid count
 
 P1 features are committed, but their implementation must remain minimal and focused. Visual effects may be reduced before correctness, security, or testing is reduced.
@@ -43,11 +43,11 @@ P1 features are committed, but their implementation must remain minimal and focu
 - Scaffold `apps/web`, `apps/api`, shared contracts, Prisma, and Docker
 - Implement database connection and initial Prisma migration
 - Implement registration, login, JWT refresh flow, logout, and profile
-- Implement Google OAuth
+- Implement Google and Facebook OAuth
 - Implement role and account-status guards
 - Implement category read/admin CRUD
 
-**Exit criteria:** A local user and a Google user can authenticate; suspended users are blocked; categories are available to the auction form.
+**Exit criteria:** Local, Google, and Facebook users can authenticate; suspended users are blocked; categories are available to the auction form.
 
 ### Week 2 — Auction management and discovery
 
@@ -76,13 +76,12 @@ P1 features are committed, but their implementation must remain minimal and focu
 
 **Exit criteria:** Two browser sessions can complete a correct real-time auction without refreshing.
 
-### Week 4 — Live Arena, moderation, and stabilization
+### Week 4 — Live Arena, administration, and stabilization
 
 - Connect the Figma Live Arena to real events
 - Implement lobby participant count and countdown
 - Implement current leader, recent bids, sudden-death extension state, and winner screen
 - Add restrained animation and responsive polish
-- Implement auction report submission and admin resolution
 - Complete basic admin user/category/auction screens
 - Add Docker setup, seed data, Swagger, and deployment notes
 - Run critical E2E tests and fix defects
@@ -113,11 +112,10 @@ The following are polish-only and may be reduced when the schedule is at risk:
 ## Feature cut order if schedule slips
 
 1. Reduce decorative Live Arena animation.
-2. Simplify auction reports to one report form and one admin resolution screen.
-3. Reduce admin statistics to essential counts.
-4. Reduce search and filter combinations.
-5. Remove the Hot Auctions homepage section while retaining ordinary discovery.
-6. Preserve all P0 correctness, security, bidding, and lifecycle behavior.
+2. Reduce admin statistics to essential counts.
+3. Reduce search and filter combinations.
+4. Remove the Hot Auctions homepage section while retaining ordinary discovery.
+5. Preserve all P0 correctness, security, bidding, and lifecycle behavior.
 
 ## Deferred roadmap
 
@@ -129,6 +127,7 @@ The following are polish-only and may be reduced when the schedule is at risk:
 - Email/push notification channels
 - Seller verification
 - Messaging and reviews
+- User-submitted auction reports and administrator report resolution
 - Redis and horizontal WebSocket scaling
 - Administrator-curated Featured Auctions and advanced popularity ranking
 

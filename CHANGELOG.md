@@ -23,14 +23,19 @@ The format follows Keep a Changelog principles. Product releases will use semant
 - Made minimum bid increment mandatory.
 - Defined Preview as a frontend step and Publish as a command.
 - Replaced persisted `user_profiles.full_name` with required `first_name` and optional `last_name`; full name is derived while `display_name` remains the public identity.
-- Limited Version 1 social authentication to Google login.
-- Added Watchlist, in-app outbid notification, bounded Live Arena polish, and auction reporting to the one-month scope.
+- Included Google and Facebook as the Version 1 social authentication providers.
+- Added Watchlist, in-app notifications, and bounded Live Arena polish to the one-month scope.
 - Deferred forgot-password recovery and external reset-email delivery; removed `password_reset_tokens` and `RESET_PASSWORD` from the Version 1 data model while retaining them in the future-state reference.
 - Simplified Version 1 administrator audit actions by deferring auction reinstatement and replacing destructive category deletion with category deactivation.
 - Simplified Version 1 refresh sessions by deferring IP-address and user-agent metadata to the future-state model.
 - Removed redundant Version 1 `reserve_met_at`; reserve state is derived from accepted-bid data and broadcast to the Live Arena without exposing the reserve amount.
 - Deferred administrator-curated Featured Auctions and removed `is_featured` from the Version 1 model while retaining the concept in the future-state reference.
 - Added a simple Version 1 Hot Auctions discovery rule based on accepted `bid_count`, with deterministic deadline and auction-ID tie-breaking.
+- Simplified bid persistence to accepted bids only; removed persisted bid status and rejection-reason fields.
+- Simplified Live Arena participation to `JOINED` and `LEFT` states; RSVP is deferred.
+- Deferred user-submitted auction reports and administrator report resolution; retained emergency administrator auction cancellation with an audit record.
+- Removed Version 1 JSON payload columns from notifications and auction events, and changed the event sequence identifier to an auto-incrementing integer.
+- Required every persisted notification to reference an auction while keeping its bid reference optional.
 - Deferred Buy Now, payments, shipping, messaging, reviews, storefronts, native applications, PWA support, and advanced analytics.
 
 > This entry records approved documentation and scope changes. It does not claim that application features are already implemented.

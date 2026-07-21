@@ -6,7 +6,7 @@
 
 ## 1. Purpose
 
-CBeave is a responsive, real-time online auction platform. It allows standard users to create scheduled auctions, browse and watch auctions, compete through valid real-time bids, and receive immediate results. Administrators operate moderation and platform-management tools but do not participate in marketplace transactions.
+CBeave is a responsive, real-time online auction platform. It allows standard users to create scheduled auctions, browse and watch auctions, compete through valid real-time bids, and receive immediate results. Administrators manage users and categories and may cancel an inappropriate auction, but do not participate in marketplace transactions.
 
 The implementation must prioritize a complete and demonstrable auction journey over a large number of partially completed features.
 
@@ -28,7 +28,6 @@ A Guest may not:
 - Create or watch auctions
 - Join authenticated Live Arena participation
 - Place bids
-- Submit reports
 
 ### 2.2 User
 
@@ -42,7 +41,6 @@ A User may:
 - Join Live Arena sessions
 - Bid on other users' Active auctions
 - View their auction and bidding history
-- Submit an auction report
 - Receive in-app notifications
 
 A User may not bid on an auction they own.
@@ -56,7 +54,6 @@ An Administrator may:
 - View platform statistics
 - Manage categories
 - View and suspend/reactivate users
-- Review reports
 - Cancel inappropriate auctions
 - View audit history
 
@@ -71,7 +68,7 @@ An Administrator may not:
 ### 3.1 Required capabilities
 
 - Email/password registration, login, logout, and JWT sessions
-- Google login
+- Google and Facebook login
 - User profile management
 - Category browsing and administrator category management
 - Auction draft creation, image management, preview, publish, scheduling, editing, and cancellation
@@ -85,14 +82,12 @@ An Administrator may not:
 - Watchlist
 - In-app outbid, winner, seller-ended, and cancellation notifications
 - Polished but bounded Live Arena
-- Auction report submission and administrator resolution
-- Basic administrator dashboard and moderation
+- Basic administrator user/category management and emergency auction cancellation
 - REST API documentation through Swagger
 - Docker-based local environment
 
 ### 3.2 Explicit exclusions
 
-- Facebook login
 - Forgot-password recovery and external reset-email delivery
 - Session IP history, geolocation, and user-agent/device metadata
 - Buy Now
@@ -108,6 +103,7 @@ An Administrator may not:
 - PWA and native applications
 - Advanced seller/platform analytics
 - Administrator-curated Featured Auctions and advanced popularity scoring
+- User-submitted auction reports and administrator report resolution
 
 ## 4. Technology constraints
 
@@ -119,7 +115,7 @@ An Administrator may not:
 | API | NestJS, TypeScript, REST, Swagger |
 | Real time | NestJS WebSocket gateway |
 | Database | PostgreSQL and Prisma |
-| Authentication | JWT, refresh sessions, Google OAuth |
+| Authentication | JWT, refresh sessions, Google OAuth, Facebook OAuth |
 | Backend validation | `class-validator` |
 | Deployment | Docker |
 
@@ -135,7 +131,7 @@ An active User can log in with email and password and receive an access token an
 
 ### AUTH-003 — Google login
 
-A User can register or log in through Google. A Google identity must be linked uniquely to one CBeave account. Facebook is not part of this release.
+A User can register or log in through Google. A Google identity must be linked uniquely to one CBeave account.
 
 ### AUTH-004 — Session management
 
@@ -146,6 +142,12 @@ The Version 1 `user_sessions` record is intentionally limited to an identifier, 
 ### AUTH-005 — Password reset (Deferred)
 
 Forgot-password recovery is deferred beyond Version 1 because the release does not include external email delivery. Version 1 must not expose reset tokens through API responses or production logs. Authenticated password changes may be added separately without introducing email-based recovery.
+
+### AUTH-006 — Facebook login
+
+A User can register or log in through Facebook. A Facebook identity must be linked uniquely to one CBeave account. Version 1 requests an email from the provider; onboarding must stop with a clear error when Facebook does not return a usable email.
+
+Google and Facebook identities are keyed by provider plus provider account identifier. The application must not automatically attach a new social identity to an existing account based only on an unverified matching email. One CBeave User may link at most one account from each provider.
 
 ## 6. User profile requirements
 
@@ -219,6 +221,8 @@ A bid is accepted only when:
 - The amount is at least current price plus minimum bid increment
 - The request is not a duplicate
 
+Only accepted bids are persisted. A rejected request returns a validation or conflict response and does not create a `bids` row; Version 1 therefore does not persist bid status or rejection reason fields.
+
 ### BID-002 — Atomicity and idempotency
 
 Bid validation, accepted-bid creation, current-price update, bid-count update, reserve evaluation, and any extension must be performed atomically. A client request identifier must prevent duplicate bids caused by retries.
@@ -287,15 +291,7 @@ At the end, the arena displays Sold/Unsold status, the winner when allowed, fina
 
 The Live Arena must be responsive and professionally animated, but animation must not delay bid controls, obscure information, or replace correct business behavior.
 
-## 12. Reports and administration
-
-### REP-001 — Submit report
-
-An authenticated User can report a public auction with a reason and optional details. Duplicate unresolved reports by the same User for the same auction must be prevented or consolidated.
-
-### REP-002 — Review report
-
-An Administrator can set a report to Open, Reviewing, Resolved, or Dismissed and record a resolution note.
+## 12. Administration
 
 ### ADM-001 — Moderate auction
 
@@ -313,6 +309,8 @@ An Administrator can create, update, activate, and deactivate categories. Catego
 
 Important administrative actions must be stored with administrator, action type, target, note, and timestamp.
 
+User-submitted auction reports and an administrator report-review queue are deferred beyond Version 1. Emergency auction cancellation remains available directly to an Administrator and is recorded in `admin_actions`.
+
 ## 13. API and WebSocket contracts
 
 Minimum REST areas:
@@ -324,7 +322,6 @@ Minimum REST areas:
 - `/auctions/:id/bids`
 - `/watchlist`
 - `/notifications`
-- `/reports`
 - `/admin`
 
 Minimum auction events:
@@ -353,7 +350,7 @@ Shared request, response, and event contracts should live in `packages/contracts
 
 The release is acceptable when all steps below work from a clean environment:
 
-1. User A registers or logs in with Google.
+1. User A registers locally or logs in with Google or Facebook.
 2. User A creates, previews, and publishes a scheduled auction.
 3. User B watches the auction and joins the lobby.
 4. At start time the auction becomes Active without manual refresh.
@@ -362,5 +359,6 @@ The release is acceptable when all steps below work from a clean environment:
 7. The previous leader receives an outbid notification.
 8. At end time the platform determines Sold or Unsold correctly.
 9. Winner and seller notifications are created.
-10. A User can report an auction and an Administrator can resolve the report.
-11. The complete flow runs through Docker and passes critical E2E tests.
+10. An Administrator can manage a user or category and the action is audited.
+11. An Administrator can cancel an inappropriate auction with a reason when an emergency moderation action is needed.
+12. The complete flow runs through Docker and passes critical E2E tests.

@@ -24,7 +24,7 @@
 | Auction lifecycle | `auctions`, `auction-scheduler` |
 | Real-time bidding | `bidding`, `auction-gateway` |
 | Engagement | `watchlists`, `notifications`, `live-arena` |
-| Governance | `reports`, `admin`, `audit` |
+| Governance | `admin`, `audit` |
 | Infrastructure | `prisma`, `storage`, `health` |
 
 Controllers should call services/use cases, and only services/repositories should access Prisma.
@@ -33,7 +33,7 @@ Controllers should call services/use cases, and only services/repositories shoul
 
 Keep shared REST DTO shapes, enums, and WebSocket event payloads here. Do not import Prisma-generated types directly into the web application.
 
-## Database — `prisma`
+## Database — `apps/api/prisma`
 
 - `schema.prisma`
 - `migrations/`
