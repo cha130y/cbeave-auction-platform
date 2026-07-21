@@ -10,6 +10,6 @@
 
 ## Source-of-truth rule
 
-1. Before implementation, approved DBML is the design source.
-2. After Prisma is initialized, `schema.prisma` plus migration history is executable truth.
+1. `apps/api/prisma/schema.prisma` plus migration history is the executable source of truth.
+2. `v1/cbeave-erd-v1.dbml` is the synchronized review representation of that schema.
 3. A pull request that changes persistent data must update Prisma migration, DBML, SRS/ADR when behavior changes, and the traceability matrix.

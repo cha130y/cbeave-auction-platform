@@ -1,13 +1,13 @@
 # CBeave Auction Platform
 
-CBeave is a production-oriented, real-time online auction platform where one standard user account can both sell items and bid on other users' auctions. The project is designed as a responsive web application with scheduled auctions, real-time bidding, anti-sniping, watchlists, in-app notifications, moderation, and an immersive Live Arena.
+CBeave is a production-oriented, real-time online auction platform where one standard user account can both sell items and bid on other users' auctions. The project is designed as a responsive web application with scheduled auctions, real-time bidding, anti-sniping, watchlists, in-app notifications, focused administration, and an immersive Live Arena.
 
 ## Delivery target
 
 The current milestone is intentionally limited to a complete auction journey:
 
 ```text
-Register / Google login
+Register / Google / Facebook login
         → Create auction draft
         → Preview and publish
         → Scheduled auction lobby
@@ -19,13 +19,13 @@ Register / Google login
 
 The agreed delivery scope also includes:
 
-- Google login
+- Google and Facebook login
 - Watchlist
 - In-app outbid notification
 - Polished but bounded Live Arena
-- Auction reporting and basic administrator moderation
+- Basic administrator user/category management and emergency auction cancellation
 
-Payments, shipping, messaging, reviews, storefronts, native applications, PWA support, and advanced analytics are explicitly deferred.
+Auction reporting, password recovery, payments, shipping, messaging, reviews, storefronts, native applications, PWA support, and advanced analytics are explicitly deferred.
 
 ## Technology stack
 
@@ -37,7 +37,7 @@ Payments, shipping, messaging, reviews, storefronts, native applications, PWA su
 | Backend | NestJS, TypeScript, REST API, WebSockets |
 | Backend validation | `class-validator` |
 | Database | PostgreSQL, Prisma ORM |
-| Authentication | JWT, email/password, Google OAuth |
+| Authentication | JWT, email/password, Google OAuth, Facebook OAuth |
 | Deployment | Docker |
 
 ## Repository structure
@@ -49,7 +49,7 @@ apps/
 packages/
   contracts/              Shared API and WebSocket contracts
   config/                 Shared TypeScript/lint configuration
-prisma/                    Prisma schema and migrations
+apps/api/prisma/           Prisma schema and migrations
 infra/docker/              Docker and local infrastructure
 tests/e2e/                 Cross-application end-to-end tests
 
@@ -59,7 +59,7 @@ docs/
   architecture/erd/       Version 1 and future-state ER diagrams
 ```
 
-The folders are initially documentation placeholders. Application scaffolding should be added incrementally as implementation begins.
+The web and API scaffolds live under `apps/`; shared contracts and configuration can be added incrementally under `packages/` as implementation progresses.
 
 ## Canonical auction lifecycle
 

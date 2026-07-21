@@ -43,6 +43,21 @@ Status: **Approved for implementation**
 | CHG-020 | Featured auction promotion | V1 `auctions` stored `is_featured` without a defined administrator workflow | Defer curated Featured Auctions and `is_featured` beyond V1; retain the concept in the future-state reference | Removes an untraceable admin feature from the one-month schema |
 | CHG-021 | Hot Auctions | Public discovery did not define a V1 hot-ranking rule | Add a simple Active-auction list ordered by accepted `bid_count` descending, then `current_end_at` and auction ID; do not use watcher, participant, or live-viewer scoring | Adds an explainable homepage discovery feature without new persisted flags or infrastructure |
 
+## Version 1.1 amendment — 2026-07-21
+
+Status: **Approved for implementation**
+
+| ID | Change | Previous position | Updated decision | Impact |
+|---|---|---|---|---|
+| CHG-022 | Facebook authentication | Google was the only V1 social provider | Support both Google and Facebook through `auth_accounts`; keep local password authentication on `users` | Adds the requested Facebook sign-in path without a new authentication table |
+| CHG-023 | Bid persistence | V1 stored Accepted, Rejected, and Retracted bid states plus rejection details | Persist only accepted bids; rejected attempts return an error and do not create a row | Removes unused bid-state branches and keeps bid history authoritative |
+| CHG-024 | Live participation states | V1 included RSVP, Joined, and Left | Persist only `JOINED` and `LEFT` | Removes a pre-event RSVP workflow from the Live Arena scope |
+| CHG-025 | Auction-report moderation | V1 included user reports and an administrator resolution queue | Defer `auction_reports` and report resolution; retain administrator user/category management and emergency auction cancellation | Reduces moderation scope while preserving essential platform control |
+| CHG-026 | Event and notification payloads | V1 stored optional JSON payload columns | Remove both JSON payload columns; clients use typed fields and refetch authoritative auction state when necessary | Avoids duplicated or stale denormalized values in V1 |
+| CHG-027 | Auction event identifier | V1 used an auto-incrementing `bigint` | Use an auto-incrementing `int` for the bounded V1 event stream | Simplifies application serialization while leaving ample V1 capacity |
+| CHG-028 | Notification auction reference | Notification auction references were optional | Require `auction_id`; retain optional `bid_id` for notification types not caused by one bid | Matches the auction-specific notification scope and preserves flexible result/cancellation events |
+| CHG-029 | Category activation audit | V1 audit values included deactivation but not explicit reactivation | Add `ACTIVATE_CATEGORY` alongside create, update, and deactivate | Makes category activation/deactivation administration fully traceable |
+
 ## Migration note
 
 Version 1.0 remains available as the historical baseline. Version 1.1 is the source of truth for implementation and testing during the one-month project.

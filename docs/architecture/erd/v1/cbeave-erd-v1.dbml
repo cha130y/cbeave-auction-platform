@@ -1,13 +1,14 @@
-// CBeave ERD — PostgreSQL physical model
+// CBeave ERD - PostgreSQL physical model
 // Import this file at https://dbdiagram.io
-// Scope: approved one-month implementation target, including Google login, Watchlist, Live Arena, in-app notifications, and auction reports.
+// Source of truth: apps/api/prisma/schema.prisma
+// Scope: Version 1 implementation target.
 
 Project CBeave {
   database_type: 'PostgreSQL'
   Note: '''
-    Production-oriented schema for a multi-vendor, real-time auction platform.
+    Version 1 schema synchronized with the executable Prisma model.
     Preview is a UI workflow step and Publish is a command, so neither is persisted as an auction status.
-    SOLD and UNSOLD normalize the SRS terms Completed and Expired.
+    Only accepted bids are persisted. Rejected requests are returned to the client and are not stored as bid rows.
   '''
 }
 
@@ -24,6 +25,7 @@ Enum user_status {
 
 Enum auth_provider {
   GOOGLE
+  FACEBOOK
 }
 
 Enum auction_status {
@@ -35,14 +37,7 @@ Enum auction_status {
   CANCELLED
 }
 
-Enum bid_status {
-  ACCEPTED
-  REJECTED
-  RETRACTED
-}
-
 Enum participant_status {
-  RSVP
   JOINED
   LEFT
 }
@@ -52,21 +47,6 @@ Enum notification_type {
   AUCTION_WON
   AUCTION_ENDED
   AUCTION_CANCELLED
-}
-
-Enum report_status {
-  OPEN
-  REVIEWING
-  RESOLVED
-  DISMISSED
-}
-
-Enum report_reason {
-  PROHIBITED_ITEM
-  MISLEADING_CONTENT
-  COPYRIGHT
-  FRAUD
-  OTHER
 }
 
 Enum auction_event_type {
@@ -82,17 +62,17 @@ Enum auction_event_type {
 Enum admin_action_type {
   SUSPEND_USER
   REACTIVATE_USER
-  CANCEL_AUCTION
   CREATE_CATEGORY
   UPDATE_CATEGORY
+  ACTIVATE_CATEGORY
   DEACTIVATE_CATEGORY
-  RESOLVE_REPORT
+  CANCEL_AUCTION
 }
 
 Table users {
   id uuid [pk, default: `gen_random_uuid()`]
-  email varchar(320) [not null, unique]
-  password_hash varchar(255) [note: 'Nullable for social-only accounts']
+  email text [not null, unique]
+  password_hash text [note: 'Nullable for social-only accounts']
   role user_role [not null, default: 'USER']
   status user_status [not null, default: 'ACTIVE']
   email_verified_at timestamptz
@@ -107,9 +87,9 @@ Table users {
 
 Table user_profiles {
   user_id uuid [pk, ref: - users.id]
-  first_name varchar(100) [not null, note: 'Given or preferred first name']
-  last_name varchar(100) [note: 'Optional to support single-name users and incomplete OAuth profiles']
-  display_name varchar(80) [not null, note: 'Public identity; independent from legal/profile name']
+  first_name varchar(100) [not null]
+  last_name varchar(100)
+  display_name varchar(80) [not null]
   avatar_url text
   bio varchar(500)
   phone varchar(40)
@@ -160,7 +140,7 @@ Table categories {
   updated_at timestamptz [not null, default: `now()`]
 
   indexes {
-    parent_id
+    (parent_id, is_active)
     is_active
   }
 }
@@ -184,9 +164,9 @@ Table auctions {
   published_at timestamptz
   started_at timestamptz
   ended_at timestamptz
-  extension_count smallint [not null, default: 0, note: 'Maximum 5']
+  extension_count smallint [not null, default: 0, note: 'Maximum 5 enforced by the application']
   winner_user_id uuid [ref: > users.id]
-  winning_bid_id uuid
+  winning_bid_id uuid [unique]
   sold_price decimal(18,2)
   cancellation_reason varchar(500)
   row_version int [not null, default: 1, note: 'Optimistic concurrency control']
@@ -203,6 +183,24 @@ Table auctions {
   }
 }
 
+Table bids {
+  id uuid [pk, default: `gen_random_uuid()`]
+  auction_id uuid [not null, ref: > auctions.id]
+  bidder_id uuid [not null, ref: > users.id]
+  amount decimal(18,2) [not null]
+  sequence_no int [not null]
+  client_request_id uuid [not null, unique, note: 'Idempotency key']
+  placed_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    (auction_id, sequence_no) [unique]
+    (auction_id, amount)
+    (bidder_id, placed_at)
+  }
+}
+
+Ref: auctions.winning_bid_id - bids.id
+
 Table auction_images {
   id uuid [pk, default: `gen_random_uuid()`]
   auction_id uuid [not null, ref: > auctions.id]
@@ -217,26 +215,6 @@ Table auction_images {
     (auction_id, position) [unique]
   }
 }
-
-Table bids {
-  id uuid [pk, default: `gen_random_uuid()`]
-  auction_id uuid [not null, ref: > auctions.id]
-  bidder_id uuid [not null, ref: > users.id]
-  amount decimal(18,2) [not null]
-  sequence_no int [not null]
-  status bid_status [not null, default: 'ACCEPTED']
-  rejection_reason varchar(255)
-  client_request_id uuid [not null, unique, note: 'Idempotency key']
-  placed_at timestamptz [not null, default: `now()`]
-
-  indexes {
-    (auction_id, sequence_no) [unique]
-    (auction_id, amount)
-    (bidder_id, placed_at)
-  }
-}
-
-Ref: auctions.winning_bid_id > bids.id
 
 Table watchlists {
   user_id uuid [not null, ref: > users.id]
@@ -265,7 +243,7 @@ Table auction_participants {
 Table auction_extensions {
   id uuid [pk, default: `gen_random_uuid()`]
   auction_id uuid [not null, ref: > auctions.id]
-  triggered_by_bid_id uuid [not null, ref: - bids.id]
+  triggered_by_bid_id uuid [not null, unique, ref: - bids.id]
   extension_number smallint [not null]
   previous_end_at timestamptz [not null]
   new_end_at timestamptz [not null]
@@ -279,35 +257,16 @@ Table auction_extensions {
 Table notifications {
   id uuid [pk, default: `gen_random_uuid()`]
   user_id uuid [not null, ref: > users.id]
-  auction_id uuid [ref: > auctions.id]
+  auction_id uuid [not null, ref: > auctions.id]
   bid_id uuid [ref: > bids.id]
   type notification_type [not null]
   title varchar(180) [not null]
   message varchar(800) [not null]
-  payload jsonb
   read_at timestamptz
   created_at timestamptz [not null, default: `now()`]
 
   indexes {
     (user_id, read_at, created_at)
-  }
-}
-
-Table auction_reports {
-  id uuid [pk, default: `gen_random_uuid()`]
-  auction_id uuid [not null, ref: > auctions.id]
-  reporter_id uuid [not null, ref: > users.id]
-  reason report_reason [not null]
-  details varchar(1000)
-  status report_status [not null, default: 'OPEN']
-  reviewed_by_admin_id uuid [ref: > users.id]
-  reviewed_at timestamptz
-  resolution_note varchar(1000)
-  created_at timestamptz [not null, default: `now()`]
-
-  indexes {
-    (status, created_at)
-    (auction_id, status)
   }
 }
 
@@ -328,12 +287,11 @@ Table admin_actions {
 }
 
 Table auction_events {
-  id bigint [pk, increment]
+  id int [pk, increment]
   auction_id uuid [not null, ref: > auctions.id]
   actor_user_id uuid [ref: > users.id]
   bid_id uuid [ref: > bids.id]
   event_type auction_event_type [not null]
-  payload jsonb
   created_at timestamptz [not null, default: `now()`]
 
   indexes {
@@ -365,6 +323,5 @@ TableGroup engagement {
 }
 
 TableGroup governance {
-  auction_reports
   admin_actions
 }
