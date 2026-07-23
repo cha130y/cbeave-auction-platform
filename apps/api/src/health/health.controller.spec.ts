@@ -1,11 +1,12 @@
 import { ServiceUnavailableException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
 import { HealthController } from './health.controller';
+import { PrismaService } from '../database/prisma.service';
 
 describe('HealthController', () => {
-  const isHealthyMock = jest.fn<PrismaService['isHealthy']>();
+  const queryRawMock = jest.fn();
+
   const prisma = {
-    isHealthy: isHealthyMock,
+    $queryRaw: queryRawMock,
   } as unknown as PrismaService;
 
   const controller = new HealthController(prisma);
@@ -23,7 +24,7 @@ describe('HealthController', () => {
   });
 
   it('returns database health when Prisma can query PostgreSQL', async () => {
-    isHealthyMock.mockResolvedValue(true);
+    queryRawMock.mockResolvedValue([{ '?column?': 1 }]);
 
     await expect(controller.getDatabaseHealth()).resolves.toEqual({
       status: 'ok',
@@ -33,7 +34,7 @@ describe('HealthController', () => {
   });
 
   it('returns service unavailable when PostgreSQL cannot be reached', async () => {
-    isHealthyMock.mockRejectedValue(new Error('unreachable'));
+    queryRawMock.mockRejectedValue(new Error('unreachable'));
 
     await expect(controller.getDatabaseHealth()).rejects.toBeInstanceOf(
       ServiceUnavailableException,

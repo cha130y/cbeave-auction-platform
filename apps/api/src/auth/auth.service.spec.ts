@@ -1,14 +1,10 @@
-// describe('AuthService', () => {
-//   it('work', () => {
-//     expect(true).toBe(true);
-//   });
-// });
-
 import { Test, TestingModule } from '@nestjs/testing';
 import { BcryptService } from '../infrastructure/hash/bcrypt.service';
 import { UsersService } from '../users/users.service';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
+import { AccessTokenService } from './services/access-token.service';
+import { UserSessionService } from './services/user-session.service';
 
 describe('AuthService', () => {
   let authService: AuthService;
@@ -16,6 +12,14 @@ describe('AuthService', () => {
   const hashMock = jest.fn() as jest.MockedFunction<BcryptService['hash']>;
   const createLocalUserMock = jest.fn() as jest.MockedFunction<
     UsersService['createLocalUser']
+  >;
+
+  const signAccessTokenMock = jest.fn() as jest.MockedFunction<
+    AccessTokenService['sign']
+  >;
+
+  const createSessionMock = jest.fn() as jest.MockedFunction<
+    UserSessionService['create']
   >;
 
   beforeEach(async () => {
@@ -34,6 +38,18 @@ describe('AuthService', () => {
           provide: UsersService,
           useValue: {
             createLocalUser: createLocalUserMock,
+          },
+        },
+        {
+          provide: AccessTokenService,
+          useValue: {
+            sign: signAccessTokenMock,
+          },
+        },
+        {
+          provide: UserSessionService,
+          useValue: {
+            create: createSessionMock,
           },
         },
       ],

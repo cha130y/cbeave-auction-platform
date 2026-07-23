@@ -1,22 +1,20 @@
-import 'dotenv/config';
 import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
-import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '../generated/prisma/client';
+import { ConfigService } from '@nestjs/config';
+import { EnvVariable } from '../config/env.validation';
+import { PrismaPg } from '@prisma/adapter-pg';
 
 @Injectable()
 export class PrismaService
   extends PrismaClient
   implements OnModuleInit, OnModuleDestroy
 {
-  constructor() {
-    const databaseUrl = process.env.DATABASE_URL;
-
-    if (!databaseUrl) {
-      throw new Error('DATABASE_URL is required to start the API');
-    }
-
-    const adapter = new PrismaPg(databaseUrl);
-
+  constructor(
+    private readonly configService: ConfigService<EnvVariable, true>,
+  ) {
+    const adapter = new PrismaPg({
+      connectionString: configService.get('DATABASE_URL', { infer: true }),
+    });
     super({ adapter });
   }
 
@@ -26,10 +24,5 @@ export class PrismaService
 
   async onModuleDestroy(): Promise<void> {
     await this.$disconnect();
-  }
-
-  async isHealthy(): Promise<boolean> {
-    await this.$queryRaw`SELECT 1`;
-    return true;
   }
 }
