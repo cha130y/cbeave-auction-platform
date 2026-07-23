@@ -107,6 +107,20 @@ export class UserSessionService {
     };
   }
 
+  async revokeByRefreshToken(refreshToken: string): Promise<void> {
+    const refreshTokenHash = this.refreshTokenService.hash(refreshToken);
+
+    await this.prisma.userSession.updateMany({
+      where: {
+        refreshTokenHash,
+        revokedAt: null,
+      },
+      data: {
+        revokedAt: new Date(),
+      },
+    });
+  }
+
   private createExpiresAt(): Date {
     const refreshTokenTtlDays = this.configService.get(
       'REFRESH_TOKEN_TTL_DAYS',
