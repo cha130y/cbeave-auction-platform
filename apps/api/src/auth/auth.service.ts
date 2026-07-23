@@ -111,4 +111,12 @@ export class AuthService {
       refreshTokenExpiresAt: session.expiresAt,
     };
   }
+
+  async logout(currentRefreshToken: string | undefined): Promise<void> {
+    if (!currentRefreshToken) {
+      return;
+    }
+
+    await this.userSessionService.revokeByRefreshToken(currentRefreshToken);
+  }
 }

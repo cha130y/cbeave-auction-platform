@@ -18,6 +18,7 @@ import { LoginResponseDto } from './dto/login-response.dto';
 import { RefreshResponseDto } from './dto/refresh-response.dto';
 
 const REFRESH_TOKEN_COOKIE_NAME = 'refresh_token';
+const REFRESH_TOKEN_COOKIE_PATH = '/auth';
 
 @Controller('auth')
 export class AuthController {
@@ -38,8 +39,28 @@ export class AuthController {
       httpOnly: true,
       secure: isProduction,
       sameSite: 'lax',
-      path: '/auth/refresh',
+      path: REFRESH_TOKEN_COOKIE_PATH,
       expires: expiresAt,
+    });
+  }
+
+  private getRefreshToken(request: Request): string | undefined {
+    const cookies = request.cookies as Record<string, unknown> | undefined;
+
+    return typeof cookies?.refresh_token === 'string'
+      ? cookies.refresh_token
+      : undefined;
+  }
+
+  private clearRefreshTokenCookie(response: Response): void {
+    const isProduction =
+      this.configService.get('NODE_ENV', { infer: true }) === 'production';
+
+    response.clearCookie(REFRESH_TOKEN_COOKIE_NAME, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: 'lax',
+      path: REFRESH_TOKEN_COOKIE_PATH,
     });
   }
 
@@ -82,12 +103,7 @@ export class AuthController {
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
   ): Promise<RefreshResponseDto> {
-    const cookies = request.cookies as Record<string, unknown> | undefined;
-
-    const currentRefreshToken =
-      typeof cookies?.refresh_token === 'string'
-        ? cookies.refresh_token
-        : undefined;
+    const currentRefreshToken = this.getRefreshToken(request);
 
     const result = await this.authService.refresh(currentRefreshToken);
 
@@ -100,5 +116,18 @@ export class AuthController {
     return {
       accessToken: result.accessToken,
     };
+  }
+
+  @Post('logout')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async logout(
+    @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<void> {
+    const currentRefreshToken = this.getRefreshToken(request);
+
+    await this.authService.logout(currentRefreshToken);
+
+    this.clearRefreshTokenCookie(response);
   }
 }
