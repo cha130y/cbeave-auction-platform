@@ -1,5 +1,5 @@
 import { ConflictException, Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../database/prisma.service';
 import { CreateLocalUserInput } from './types/create-local-user.input';
 import { PrismaClientKnownRequestError } from '../generated/prisma/internal/prismaNamespace';
 
@@ -33,5 +33,40 @@ export class UsersService {
       }
       throw error;
     }
+  }
+
+  //Directly return one Prisma query → no async needed
+  //Multiple operations, try/catch, or result transformation → use async
+
+  findForAuthenticationByEmail(email: string) {
+    return this.prisma.user.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        email: true,
+        passwordHash: true,
+        role: true,
+        status: true,
+        userProfile: {
+          select: {
+            firstName: true,
+            lastName: true,
+            displayName: true,
+            avatarUrl: true,
+          },
+        },
+      },
+    });
+  }
+
+  async updateLastLoginAt(userId: string): Promise<void> {
+    await this.prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        lastLoginAt: new Date(),
+      },
+    });
   }
 }
