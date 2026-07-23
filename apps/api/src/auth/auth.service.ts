@@ -11,6 +11,7 @@ import { UserStatus } from '../generated/prisma/enums';
 import { AccessTokenService } from './services/access-token.service';
 import { UserSessionService } from './services/user-session.service';
 import { AuthenticatedUser, LoginResult } from './types/login-result.type';
+import { RefreshResult } from './types/refresh-result.type';
 
 @Injectable()
 export class AuthService {
@@ -82,6 +83,32 @@ export class AuthService {
       refreshToken: session.refreshToken,
       refreshTokenExpiresAt: session.expiresAt,
       user,
+    };
+  }
+
+  async refresh(
+    currentRefreshToken: string | undefined,
+  ): Promise<RefreshResult> {
+    if (!currentRefreshToken) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    const session = await this.userSessionService.rotate(currentRefreshToken);
+
+    if (!session) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    const accessToken = await this.accessTokenService.sign({
+      sub: session.userId,
+      role: session.userRole,
+      sid: session.sessionId,
+    });
+
+    return {
+      accessToken,
+      refreshToken: session.refreshToken,
+      refreshTokenExpiresAt: session.expiresAt,
     };
   }
 }
