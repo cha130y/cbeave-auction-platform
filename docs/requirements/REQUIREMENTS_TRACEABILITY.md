@@ -9,13 +9,13 @@ Status values:
 
 | Requirement | Priority | ERD tables/fields | Planned backend location | Planned frontend location | Verification | Status |
 |---|:---:|---|---|---|---|---|
-| AUTH-001 Local registration | P0 | `users`, `user_profiles` | `apps/api/src/auth` | `apps/web/app/(auth)` | Registration E2E including single-name and two-part-name cases | Planned |
-| AUTH-002 Local login | P0 | `users`, `user_sessions` | `apps/api/src/auth` | `apps/web/app/(auth)` | Login/session E2E | Planned |
+| AUTH-001 Local registration | P0 | `users`, `user_profiles` | `apps/api/src/auth` | `apps/web/app/(auth)` | Registration E2E including single-name and two-part-name cases | In progress |
+| AUTH-002 Local login | P0 | `users`, `user_sessions` | `apps/api/src/auth` | `apps/web/app/(auth)` | Login/session E2E | In progress |
 | AUTH-003 Google login | P1 | `users`, `auth_accounts`, `user_sessions` | `apps/api/src/auth/google` | Google auth callback | Google login integration | Planned |
-| AUTH-004 Session management | P0 | `user_sessions` | `apps/api/src/auth/sessions` | Logout/session handling | Refresh, rotation, expiry, and revocation tests | Planned |
+| AUTH-004 Session management | P0 | `user_sessions` | `apps/api/src/auth/services` | Logout/session handling | Refresh, rotation, expiry, and revocation tests | In progress |
 | AUTH-005 Password reset | Deferred | Future-state `password_reset_tokens` | Not planned for V1 | Not planned for V1 | Future requirement | Deferred |
 | AUTH-006 Facebook login | P1 | `users`, `auth_accounts`, `user_sessions` | `apps/api/src/auth/facebook` | Facebook auth callback | Facebook login, duplicate identity, and missing-email integration cases | Planned |
-| USR-001 Profile | P0 | `user_profiles` | `apps/api/src/users` | Profile page | Profile update and derived-full-name tests | Planned |
+| USR-001 Profile | P0 | `user_profiles` | `apps/api/src/users` | Profile page | Profile update and derived-full-name tests | In progress |
 | AUC-001 Create draft | P0 | `auctions`, `auction_images` | `apps/api/src/auctions` | Create auction flow | Draft ownership E2E | Planned |
 | AUC-003 Hidden reserve | P0 | `auctions.reserve_price`, `auctions.current_price`, `auctions.bid_count` | Auction query and bidding services | Auction details and Live Arena | Reserve privacy and derived-state tests | Planned |
 | AUC-004 Preview/publish | P0 | `auctions`, `auction_events` | Auction publish use case | Preview page | State-transition tests | Planned |
