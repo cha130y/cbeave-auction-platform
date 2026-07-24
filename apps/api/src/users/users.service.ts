@@ -2,6 +2,30 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { CreateLocalUserInput } from './types/create-local-user.input';
 import { PrismaClientKnownRequestError } from '../generated/prisma/internal/prismaNamespace';
+import { UpdateUserProfileInput } from './types/update-user-profile.input';
+
+const currentUserSelect = {
+  id: true,
+  email: true,
+  role: true,
+  status: true,
+  emailVerifiedAt: true,
+  lastLoginAt: true,
+  createdAt: true,
+  userProfile: {
+    select: {
+      firstName: true,
+      lastName: true,
+      displayName: true,
+      avatarUrl: true,
+      bio: true,
+      phone: true,
+      location: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  },
+} as const;
 
 @Injectable()
 export class UsersService {
@@ -64,28 +88,21 @@ export class UsersService {
       where: {
         id: userId,
       },
-      select: {
-        id: true,
-        email: true,
-        role: true,
-        status: true,
-        emailVerifiedAt: true,
-        lastLoginAt: true,
-        createdAt: true,
+      select: currentUserSelect,
+    });
+  }
+
+  updateCurrentUserProfile(userId: string, input: UpdateUserProfileInput) {
+    return this.prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
         userProfile: {
-          select: {
-            firstName: true,
-            lastName: true,
-            displayName: true,
-            avatarUrl: true,
-            bio: true,
-            phone: true,
-            location: true,
-            createdAt: true,
-            updatedAt: true,
-          },
+          update: input,
         },
       },
+      select: currentUserSelect,
     });
   }
 
