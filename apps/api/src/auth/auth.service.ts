@@ -12,6 +12,7 @@ import { AccessTokenService } from './services/access-token.service';
 import { UserSessionService } from './services/user-session.service';
 import { AuthenticatedUser, LoginResult } from './types/login-result.type';
 import { RefreshResult } from './types/refresh-result.type';
+import { SocialProfile } from './social/types/social-profile.type';
 
 @Injectable()
 export class AuthService {
@@ -68,22 +69,7 @@ export class AuthService {
   async login(dto: LoginDto): Promise<LoginResult> {
     const user = await this.authenticateLocalUser(dto);
 
-    const session = await this.userSessionService.create(user.id);
-
-    const accessToken = await this.accessTokenService.sign({
-      sub: user.id,
-      role: user.role,
-      sid: session.sessionId,
-    });
-
-    await this.usersService.updateLastLoginAt(user.id);
-
-    return {
-      accessToken,
-      refreshToken: session.refreshToken,
-      refreshTokenExpiresAt: session.expiresAt,
-      user,
-    };
+    return this.createLoginResult(user);
   }
 
   async refresh(
@@ -118,5 +104,43 @@ export class AuthService {
     }
 
     await this.userSessionService.revokeByRefreshToken(currentRefreshToken);
+  }
+
+  private async createLoginResult(
+    user: AuthenticatedUser,
+  ): Promise<LoginResult> {
+    const session = await this.userSessionService.create(user.id);
+
+    const accessToken = await this.accessTokenService.sign({
+      sub: user.id,
+      role: user.role,
+      sid: session.sessionId,
+    });
+
+    await this.usersService.updateLastLoginAt(user.id);
+
+    return {
+      accessToken,
+      refreshToken: session.refreshToken,
+      refreshTokenExpiresAt: session.expiresAt,
+      user,
+    };
+  }
+
+  async loginWithSocialProfile(
+    socialProfile: SocialProfile,
+  ): Promise<LoginResult> {
+    const user = await this.usersService.resolveSocialUser(socialProfile);
+
+    if (user.status !== UserStatus.ACTIVE) {
+      throw new ForbiddenException('Account is not active');
+    }
+
+    return this.createLoginResult({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      profile: user.userProfile,
+    });
   }
 }

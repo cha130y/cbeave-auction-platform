@@ -1,11 +1,13 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
   Req,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { AuthService } from './auth.service';
@@ -16,6 +18,8 @@ import { EnvVariable } from '../config/env.validation';
 import { LoginDto } from './dto/login.dto';
 import { LoginResponseDto } from './dto/login-response.dto';
 import { RefreshResponseDto } from './dto/refresh-response.dto';
+import type { SocialAuthenticatedRequest } from './social/types/social-authenticated-request.type';
+import { GoogleAuthGuard } from './social/guards/google-auth.guard';
 
 const REFRESH_TOKEN_COOKIE_NAME = 'refresh_token';
 const REFRESH_TOKEN_COOKIE_PATH = '/auth';
@@ -129,5 +133,35 @@ export class AuthController {
     await this.authService.logout(currentRefreshToken);
 
     this.clearRefreshTokenCookie(response);
+  }
+
+  @Get('google')
+  @UseGuards(GoogleAuthGuard)
+  googleLogin(): void {
+    //GoogleAuthGuard redirects the browser to Google
+  }
+
+  @Get('google/callback')
+  @UseGuards(GoogleAuthGuard)
+  async googleCallback(
+    @Req() request: SocialAuthenticatedRequest,
+    @Res() response: Response,
+  ): Promise<void> {
+    const result = await this.authService.loginWithSocialProfile(request.user);
+
+    this.setRefreshTokenCookie(
+      response,
+      result.refreshToken,
+      result.refreshTokenExpiresAt,
+    );
+
+    const webCallbackUrl = new URL(
+      '/auth/acllback',
+      this.configService.get('WEB_APP_URL', { infer: true }),
+    );
+
+    webCallbackUrl.searchParams.set('provider', 'google');
+
+    response.redirect(webCallbackUrl.toString());
   }
 }
