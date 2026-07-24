@@ -59,6 +59,36 @@ export class UsersService {
     });
   }
 
+  findCurrentUserById(userId: string) {
+    return this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        status: true,
+        emailVerifiedAt: true,
+        lastLoginAt: true,
+        createdAt: true,
+        userProfile: {
+          select: {
+            firstName: true,
+            lastName: true,
+            displayName: true,
+            avatarUrl: true,
+            bio: true,
+            phone: true,
+            location: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
+      },
+    });
+  }
+
   async updateLastLoginAt(userId: string): Promise<void> {
     await this.prisma.user.update({
       where: {

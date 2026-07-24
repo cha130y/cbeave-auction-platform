@@ -6,6 +6,14 @@ The format follows Keep a Changelog principles. Product releases will use semant
 
 ## [Unreleased]
 
+### Added
+
+- Added the NestJS and Prisma API foundation with validated runtime configuration and PostgreSQL health checks.
+- Added local registration and login with bcrypt password hashing and short-lived JWT access tokens.
+- Added database-backed refresh-token rotation and idempotent logout with scoped HttpOnly cookies.
+- Added access-token, session-revocation, and account-status protection for authenticated endpoints.
+- Added a protected current-user profile endpoint with a derived full name.
+
 ### Documentation
 
 - Reorganized project documentation into versioned requirements and architecture folders.
