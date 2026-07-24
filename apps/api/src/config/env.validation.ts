@@ -18,6 +18,7 @@ const envSchema = z.object({
   FACEBOOK_APP_ID: z.string().min(1),
   FACEBOOK_APP_SECRET: z.string().min(1),
   FACEBOOK_CALLBACK_URL: z.url(),
+  FACEBOOK_GRAPH_API_VERSION: z.string().regex(/^v\d+\.\d+$/),
 });
 
 export function validateEnv(config: Record<string, unknown>): EnvVariable {

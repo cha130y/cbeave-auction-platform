@@ -14,6 +14,7 @@ The format follows Keep a Changelog principles. Product releases will use semant
 - Added access-token, session-revocation, and account-status protection for authenticated endpoints.
 - Added protected current-user profile read and update endpoints with validation, nullable-field clearing, and a derived full name.
 - Added Google OAuth login with verified-email account resolution, database-backed sessions, and CSRF-resistant state validation.
+- Added Facebook OAuth login with database-backed sessions, repeat-login identity reuse, email-collision protection, and shared CSRF-resistant OAuth state validation.
 
 ### Documentation
 

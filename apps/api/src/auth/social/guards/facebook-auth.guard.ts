@@ -1,19 +1,19 @@
-import { ExecutionContext, Injectable } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import type { Request, Response } from 'express';
 import {
   OAuthStateConfiguration,
   OAuthStateService,
 } from '../services/oauth-state.service';
+import { ExecutionContext, Injectable } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
-const GOOGLE_STATE_CONFIGURATION: OAuthStateConfiguration = {
-  cookieName: 'google_oauth_state',
-  callbackPath: '/auth/google/callback',
-  invalidStateMessage: 'Invalid Google OAuth state',
+const FACEBOOK_STATE_CONFIGURATION: OAuthStateConfiguration = {
+  cookieName: 'facebook_oauth_state',
+  callbackPath: '/auth/facebook/callback',
+  invalidStateMessage: 'Invalid Facebook OAuth state',
 };
 
 @Injectable()
-export class GoogleAuthGuard extends AuthGuard('google') {
+export class FacebookAuthGuard extends AuthGuard('facebook') {
   constructor(private readonly oauthStateService: OAuthStateService) {
     super();
   }
@@ -27,10 +27,9 @@ export class GoogleAuthGuard extends AuthGuard('google') {
       this.oauthStateService.verifyState(
         request,
         response,
-        GOOGLE_STATE_CONFIGURATION,
+        FACEBOOK_STATE_CONFIGURATION,
       );
     }
-
     return (await super.canActivate(context)) as boolean;
   }
 
@@ -48,14 +47,14 @@ export class GoogleAuthGuard extends AuthGuard('google') {
     return {
       state: this.oauthStateService.createState(
         response,
-        GOOGLE_STATE_CONFIGURATION,
+        FACEBOOK_STATE_CONFIGURATION,
       ),
     };
   }
 
   private isCallbackRequest(request: Request): boolean {
     return request.originalUrl.startsWith(
-      GOOGLE_STATE_CONFIGURATION.callbackPath,
+      FACEBOOK_STATE_CONFIGURATION.callbackPath,
     );
   }
 }

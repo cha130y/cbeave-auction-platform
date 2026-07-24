@@ -20,6 +20,7 @@ import { LoginResponseDto } from './dto/login-response.dto';
 import { RefreshResponseDto } from './dto/refresh-response.dto';
 import type { SocialAuthenticatedRequest } from './social/types/social-authenticated-request.type';
 import { GoogleAuthGuard } from './social/guards/google-auth.guard';
+import { FacebookAuthGuard } from './social/guards/facebook-auth.guard';
 
 const REFRESH_TOKEN_COOKIE_NAME = 'refresh_token';
 const REFRESH_TOKEN_COOKIE_PATH = '/auth';
@@ -66,6 +67,29 @@ export class AuthController {
       sameSite: 'lax',
       path: REFRESH_TOKEN_COOKIE_PATH,
     });
+  }
+
+  private async completeSocialLogin(
+    request: SocialAuthenticatedRequest,
+    response: Response,
+    provider: 'google' | 'facebook',
+  ): Promise<void> {
+    const result = await this.authService.loginWithSocialProfile(request.user);
+
+    this.setRefreshTokenCookie(
+      response,
+      result.refreshToken,
+      result.refreshTokenExpiresAt,
+    );
+
+    const webCallbackUrl = new URL(
+      '/auth/callback',
+      this.configService.get('WEB_APP_URL', { infer: true }),
+    );
+
+    webCallbackUrl.searchParams.set('provider', provider);
+
+    response.redirect(webCallbackUrl.toString());
   }
 
   @Post('register')
@@ -147,21 +171,21 @@ export class AuthController {
     @Req() request: SocialAuthenticatedRequest,
     @Res() response: Response,
   ): Promise<void> {
-    const result = await this.authService.loginWithSocialProfile(request.user);
+    await this.completeSocialLogin(request, response, 'google');
+  }
 
-    this.setRefreshTokenCookie(
-      response,
-      result.refreshToken,
-      result.refreshTokenExpiresAt,
-    );
+  @Get('facebook')
+  @UseGuards(FacebookAuthGuard)
+  facebookLogin(): void {
+    // FacebookAuthGuard redirects the browser to Facebook.
+  }
 
-    const webCallbackUrl = new URL(
-      '/auth/acllback',
-      this.configService.get('WEB_APP_URL', { infer: true }),
-    );
-
-    webCallbackUrl.searchParams.set('provider', 'google');
-
-    response.redirect(webCallbackUrl.toString());
+  @Get('facebook/callback')
+  @UseGuards(FacebookAuthGuard)
+  async facebookCallback(
+    @Req() request: SocialAuthenticatedRequest,
+    @Res() response: Response,
+  ): Promise<void> {
+    await this.completeSocialLogin(request, response, 'facebook');
   }
 }
