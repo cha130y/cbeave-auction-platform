@@ -12,7 +12,7 @@ The format follows Keep a Changelog principles. Product releases will use semant
 - Added local registration and login with bcrypt password hashing and short-lived JWT access tokens.
 - Added database-backed refresh-token rotation and idempotent logout with scoped HttpOnly cookies.
 - Added access-token, session-revocation, and account-status protection for authenticated endpoints.
-- Added a protected current-user profile endpoint with a derived full name.
+- Added protected current-user profile read and update endpoints with validation, nullable-field clearing, and a derived full name.
 
 ### Documentation
 
