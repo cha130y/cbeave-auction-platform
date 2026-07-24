@@ -9,6 +9,9 @@ import { AccessControlModule } from './access-control.module';
 import { PassportModule } from '@nestjs/passport';
 import { GoogleStrategy } from './social/strategies/google.strategy';
 import { GoogleAuthGuard } from './social/guards/google-auth.guard';
+import { OAuthStateService } from './social/services/oauth-state.service';
+import { FacebookStrategy } from './social/strategies/facebook.strategy';
+import { FacebookAuthGuard } from './social/guards/facebook-auth.guard';
 
 @Module({
   providers: [
@@ -17,6 +20,9 @@ import { GoogleAuthGuard } from './social/guards/google-auth.guard';
     UserSessionService,
     GoogleStrategy,
     GoogleAuthGuard,
+    OAuthStateService,
+    FacebookStrategy,
+    FacebookAuthGuard,
   ],
   imports: [
     UsersModule,
