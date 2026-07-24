@@ -9,6 +9,15 @@ const envSchema = z.object({
   NODE_ENV: z
     .enum(['development', 'test', 'production'])
     .default('development'),
+  WEB_APP_URL: z.url(),
+
+  GOOGLE_CLIENT_ID: z.string().min(1),
+  GOOGLE_CLIENT_SECRET: z.string().min(1),
+  GOOGLE_CALLBACK_URL: z.url(),
+
+  FACEBOOK_APP_ID: z.string().min(1),
+  FACEBOOK_APP_SECRET: z.string().min(1),
+  FACEBOOK_CALLBACK_URL: z.url(),
 });
 
 export function validateEnv(config: Record<string, unknown>): EnvVariable {

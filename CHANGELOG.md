@@ -13,6 +13,7 @@ The format follows Keep a Changelog principles. Product releases will use semant
 - Added database-backed refresh-token rotation and idempotent logout with scoped HttpOnly cookies.
 - Added access-token, session-revocation, and account-status protection for authenticated endpoints.
 - Added protected current-user profile read and update endpoints with validation, nullable-field clearing, and a derived full name.
+- Added Google OAuth login with verified-email account resolution, database-backed sessions, and CSRF-resistant state validation.
 
 ### Documentation
 
