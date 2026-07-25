@@ -6,7 +6,11 @@ import {
 import { PrismaService } from '../database/prisma.service';
 import { CreateAuctionDraftInput } from './types/create-auction-draft.input';
 import { AuctionDraftResponseDto } from './dto/auction-draft-response.dto';
-import { AuctionEventType, Prisma } from '../generated/prisma/client';
+import {
+  AuctionEventType,
+  Prisma,
+  AuctionStatus,
+} from '../generated/prisma/client';
 import { auctionDraftSelect } from './queries/auction-draft.select';
 import { mapAuctionDraftResponse } from './mappers/map-auction-draft-response.mapper';
 
@@ -107,6 +111,27 @@ export class AuctionsService {
       });
       return createdAuction;
     });
+    return mapAuctionDraftResponse(auction);
+  }
+
+  async findOwnedDraftById(
+    auctionId: string,
+    sellerId: string,
+  ): Promise<AuctionDraftResponseDto> {
+    const auction = await this.prisma.auction.findFirst({
+      where: {
+        id: auctionId,
+        sellerId,
+        status: AuctionStatus.DRAFT,
+        deletedAt: null,
+      },
+      select: auctionDraftSelect,
+    });
+
+    if (!auction) {
+      throw new NotFoundException('Auction draft not found');
+    }
+
     return mapAuctionDraftResponse(auction);
   }
 }

@@ -1,4 +1,12 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { AuctionsService } from './auctions.service';
 import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -12,6 +20,17 @@ import { AuctionDraftResponseDto } from './dto/auction-draft-response.dto';
 @Controller('auctions')
 export class AuctionsController {
   constructor(private readonly auctionsService: AuctionsService) {}
+
+  @Get(':auctionId/draft')
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @Roles(UserRole.USER)
+  findOwnedDraft(
+    @Param('auctionId', new ParseUUIDPipe({ version: '4' }))
+    auctionId: string,
+    @CurrentUser() currentUser: AccessTokenPayload,
+  ): Promise<AuctionDraftResponseDto> {
+    return this.auctionsService.findOwnedDraftById(auctionId, currentUser.sub);
+  }
 
   @Post()
   @UseGuards(AccessTokenGuard, RolesGuard)
