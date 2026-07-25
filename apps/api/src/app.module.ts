@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { validateEnv } from './config/env.validation';
 import { DatabaseModule } from './database/database.module';
+import { CategoriesModule } from './categories/categories.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { DatabaseModule } from './database/database.module';
     DatabaseModule,
     HealthModule,
     AuthModule,
+    CategoriesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
