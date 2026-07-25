@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { CategoryResponseDto } from './dto/category-response.dto';
 import { AccessTokenGuard } from '../auth/guards/access-token.guard';
@@ -8,6 +17,8 @@ import { UserRole } from '../generated/prisma/enums';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { AccessTokenPayload } from '../auth/types/access-token-payload.type';
 import { CreateCategoryDto } from './dto/create-category.dto';
+import { UpdateCategoryDto } from './dto/update-category.dto';
+import { CategoryActivationResponseDto } from './dto/category-activation-response.dto';
 
 @Controller('categories')
 export class CategoriesController {
@@ -27,6 +38,52 @@ export class CategoriesController {
     return this.categoriesService.createCategory({
       ...createCategoryDto,
       adminUserId: currentUser.sub,
+    });
+  }
+
+  @Patch(':categoryId')
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  update(
+    @Param('categoryId', new ParseUUIDPipe({ version: '4' }))
+    categoryId: string,
+    @CurrentUser() currentUser: AccessTokenPayload,
+    @Body() updateCategoryDto: UpdateCategoryDto,
+  ): Promise<CategoryResponseDto> {
+    return this.categoriesService.updateCategory({
+      ...updateCategoryDto,
+      categoryId,
+      adminUserId: currentUser.sub,
+    });
+  }
+
+  @Patch(':categoryId/activate')
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  activate(
+    @Param('categoryId', new ParseUUIDPipe({ version: '4' }))
+    categoryId: string,
+    @CurrentUser() currentUser: AccessTokenPayload,
+  ): Promise<CategoryActivationResponseDto> {
+    return this.categoriesService.setCategoryActivation({
+      categoryId,
+      adminUserId: currentUser.sub,
+      isActive: true,
+    });
+  }
+
+  @Patch(':categoryId/deactivate')
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  deactivate(
+    @Param('categoryId', new ParseUUIDPipe({ version: '4' }))
+    categoryId: string,
+    @CurrentUser() currentUser: AccessTokenPayload,
+  ): Promise<CategoryActivationResponseDto> {
+    return this.categoriesService.setCategoryActivation({
+      categoryId,
+      adminUserId: currentUser.sub,
+      isActive: false,
     });
   }
 }
