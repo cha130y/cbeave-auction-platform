@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   ParseUUIDPipe,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -16,6 +17,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { AccessTokenPayload } from '../auth/types/access-token-payload.type';
 import { CreateAuctionDraftDto } from './dto/create-auction-draft.dto';
 import { AuctionDraftResponseDto } from './dto/auction-draft-response.dto';
+import { UpdateAuctionDraftDto } from './dto/update-auction-draft.dto';
 
 @Controller('auctions')
 export class AuctionsController {
@@ -30,6 +32,22 @@ export class AuctionsController {
     @CurrentUser() currentUser: AccessTokenPayload,
   ): Promise<AuctionDraftResponseDto> {
     return this.auctionsService.findOwnedDraftById(auctionId, currentUser.sub);
+  }
+
+  @Patch(':auctionId/draft')
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @Roles(UserRole.USER)
+  updateOwnedDraft(
+    @Param('auctionId', new ParseUUIDPipe({ version: '4' }))
+    auctionId: string,
+    @CurrentUser() currentUser: AccessTokenPayload,
+    @Body() updateAuctionDraftDto: UpdateAuctionDraftDto,
+  ): Promise<AuctionDraftResponseDto> {
+    return this.auctionsService.updateOwnedDraft({
+      ...updateAuctionDraftDto,
+      auctionId,
+      sellerId: currentUser.sub,
+    });
   }
 
   @Post()

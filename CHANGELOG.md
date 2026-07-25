@@ -19,6 +19,7 @@ The format follows Keep a Changelog principles. Product releases will use semant
 - Added audited administrator category updates and idempotent activation/deactivation with inactive-parent protection.
 - Added authenticated user-owned auction draft creation with exact money responses, category and schedule validation, seller-role enforcement, and `CREATED` event persistence.
 - Added seller-only retrieval for private auction drafts with UUID validation and ownership-safe not-found responses.
+- Added seller-owned auction draft editing with partial updates, nullable reserve and schedule removal, active-category validation, ownership protection, and row-version increments.
 
 ### Documentation
 
