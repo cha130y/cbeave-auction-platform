@@ -17,6 +17,7 @@ The format follows Keep a Changelog principles. Product releases will use semant
 - Added Facebook OAuth login with database-backed sessions, repeat-login identity reuse, email-collision protection, and shared CSRF-resistant OAuth state validation.
 - Added public two-level category browsing and administrator-only audited category creation with slug, parent, and hierarchy validation.
 - Added audited administrator category updates and idempotent activation/deactivation with inactive-parent protection.
+- Added authenticated user-owned auction draft creation with exact money responses, category and schedule validation, seller-role enforcement, and `CREATED` event persistence.
 
 ### Documentation
 
