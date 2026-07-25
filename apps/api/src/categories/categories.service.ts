@@ -10,6 +10,9 @@ import { CreateCategoryInput } from './types/create-category.input';
 import { createCategorySlug } from './utils/create-category-slug.util';
 import { AdminActionType } from '../generated/prisma/enums';
 import { PrismaClientKnownRequestError } from '../generated/prisma/internal/prismaNamespace';
+import { UpdateCategoryInput } from './types/update-category.input';
+import { SetCategoryActivationInput } from './types/set-category-activation.input';
+import { CategoryActivationResponseDto } from './dto/category-activation-response.dto';
 
 @Injectable()
 export class CategoriesService {
@@ -128,5 +131,170 @@ export class CategoriesService {
       }
       throw error;
     }
+  }
+
+  async updateCategory(
+    input: UpdateCategoryInput,
+  ): Promise<CategoryResponseDto> {
+    const hasUpdate =
+      input.name !== undefined || input.description !== undefined;
+
+    if (!hasUpdate) {
+      throw new BadRequestException('At least one category field is required');
+    }
+
+    return this.prisma.$transaction(async (transaction) => {
+      const existingCategory = await transaction.category.findUnique({
+        where: {
+          id: input.categoryId,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (!existingCategory) {
+        throw new NotFoundException('Category not found');
+      }
+
+      const category = await transaction.category.update({
+        where: {
+          id: input.categoryId,
+        },
+        data: {
+          //update only supplied fields, if field is null ==> clear exists field
+          ...(input.name !== undefined ? { name: input.name } : {}),
+          ...(input.description !== undefined
+            ? { description: input.description }
+            : {}),
+        },
+        select: {
+          // root category
+          id: true,
+          parentId: true,
+          name: true,
+          slug: true,
+          description: true,
+          children: {
+            where: {
+              isActive: true,
+            },
+            select: {
+              // children category
+              id: true,
+              parentId: true,
+              name: true,
+              slug: true,
+              description: true,
+            },
+            orderBy: {
+              name: 'asc',
+            },
+          },
+        },
+      });
+
+      const updatedFields = [
+        input.name !== undefined ? 'name' : null,
+        input.description !== undefined ? 'description' : null,
+      ]
+        .filter((field): field is string => field !== null)
+        .join(', ');
+
+      await transaction.adminAction.create({
+        data: {
+          adminUserId: input.adminUserId,
+          categoryId: category.id,
+          actionType: AdminActionType.UPDATE_CATEGORY,
+          note: `Updated category "${category.name}": ${updatedFields}`,
+        },
+      });
+
+      return category;
+    });
+  }
+
+  async setCategoryActivation(
+    input: SetCategoryActivationInput,
+  ): Promise<CategoryActivationResponseDto> {
+    return this.prisma.$transaction(async (transaction) => {
+      const category = await transaction.category.findUnique({
+        where: {
+          id: input.categoryId,
+        },
+        select: {
+          id: true,
+          parentId: true,
+          name: true,
+          slug: true,
+          isActive: true,
+          updatedAt: true,
+          parent: {
+            select: {
+              isActive: true,
+            },
+          },
+        },
+      });
+
+      if (!category) {
+        throw new NotFoundException('Category not found');
+      }
+
+      if (
+        input.isActive &&
+        category.parentId !== null &&
+        !category.parent?.isActive
+      ) {
+        throw new BadRequestException(
+          'Parent category must be active before activating this category',
+        );
+      }
+
+      if (category.isActive === input.isActive) {
+        return {
+          id: category.id,
+          parentId: category.parentId,
+          name: category.name,
+          slug: category.slug,
+          isActive: category.isActive,
+          updatedAt: category.updatedAt,
+        };
+      }
+
+      const updatedCategory = await transaction.category.update({
+        where: {
+          id: category.id,
+        },
+        data: {
+          isActive: input.isActive,
+        },
+        select: {
+          id: true,
+          parentId: true,
+          name: true,
+          slug: true,
+          isActive: true,
+          updatedAt: true,
+        },
+      });
+
+      const actionType = input.isActive
+        ? AdminActionType.ACTIVATE_CATEGORY
+        : AdminActionType.DEACTIVATE_CATEGORY;
+
+      const actionVerb = input.isActive ? 'Activated' : 'Deactivated';
+
+      await transaction.adminAction.create({
+        data: {
+          adminUserId: input.adminUserId,
+          categoryId: updatedCategory.id,
+          actionType,
+          note: `${actionVerb} category "${updatedCategory.name}"`,
+        },
+      });
+
+      return updatedCategory;
+    });
   }
 }
