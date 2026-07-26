@@ -32,6 +32,7 @@ import {
 } from './constants/auction-image.constant';
 import { AddAuctionImageDto } from './dto/add-auction-image.dto';
 import { AuctionImageResponseDto } from './dto/auction-image-response.dto';
+import { PublishAuctionResponseDto } from './dto/publish-auction-response.dto';
 
 @Controller('auctions')
 export class AuctionsController {
@@ -111,6 +112,21 @@ export class AuctionsController {
       sellerId: currentUser.sub,
       fileBuffer: image.buffer,
       altText: addAuctionImageDto.altText,
+    });
+  }
+
+  @Post(':auctionId/publish')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @Roles(UserRole.USER)
+  publish(
+    @Param('auctionId', new ParseUUIDPipe({ version: '4' }))
+    auctionId: string,
+    @CurrentUser() currentUser: AccessTokenPayload,
+  ): Promise<PublishAuctionResponseDto> {
+    return this.auctionsService.publish({
+      auctionId,
+      sellerId: currentUser.sub,
     });
   }
 

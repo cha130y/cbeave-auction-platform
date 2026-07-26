@@ -21,6 +21,7 @@ The format follows Keep a Changelog principles. Product releases will use semant
 - Added seller-only retrieval for private auction drafts with UUID validation and ownership-safe not-found responses.
 - Added seller-owned auction draft editing with partial updates, nullable reserve and schedule removal, active-category validation, ownership protection, and row-version increments.
 - Added Cloudinary-backed seller auction image upload and deletion with file validation, a five-image limit, ordered primary images, storage cleanup, draft response integration, and row-version increments.
+- Added transactional auction publication with validation, scheduled or immediate activation, optimistic state guarding, lifecycle timestamps, and `PUBLISHED`/`STARTED` event persistence.
 
 ### Documentation
 
