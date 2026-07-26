@@ -1,4 +1,5 @@
 import { Prisma } from '../../generated/prisma/client';
+import { auctionImageSelect } from './auction-image.select';
 
 export const auctionDraftSelect = {
   id: true,
@@ -24,6 +25,12 @@ export const auctionDraftSelect = {
       name: true,
       slug: true,
     },
+  },
+  auctionImages: {
+    orderBy: {
+      position: 'asc',
+    },
+    select: auctionImageSelect,
   },
 } satisfies Prisma.AuctionSelect;
 
