@@ -1,4 +1,20 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import 'multer';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  UseGuards,
+  ParseFilePipeBuilder,
+  UploadedFile,
+  UseInterceptors,
+  Delete,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { AuctionsService } from './auctions.service';
 import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -8,10 +24,45 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { AccessTokenPayload } from '../auth/types/access-token-payload.type';
 import { CreateAuctionDraftDto } from './dto/create-auction-draft.dto';
 import { AuctionDraftResponseDto } from './dto/auction-draft-response.dto';
+import { UpdateAuctionDraftDto } from './dto/update-auction-draft.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import {
+  AUCTION_IMAGE_FILE_TYPE_PATTERN,
+  MAX_AUCTION_IMAGE_SIZE_BYTES,
+} from './constants/auction-image.constant';
+import { AddAuctionImageDto } from './dto/add-auction-image.dto';
+import { AuctionImageResponseDto } from './dto/auction-image-response.dto';
 
 @Controller('auctions')
 export class AuctionsController {
   constructor(private readonly auctionsService: AuctionsService) {}
+
+  @Get(':auctionId/draft')
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @Roles(UserRole.USER)
+  findOwnedDraft(
+    @Param('auctionId', new ParseUUIDPipe({ version: '4' }))
+    auctionId: string,
+    @CurrentUser() currentUser: AccessTokenPayload,
+  ): Promise<AuctionDraftResponseDto> {
+    return this.auctionsService.findOwnedDraftById(auctionId, currentUser.sub);
+  }
+
+  @Patch(':auctionId/draft')
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @Roles(UserRole.USER)
+  updateOwnedDraft(
+    @Param('auctionId', new ParseUUIDPipe({ version: '4' }))
+    auctionId: string,
+    @CurrentUser() currentUser: AccessTokenPayload,
+    @Body() updateAuctionDraftDto: UpdateAuctionDraftDto,
+  ): Promise<AuctionDraftResponseDto> {
+    return this.auctionsService.updateOwnedDraft({
+      ...updateAuctionDraftDto,
+      auctionId,
+      sellerId: currentUser.sub,
+    });
+  }
 
   @Post()
   @UseGuards(AccessTokenGuard, RolesGuard)
@@ -22,6 +73,61 @@ export class AuctionsController {
   ): Promise<AuctionDraftResponseDto> {
     return this.auctionsService.createDraft({
       ...createAuctionDraftDto,
+      sellerId: currentUser.sub,
+    });
+  }
+
+  @Post(':auctionId/images')
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @Roles(UserRole.USER)
+  @UseInterceptors(
+    FileInterceptor('image', {
+      limits: {
+        fileSize: MAX_AUCTION_IMAGE_SIZE_BYTES,
+      },
+    }),
+  )
+  addImage(
+    @Param('auctionId', new ParseUUIDPipe({ version: '4' }))
+    auctionId: string,
+    @CurrentUser() currentUser: AccessTokenPayload,
+    @Body() addAuctionImageDto: AddAuctionImageDto,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({
+          fileType: AUCTION_IMAGE_FILE_TYPE_PATTERN,
+        })
+        .addMaxSizeValidator({
+          maxSize: MAX_AUCTION_IMAGE_SIZE_BYTES,
+        })
+        .build({
+          fileIsRequired: true,
+        }),
+    )
+    image: Express.Multer.File,
+  ): Promise<AuctionImageResponseDto> {
+    return this.auctionsService.addImage({
+      auctionId,
+      sellerId: currentUser.sub,
+      fileBuffer: image.buffer,
+      altText: addAuctionImageDto.altText,
+    });
+  }
+
+  @Delete(':auctionId/images/:imageId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @Roles(UserRole.USER)
+  deleteImage(
+    @Param('auctionId', new ParseUUIDPipe({ version: '4' }))
+    auctionId: string,
+    @Param('imageId', new ParseUUIDPipe({ version: '4' }))
+    imageId: string,
+    @CurrentUser() currentUser: AccessTokenPayload,
+  ): Promise<void> {
+    return this.auctionsService.deleteImage({
+      auctionId,
+      imageId,
       sellerId: currentUser.sub,
     });
   }

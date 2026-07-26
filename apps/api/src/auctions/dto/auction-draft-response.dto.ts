@@ -1,4 +1,5 @@
 import { AuctionStatus } from '../../generated/prisma/enums';
+import { AuctionImageResponseDto } from './auction-image-response.dto';
 
 export class AuctionDraftCategoryResponseDto {
   id: string;
@@ -24,5 +25,6 @@ export class AuctionDraftResponseDto {
   rowVersion: number;
   createdAt: Date;
   updatedAt: Date;
+  images: AuctionImageResponseDto[];
   category: AuctionDraftCategoryResponseDto;
 }

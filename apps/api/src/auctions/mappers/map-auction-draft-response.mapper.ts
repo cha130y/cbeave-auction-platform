@@ -1,5 +1,6 @@
 import { AuctionDraftResponseDto } from '../dto/auction-draft-response.dto';
 import { AuctionDraftRecord } from '../queries/auction-draft.select';
+import { mapAuctionImageResponse } from './map-auction-image-response.mapper';
 
 export function mapAuctionDraftResponse(
   auction: AuctionDraftRecord,
@@ -22,6 +23,7 @@ export function mapAuctionDraftResponse(
     rowVersion: auction.rowVersion,
     createdAt: auction.createdAt,
     updatedAt: auction.updatedAt,
+    images: auction.auctionImages.map(mapAuctionImageResponse),
     category: auction.category,
   };
 }
