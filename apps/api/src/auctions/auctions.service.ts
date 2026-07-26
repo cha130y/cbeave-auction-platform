@@ -28,6 +28,17 @@ import { PublishAuctionInput } from './types/publish-auction.input';
 import { PublishAuctionResponseDto } from './dto/publish-auction-response.dto';
 import { publishAuctionSelect } from './queries/publish-auction.select';
 import { mapPublishAuctionResponse } from './mappers/map-publish-auction-response.mapper';
+import { ListPublicAuctionsInput } from './types/list-public-auctions.input';
+import { ListPublicAuctionsResponseDto } from './dto/list-public-auctions-response.dto';
+import { publicAuctionSummarySelect } from './queries/public-auction-summary.select';
+import { mapPublicAuctionSummaryResponse } from './mappers/map-public-auction-summary-response.mapper';
+
+const PUBLIC_AUCTION_STATUSES: AuctionStatus[] = [
+  AuctionStatus.SCHEDULED,
+  AuctionStatus.ACTIVE,
+  AuctionStatus.SOLD,
+  AuctionStatus.UNSOLD,
+];
 
 @Injectable()
 export class AuctionsService {
@@ -36,6 +47,55 @@ export class AuctionsService {
     private readonly prisma: PrismaService,
     private readonly cloudinaryService: CloudinaryService,
   ) {}
+
+  async listPublic(
+    input: ListPublicAuctionsInput,
+  ): Promise<ListPublicAuctionsResponseDto> {
+    const auctions = await this.prisma.auction.findMany({
+      where: {
+        status: {
+          in: PUBLIC_AUCTION_STATUSES,
+        },
+        deletedAt: null,
+        ...(input.categoryId
+          ? {
+              categoryId: input.categoryId,
+            }
+          : {}),
+      },
+      orderBy: [
+        {
+          publishedAt: 'desc',
+        },
+        {
+          id: 'desc',
+        },
+      ],
+      take: input.limit + 1, //check Is there another page? limit default=20
+      ...(input.cursor
+        ? {
+            cursor: {
+              id: input.cursor,
+            },
+            skip: 1, //skip current cursor id auction then start next cursor id for next page
+          }
+        : {}),
+      select: publicAuctionSummarySelect,
+    });
+
+    const hasNextPage = auctions.length > input.limit;
+
+    if (hasNextPage) {
+      auctions.pop(); //remove last element(auction)
+    }
+
+    const lastAuction = auctions[auctions.length - 1];
+
+    return {
+      items: auctions.map(mapPublicAuctionSummaryResponse),
+      nextCursor: hasNextPage && lastAuction ? lastAuction.id : null,
+    };
+  }
 
   async createDraft(
     input: CreateAuctionDraftInput,

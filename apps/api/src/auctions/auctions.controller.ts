@@ -14,6 +14,7 @@ import {
   Delete,
   HttpCode,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
 import { AuctionsService } from './auctions.service';
 import { AccessTokenGuard } from '../auth/guards/access-token.guard';
@@ -33,10 +34,19 @@ import {
 import { AddAuctionImageDto } from './dto/add-auction-image.dto';
 import { AuctionImageResponseDto } from './dto/auction-image-response.dto';
 import { PublishAuctionResponseDto } from './dto/publish-auction-response.dto';
+import { ListPublicAuctionsQueryDto } from './dto/list-public-auctions-query.dto';
+import { ListPublicAuctionsResponseDto } from './dto/list-public-auctions-response.dto';
 
 @Controller('auctions')
 export class AuctionsController {
   constructor(private readonly auctionsService: AuctionsService) {}
+
+  @Get()
+  listPublic(
+    @Query() query: ListPublicAuctionsQueryDto,
+  ): Promise<ListPublicAuctionsResponseDto> {
+    return this.auctionsService.listPublic(query);
+  }
 
   @Get(':auctionId/draft')
   @UseGuards(AccessTokenGuard, RolesGuard)
