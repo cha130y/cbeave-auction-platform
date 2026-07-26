@@ -32,6 +32,9 @@ import { ListPublicAuctionsInput } from './types/list-public-auctions.input';
 import { ListPublicAuctionsResponseDto } from './dto/list-public-auctions-response.dto';
 import { publicAuctionSummarySelect } from './queries/public-auction-summary.select';
 import { mapPublicAuctionSummaryResponse } from './mappers/map-public-auction-summary-response.mapper';
+import { PublicAuctionDetailResponseDto } from './dto/public-auction-detail-response.dto';
+import { publicAuctionDetailSelect } from './queries/public-auction-detail.select';
+import { mapPublicAuctionDetailResponse } from './mappers/map-public-auction-detail-response.mapper';
 
 const PUBLIC_AUCTION_STATUSES: AuctionStatus[] = [
   AuctionStatus.SCHEDULED,
@@ -47,6 +50,25 @@ export class AuctionsService {
     private readonly prisma: PrismaService,
     private readonly cloudinaryService: CloudinaryService,
   ) {}
+
+  async findPublicById(
+    auctionId: string,
+  ): Promise<PublicAuctionDetailResponseDto> {
+    const auction = await this.prisma.auction.findFirst({
+      where: {
+        id: auctionId,
+        status: {
+          in: PUBLIC_AUCTION_STATUSES,
+        },
+        deletedAt: null,
+      },
+      select: publicAuctionDetailSelect,
+    });
+    if (!auction) {
+      throw new NotFoundException('Auction not found');
+    }
+    return mapPublicAuctionDetailResponse(auction);
+  }
 
   async listPublic(
     input: ListPublicAuctionsInput,

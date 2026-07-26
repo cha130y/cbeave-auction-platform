@@ -1,5 +1,6 @@
 import { PublicAuctionSummaryResponseDto } from '../dto/public-auction-summary-response.dto';
 import { PublicAuctionSummaryRecord } from '../queries/public-auction-summary.select';
+import { deriveAuctionReserveMet } from '../utils/derive-auction-reserve-met.util';
 
 export function mapPublicAuctionSummaryResponse(
   auction: PublicAuctionSummaryRecord,
@@ -15,10 +16,7 @@ export function mapPublicAuctionSummaryResponse(
     throw new Error('Public auction is missing required publication data');
   }
 
-  const reserveMet =
-    auction.bidCount > 0 &&
-    (auction.reservePrice === null ||
-      auction.currentPrice.gte(auction.reservePrice));
+  const reserveMet = deriveAuctionReserveMet(auction);
 
   return {
     id: auction.id,
