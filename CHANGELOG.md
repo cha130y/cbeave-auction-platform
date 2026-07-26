@@ -23,6 +23,7 @@ The format follows Keep a Changelog principles. Product releases will use semant
 - Added Cloudinary-backed seller auction image upload and deletion with file validation, a five-image limit, ordered primary images, storage cleanup, draft response integration, and row-version increments.
 - Added transactional auction publication with validation, scheduled or immediate activation, optimistic state guarding, lifecycle timestamps, and `PUBLISHED`/`STARTED` event persistence.
 - Added public auction discovery with category filtering, cursor pagination, primary images, public seller identity, and derived reserve state without exposing reserve amounts.
+- Added public auction detail retrieval with complete lifecycle data, ordered images, public seller and winner identities, private-draft protection, and shared hidden-reserve derivation.
 
 ### Documentation
 

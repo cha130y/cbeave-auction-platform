@@ -36,6 +36,7 @@ import { AuctionImageResponseDto } from './dto/auction-image-response.dto';
 import { PublishAuctionResponseDto } from './dto/publish-auction-response.dto';
 import { ListPublicAuctionsQueryDto } from './dto/list-public-auctions-query.dto';
 import { ListPublicAuctionsResponseDto } from './dto/list-public-auctions-response.dto';
+import { PublicAuctionDetailResponseDto } from './dto/public-auction-detail-response.dto';
 
 @Controller('auctions')
 export class AuctionsController {
@@ -46,6 +47,14 @@ export class AuctionsController {
     @Query() query: ListPublicAuctionsQueryDto,
   ): Promise<ListPublicAuctionsResponseDto> {
     return this.auctionsService.listPublic(query);
+  }
+
+  @Get(':auctionId')
+  findPublicById(
+    @Param('auctionId', new ParseUUIDPipe({ version: '4' }))
+    auctionId: string,
+  ): Promise<PublicAuctionDetailResponseDto> {
+    return this.auctionsService.findPublicById(auctionId);
   }
 
   @Get(':auctionId/draft')
