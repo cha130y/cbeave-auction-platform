@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   Logger,
   NotFoundException,
@@ -23,6 +24,21 @@ import { MAX_AUCTION_IMAGES } from './constants/auction-image.constant';
 import { auctionImageSelect } from './queries/auction-image.select';
 import { mapAuctionImageResponse } from './mappers/map-auction-image-response.mapper';
 import { DeleteAuctionImageInput } from './types/delete-auction-image.input';
+import { PublishAuctionInput } from './types/publish-auction.input';
+import { PublishAuctionResponseDto } from './dto/publish-auction-response.dto';
+import { publishAuctionSelect } from './queries/publish-auction.select';
+import { mapPublishAuctionResponse } from './mappers/map-publish-auction-response.mapper';
+import { ListPublicAuctionsInput } from './types/list-public-auctions.input';
+import { ListPublicAuctionsResponseDto } from './dto/list-public-auctions-response.dto';
+import { publicAuctionSummarySelect } from './queries/public-auction-summary.select';
+import { mapPublicAuctionSummaryResponse } from './mappers/map-public-auction-summary-response.mapper';
+
+const PUBLIC_AUCTION_STATUSES: AuctionStatus[] = [
+  AuctionStatus.SCHEDULED,
+  AuctionStatus.ACTIVE,
+  AuctionStatus.SOLD,
+  AuctionStatus.UNSOLD,
+];
 
 @Injectable()
 export class AuctionsService {
@@ -31,6 +47,55 @@ export class AuctionsService {
     private readonly prisma: PrismaService,
     private readonly cloudinaryService: CloudinaryService,
   ) {}
+
+  async listPublic(
+    input: ListPublicAuctionsInput,
+  ): Promise<ListPublicAuctionsResponseDto> {
+    const auctions = await this.prisma.auction.findMany({
+      where: {
+        status: {
+          in: PUBLIC_AUCTION_STATUSES,
+        },
+        deletedAt: null,
+        ...(input.categoryId
+          ? {
+              categoryId: input.categoryId,
+            }
+          : {}),
+      },
+      orderBy: [
+        {
+          publishedAt: 'desc',
+        },
+        {
+          id: 'desc',
+        },
+      ],
+      take: input.limit + 1, //check Is there another page? limit default=20
+      ...(input.cursor
+        ? {
+            cursor: {
+              id: input.cursor,
+            },
+            skip: 1, //skip current cursor id auction then start next cursor id for next page
+          }
+        : {}),
+      select: publicAuctionSummarySelect,
+    });
+
+    const hasNextPage = auctions.length > input.limit;
+
+    if (hasNextPage) {
+      auctions.pop(); //remove last element(auction)
+    }
+
+    const lastAuction = auctions[auctions.length - 1];
+
+    return {
+      items: auctions.map(mapPublicAuctionSummaryResponse),
+      nextCursor: hasNextPage && lastAuction ? lastAuction.id : null,
+    };
+  }
 
   async createDraft(
     input: CreateAuctionDraftInput,
@@ -524,5 +589,173 @@ export class AuctionsService {
         error instanceof Error ? error.stack : undefined, //stack trace normally contains the error message and where it occurred
       );
     }
+  }
+
+  async publish(
+    input: PublishAuctionInput,
+  ): Promise<PublishAuctionResponseDto> {
+    const now = new Date();
+
+    const publishedAuction = await this.prisma.$transaction(
+      async (transaction) => {
+        const auction = await transaction.auction.findFirst({
+          where: {
+            id: input.auctionId,
+            sellerId: input.sellerId,
+            deletedAt: null,
+          },
+          select: {
+            id: true,
+            sellerId: true,
+            title: true,
+            description: true,
+            status: true,
+            startingPrice: true,
+            reservePrice: true,
+            minBidIncrement: true,
+            scheduledStartAt: true,
+            currentEndAt: true,
+            rowVersion: true,
+            category: {
+              select: {
+                isActive: true,
+              },
+            },
+            _count: {
+              select: {
+                auctionImages: true,
+              },
+            },
+            auctionImages: {
+              where: {
+                isPrimary: true,
+              },
+
+              select: {
+                id: true,
+              },
+            },
+          },
+        });
+        if (!auction) {
+          throw new NotFoundException('Auction draft not found');
+        }
+
+        if (auction.status !== AuctionStatus.DRAFT) {
+          throw new ConflictException('Only draft auctions can be published');
+        }
+
+        if (!auction.title.trim() || !auction.description.trim()) {
+          throw new BadRequestException(
+            'Auction title and description are required before publication',
+          );
+        }
+        if (!auction.category.isActive) {
+          throw new BadRequestException('Auction category must be active');
+        }
+        if (
+          auction.startingPrice.lte(0) ||
+          auction.minBidIncrement.lte(0) ||
+          auction.reservePrice?.lte(0)
+        ) {
+          throw new BadRequestException(
+            'Auction prices must be greater than zero',
+          );
+        }
+        if (
+          auction.reservePrice &&
+          auction.reservePrice.lt(auction.startingPrice)
+        ) {
+          throw new BadRequestException(
+            'Reserve price cannot be lower than starting price',
+          );
+        }
+        if (!auction.scheduledStartAt || !auction.currentEndAt) {
+          throw new BadRequestException(
+            'Auction schedule is required before publication',
+          );
+        }
+        if (auction.currentEndAt <= auction.scheduledStartAt) {
+          throw new BadRequestException(
+            'Auction end time must be later than start time',
+          );
+        }
+        if (auction.currentEndAt <= now) {
+          throw new BadRequestException(
+            'Auction end time must be in the future',
+          );
+        }
+        if (auction._count.auctionImages === 0) {
+          throw new BadRequestException(
+            'At least one auction image is required before publication',
+          );
+        }
+        if (auction.auctionImages.length !== 1) {
+          throw new BadRequestException(
+            'Auction must have exactly one primary image before publication',
+          );
+        }
+
+        const nextStatus =
+          auction.scheduledStartAt > now
+            ? AuctionStatus.SCHEDULED
+            : AuctionStatus.ACTIVE;
+
+        const updateResult = await transaction.auction.updateMany({
+          where: {
+            id: auction.id,
+            sellerId: input.sellerId,
+            status: AuctionStatus.DRAFT,
+            deletedAt: null,
+            rowVersion: auction.rowVersion,
+          },
+          data: {
+            status: nextStatus,
+            publishedAt: now,
+            startedAt: nextStatus === AuctionStatus.ACTIVE ? now : null,
+            rowVersion: {
+              increment: 1,
+            },
+          },
+        });
+
+        if (updateResult.count !== 1) {
+          throw new ConflictException(
+            'Auction draft changed; reload and try again',
+          );
+        }
+
+        await transaction.auctionEvent.create({
+          data: {
+            auctionId: auction.id,
+            actorUserId: input.sellerId,
+            eventType: AuctionEventType.PUBLISHED,
+          },
+        });
+
+        if (nextStatus === AuctionStatus.ACTIVE) {
+          await transaction.auctionEvent.create({
+            data: {
+              auctionId: auction.id,
+              actorUserId: input.sellerId,
+              eventType: AuctionEventType.STARTED,
+            },
+          });
+        }
+
+        const updatedAuction = await transaction.auction.findUnique({
+          where: {
+            id: auction.id,
+          },
+          select: publishAuctionSelect,
+        });
+
+        if (!updatedAuction) {
+          throw new NotFoundException('Published auction not found');
+        }
+        return updatedAuction;
+      },
+    );
+    return mapPublishAuctionResponse(publishedAuction);
   }
 }
