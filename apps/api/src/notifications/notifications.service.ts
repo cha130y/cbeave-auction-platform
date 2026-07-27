@@ -13,6 +13,7 @@ import { NotificationType, Prisma } from '../generated/prisma/client';
 import { CreateOutbidNotificationInput } from './types/create-outbid-notification.input';
 import { ListNotificationsInput } from './types/list-notifications.input';
 import { CreateAuctionResultNotificationsInput } from './types/create-auction-result-notifications.input';
+import { CreateAuctionCancellationNotificationsInput } from './types/create-auction-cancellation-notifications.input';
 
 @Injectable()
 export class NotificationsService {
@@ -170,6 +171,28 @@ export class NotificationsService {
           `You won "${input.auctionTitle}" with a bid of ` +
           `${input.result.soldPrice} ${input.currency}.`,
       },
+    });
+  }
+
+  async createAuctionCancellationNotifications(
+    transaction: Prisma.TransactionClient,
+    input: CreateAuctionCancellationNotificationsInput,
+  ): Promise<void> {
+    if (input.userIds.length === 0) {
+      return;
+    }
+
+    await transaction.notification.createMany({
+      data: input.userIds.map((userId) => ({
+        userId,
+        auctionId: input.auctionId,
+        bidId: null,
+        type: NotificationType.AUCTION_CANCELLED,
+        title: 'Auction cancelled',
+        message:
+          `Auction "${input.auctionTitle}" was cancelled. ` +
+          `Reason: ${input.reason}`,
+      })),
     });
   }
 }

@@ -31,6 +31,7 @@ The format follows Keep a Changelog principles. Product releases will use semant
 - Added authenticated watchlist management with idempotent add/remove operations, cursor-paginated listing, public-auction visibility protection, and shared hidden-reserve auction summaries.
 - Added authenticated in-app notifications with private cursor pagination, unread filtering, idempotent read tracking, transactional outbid alerts, and atomic winner and seller auction-result delivery.
 - Added administrator-only normal-user discovery and audited suspension/reactivation with cursor pagination, status filtering, active-session revocation, account-target protection, and idempotent status changes.
+- Added administrator-only auction cancellation with state validation, optimistic concurrency protection, idempotent retries, lifecycle and audit records, and deduplicated cancellation notifications for affected sellers, watchers, participants, and bidders.
 
 ### Documentation
 
