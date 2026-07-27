@@ -21,6 +21,8 @@ import { ListPublicBidsInput } from './types/list-public-bids.input';
 import { ListPublicBidsResponseDto } from './dto/list-public-bids-response.dto';
 import { publicBidHistorySelect } from './queries/public-bid-history.select';
 import { mapPublicBidHistoryResponse } from './mappers/map-public-bid-history-response.mapper';
+import { AuctionBiddingGateway } from './gateways/auction-bidding.gateway';
+import { mapBidAcceptedEvent } from './mappers/map-bid-accepted-event.mapper';
 
 const ANTI_SNIPING_WINDOW_MS = 2 * 60 * 1000;
 const ANTI_SNIPING_EXTENSION_MS = 2 * 60 * 1000;
@@ -35,7 +37,10 @@ const PUBLIC_AUCTION_STATUSES: AuctionStatus[] = [
 
 @Injectable()
 export class BiddingService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly auctionBiddingGateway: AuctionBiddingGateway,
+  ) {}
 
   async listPublicBidHistory(
     input: ListPublicBidsInput,
@@ -273,7 +278,12 @@ export class BiddingService {
         },
       );
 
-      return mapPlaceBidResponse(acceptedBid);
+      const response = mapPlaceBidResponse(acceptedBid);
+      this.auctionBiddingGateway.broadcastAcceptedBid(
+        mapBidAcceptedEvent(response),
+      );
+
+      return response;
     } catch (error: unknown) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
