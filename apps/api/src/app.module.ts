@@ -12,6 +12,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { BiddingModule } from './bidding/bidding.module';
 import { WatchlistsModule } from './watchlists/watchlists.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     BiddingModule,
     WatchlistsModule,
     NotificationsModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],
