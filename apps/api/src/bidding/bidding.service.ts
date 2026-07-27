@@ -23,6 +23,7 @@ import { publicBidHistorySelect } from './queries/public-bid-history.select';
 import { mapPublicBidHistoryResponse } from './mappers/map-public-bid-history-response.mapper';
 import { AuctionBiddingGateway } from './gateways/auction-bidding.gateway';
 import { mapBidAcceptedEvent } from './mappers/map-bid-accepted-event.mapper';
+import { NotificationsService } from '../notifications/notifications.service';
 
 const ANTI_SNIPING_WINDOW_MS = 2 * 60 * 1000;
 const ANTI_SNIPING_EXTENSION_MS = 2 * 60 * 1000;
@@ -40,6 +41,7 @@ export class BiddingService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly auctionBiddingGateway: AuctionBiddingGateway,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async listPublicBidHistory(
@@ -223,6 +225,26 @@ export class BiddingService {
               placedAt: true,
             },
           });
+
+          const previousHighestBid = auction.bids[0] ?? null;
+
+          if (
+            previousHighestBid &&
+            previousHighestBid.bidderId !== input.bidderId
+          ) {
+            await this.notificationsService.createOutbidNotification(
+              transaction,
+              {
+                userId: previousHighestBid.bidderId,
+                auctionId: auction.id,
+                //new higher bid ID
+                bidId: bid.id,
+                auctionTitle: auction.title,
+                currentPrice: amount.toFixed(2),
+                currency: auction.currency,
+              },
+            );
+          }
 
           await transaction.auctionEvent.create({
             data: {
