@@ -30,6 +30,7 @@ The format follows Keep a Changelog principles. Product releases will use semant
 - Added auction-scoped Socket.IO rooms with validated join/leave commands and post-commit accepted-bid broadcasts containing price, reserve-state, and anti-sniping extension updates without exposing sensitive request or identity fields.
 - Added authenticated watchlist management with idempotent add/remove operations, cursor-paginated listing, public-auction visibility protection, and shared hidden-reserve auction summaries.
 - Added authenticated in-app notifications with private cursor pagination, unread filtering, idempotent read tracking, transactional outbid alerts, and atomic winner and seller auction-result delivery.
+- Added administrator-only normal-user discovery and audited suspension/reactivation with cursor pagination, status filtering, active-session revocation, account-target protection, and idempotent status changes.
 
 ### Documentation
 
