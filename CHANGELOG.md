@@ -26,6 +26,7 @@ The format follows Keep a Changelog principles. Product releases will use semant
 - Added public auction detail retrieval with complete lifecycle data, ordered images, public seller and winner identities, private-draft protection, and shared hidden-reserve derivation.
 - Added scheduled auction lifecycle reconciliation with non-overlapping processing, optimistic transition guards, overdue activation, Sold/Unsold completion, lifecycle timestamps, and `STARTED`/`ENDED` event persistence.
 - Added authenticated transactional bidding with request idempotency, serializable concurrency protection, exact reserve-state responses, accepted-bid events, and bounded anti-sniping extensions.
+- Added public chronological bid history with sequence-number cursor pagination and masked bidder identities without exposing sensitive account data.
 
 ### Documentation
 

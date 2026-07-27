@@ -13,6 +13,6 @@ export const placeBidAuctionSelect = {
   rowVersion: true,
 } satisfies Prisma.AuctionSelect;
 
-export type PlaceBidAuctionRecord = Prisma.AuctionEventGetPayload<{
+export type PlaceBidAuctionRecord = Prisma.AuctionGetPayload<{
   select: typeof placeBidAuctionSelect;
 }>;

@@ -17,14 +17,73 @@ import { AcceptedBidResult } from './types/accepted-bid-result.type';
 import { placeBidAuctionSelect } from './queries/place-bid-auction.select';
 import { mapPlaceBidResponse } from './mappers/map-place-bid-response.mapper';
 import { PrismaClientKnownRequestError } from '../generated/prisma/internal/prismaNamespace';
+import { ListPublicBidsInput } from './types/list-public-bids.input';
+import { ListPublicBidsResponseDto } from './dto/list-public-bids-response.dto';
+import { publicBidHistorySelect } from './queries/public-bid-history.select';
+import { mapPublicBidHistoryResponse } from './mappers/map-public-bid-history-response.mapper';
 
 const ANTI_SNIPING_WINDOW_MS = 2 * 60 * 1000;
 const ANTI_SNIPING_EXTENSION_MS = 2 * 60 * 1000;
 const MAX_AUCTION_EXTENSIONS = 5;
 
+const PUBLIC_AUCTION_STATUSES: AuctionStatus[] = [
+  AuctionStatus.SCHEDULED,
+  AuctionStatus.ACTIVE,
+  AuctionStatus.SOLD,
+  AuctionStatus.UNSOLD,
+];
+
 @Injectable()
 export class BiddingService {
   constructor(private readonly prisma: PrismaService) {}
+
+  async listPublicBidHistory(
+    input: ListPublicBidsInput,
+  ): Promise<ListPublicBidsResponseDto> {
+    const auction = await this.prisma.auction.findFirst({
+      where: {
+        id: input.auctionId,
+        status: {
+          in: PUBLIC_AUCTION_STATUSES,
+        },
+        deletedAt: null,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!auction) {
+      throw new NotFoundException('Auction not found');
+    }
+
+    const bids = await this.prisma.bid.findMany({
+      where: {
+        auctionId: input.auctionId,
+        ...(input.cursor !== undefined
+          ? {
+              sequenceNo: {
+                gt: input.cursor,
+              },
+            }
+          : {}),
+      },
+      select: publicBidHistorySelect,
+      orderBy: {
+        sequenceNo: 'asc',
+      },
+      take: input.limit + 1,
+    });
+
+    const hasMore = bids.length > input.limit;
+    const page = hasMore ? bids.slice(0, input.limit) : bids;
+    const lastBid = page[page.length - 1];
+
+    return {
+      items: page.map(mapPublicBidHistoryResponse),
+      nextCursor: hasMore && lastBid ? lastBid.sequenceNo : null,
+    };
+  }
 
   async placeBid(input: PlaceBidInput): Promise<PlaceBidResponseDto> {
     const amount = new Prisma.Decimal(input.amount);
@@ -218,7 +277,7 @@ export class BiddingService {
     } catch (error: unknown) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
-          throw new ConflictException('Bid request has already benn processed');
+          throw new ConflictException('Bid request has already been processed');
         }
 
         if (error.code === 'P2034') {
