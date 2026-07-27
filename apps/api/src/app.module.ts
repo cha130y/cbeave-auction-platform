@@ -9,6 +9,7 @@ import { DatabaseModule } from './database/database.module';
 import { CategoriesModule } from './categories/categories.module';
 import { AuctionsModule } from './auctions/auctions.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { BiddingModule } from './bidding/bidding.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     AuthModule,
     CategoriesModule,
     AuctionsModule,
+    BiddingModule,
   ],
   controllers: [AppController],
   providers: [AppService],
