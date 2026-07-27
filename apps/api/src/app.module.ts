@@ -10,6 +10,7 @@ import { CategoriesModule } from './categories/categories.module';
 import { AuctionsModule } from './auctions/auctions.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { BiddingModule } from './bidding/bidding.module';
+import { WatchlistsModule } from './watchlists/watchlists.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { BiddingModule } from './bidding/bidding.module';
     CategoriesModule,
     AuctionsModule,
     BiddingModule,
+    WatchlistsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
