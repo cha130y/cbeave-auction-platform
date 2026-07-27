@@ -2,13 +2,17 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Interval } from '@nestjs/schedule';
 import { PrismaService } from '../../database/prisma.service';
 import { AuctionEventType, AuctionStatus } from '../../generated/prisma/enums';
+import { NotificationsService } from '../../notifications/notifications.service';
 
 const AUCTION_LIFECYCLE_INTERVAL_MS = 10_000;
 const AUCTION_LIFECYCLE_BATCH_SIZE = 50;
 
 @Injectable()
 export class AuctionLifecycleService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificationsService: NotificationsService,
+  ) {}
   private readonly logger = new Logger(AuctionLifecycleService.name);
   private reconciliationRunning = false;
 
@@ -65,6 +69,9 @@ export class AuctionLifecycleService {
       take: AUCTION_LIFECYCLE_BATCH_SIZE,
       select: {
         id: true,
+        sellerId: true,
+        title: true,
+        currency: true,
         rowVersion: true,
         reservePrice: true,
         bids: {
@@ -132,6 +139,38 @@ export class AuctionLifecycleService {
             eventType: AuctionEventType.ENDED,
           },
         });
+
+        if (reserveMet) {
+          await this.notificationsService.createAuctionResultNotifications(
+            transaction,
+            {
+              auctionId: auction.id,
+              auctionTitle: auction.title,
+              sellerId: auction.sellerId,
+              currency: auction.currency,
+              result: {
+                sold: true,
+                winnerUserId: highestBid.bidderId,
+                winningBidId: highestBid.id,
+                soldPrice: highestBid.amount.toFixed(2),
+              },
+            },
+          );
+        } else {
+          await this.notificationsService.createAuctionResultNotifications(
+            transaction,
+            {
+              auctionId: auction.id,
+              auctionTitle: auction.title,
+              sellerId: auction.sellerId,
+              currency: auction.currency,
+              result: {
+                sold: false,
+                highestBidId: highestBid?.id ?? null,
+              },
+            },
+          );
+        }
 
         return true;
       });
