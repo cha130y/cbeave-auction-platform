@@ -37,6 +37,7 @@ The format follows Keep a Changelog principles. Product releases will use semant
 - Added authenticated Live Arena lobby participation with database-backed join/leave state, live participant counts, multi-tab-safe disconnect cleanup, and automatic scheduled-to-active Socket.IO broadcasts.
 - Added authenticated Active Arena state snapshots with current price, minimum next bid, masked leader, chronological recent bids, participant count, remaining-time authority, seller bid eligibility, and derived reserve state without exposing private auction or bidder fields.
 - Added dedicated `auction:extended` Socket.IO broadcasts for accepted anti-sniping bids with extension number, previous and updated deadlines, extension duration, and safe triggering-bid context.
+- Added post-commit `auction:ended` Socket.IO broadcasts with Sold/Unsold status, final price, bid count, reserve result, completion time, and a masked winner for successful auctions.
 
 ### Documentation
 
