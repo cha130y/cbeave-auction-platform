@@ -33,6 +33,7 @@ The format follows Keep a Changelog principles. Product releases will use semant
 - Added administrator-only normal-user discovery and audited suspension/reactivation with cursor pagination, status filtering, active-session revocation, account-target protection, and idempotent status changes.
 - Added administrator-only auction cancellation with state validation, optimistic concurrency protection, idempotent retries, lifecycle and audit records, and deduplicated cancellation notifications for affected sellers, watchers, participants, and bidders.
 - Added administrator-only audit-action history with action-type filtering, newest-first cursor pagination, administrator identity, and typed user, auction, or category targets.
+- Added a public Hot Auctions endpoint that ranks non-expired Active auctions by accepted bid count, ending time, and auction ID while preserving hidden-reserve privacy.
 
 ### Documentation
 

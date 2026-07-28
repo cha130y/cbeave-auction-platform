@@ -37,6 +37,8 @@ import { PublishAuctionResponseDto } from './dto/publish-auction-response.dto';
 import { ListPublicAuctionsQueryDto } from './dto/list-public-auctions-query.dto';
 import { ListPublicAuctionsResponseDto } from './dto/list-public-auctions-response.dto';
 import { PublicAuctionDetailResponseDto } from './dto/public-auction-detail-response.dto';
+import { ListHotAuctionsQueryDto } from './dto/list-hot-auctions-query.dto';
+import { ListHotAuctionsResponseDto } from './dto/list-hot-auctions-response.dto';
 
 @Controller('auctions')
 export class AuctionsController {
@@ -47,6 +49,15 @@ export class AuctionsController {
     @Query() query: ListPublicAuctionsQueryDto,
   ): Promise<ListPublicAuctionsResponseDto> {
     return this.auctionsService.listPublic(query);
+  }
+
+  // Keep this static route before the dynamic ':auctionId' route.  @Get('hot')
+  listHot(
+    @Query() query: ListHotAuctionsQueryDto,
+  ): Promise<ListHotAuctionsResponseDto> {
+    return this.auctionsService.listHot({
+      limit: query.limit,
+    });
   }
 
   @Get(':auctionId')

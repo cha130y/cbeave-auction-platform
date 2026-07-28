@@ -35,6 +35,8 @@ import { mapPublicAuctionSummaryResponse } from './mappers/map-public-auction-su
 import { PublicAuctionDetailResponseDto } from './dto/public-auction-detail-response.dto';
 import { publicAuctionDetailSelect } from './queries/public-auction-detail.select';
 import { mapPublicAuctionDetailResponse } from './mappers/map-public-auction-detail-response.mapper';
+import { ListHotAuctionsInput } from './types/list-hot-auctions.input';
+import { ListHotAuctionsResponseDto } from './dto/list-hot-auctions-response.dto';
 
 const PUBLIC_AUCTION_STATUSES: AuctionStatus[] = [
   AuctionStatus.SCHEDULED,
@@ -50,6 +52,37 @@ export class AuctionsService {
     private readonly prisma: PrismaService,
     private readonly cloudinaryService: CloudinaryService,
   ) {}
+
+  async listHot(
+    input: ListHotAuctionsInput,
+  ): Promise<ListHotAuctionsResponseDto> {
+    const auctions = await this.prisma.auction.findMany({
+      where: {
+        status: AuctionStatus.ACTIVE,
+        deletedAt: null,
+        currentEndAt: {
+          gt: new Date(),
+        },
+      },
+      orderBy: [
+        {
+          bidCount: 'desc',
+        },
+        {
+          currentEndAt: 'asc',
+        },
+        {
+          id: 'asc',
+        },
+      ],
+      take: input.limit,
+      select: publicAuctionSummarySelect,
+    });
+
+    return {
+      items: auctions.map(mapPublicAuctionSummaryResponse),
+    };
+  }
 
   async findPublicById(
     auctionId: string,
