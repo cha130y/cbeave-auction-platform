@@ -84,6 +84,8 @@ DRAFT / SCHEDULED ───────→ CANCELLED
 
 ## Current status
 
-**Planning complete; implementation-ready.**
+**Backend feature implementation and the Docker development workflow are complete for the current traced scope; frontend implementation is next.**
 
-The Version 1 requirements and data model are frozen for the delivery window. New features should be added only after the core auction flow is working end to end.
+The NestJS API now covers identity, profiles, categories, auction management and discovery, transactional bidding, real-time Live Arena events, watchlists, notifications, and focused administration. The PostgreSQL 17 Docker workflow, Prisma schema, committed migration, and database health check have also been manually verified.
+
+The remaining delivery work is centered on the Next.js user interface, REST and Socket.IO integration, automated coverage, and release stabilization. The Version 1 requirements and data model remain frozen for the delivery window; consult the requirements traceability matrix for the current verification state.
