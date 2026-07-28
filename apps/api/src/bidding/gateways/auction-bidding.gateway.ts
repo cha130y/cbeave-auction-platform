@@ -20,6 +20,7 @@ import { AuctionParticipantsService } from '../services/auction-participants.ser
 import { AuctionStartedEventDto } from '../dto/auction-started-event.dto';
 import { ActiveArenaService } from '../services/active-arena.service';
 import { ActiveArenaStateDto } from '../dto/active-arena-state.dto';
+import { mapAuctionExtendedEvent } from '../mappers/map-auction-extended-event.mapper';
 
 @WebSocketGateway({
   namespace: '/auctions',
@@ -113,12 +114,18 @@ export class AuctionBiddingGateway implements OnGatewayDisconnect {
 
   broadcastAcceptedBid(event: BidAcceptedEventDto): void {
     try {
-      this.server
-        .to(this.createRoomName(event.auctionId))
-        .emit('auction:bid-accepted', event);
+      const auctionRoom = this.server.to(this.createRoomName(event.auctionId));
+
+      auctionRoom.emit('auction:bid-accepted', event);
+
+      const extensionEvent = mapAuctionExtendedEvent(event);
+
+      if (extensionEvent) {
+        auctionRoom.emit('auction:extended', extensionEvent);
+      }
     } catch (error: unknown) {
       this.logger.error(
-        `Failed to broadcast accepted bid for auction ${event.auctionId}`,
+        `Failed to broadcast bid events for auction ${event.auctionId}`,
         error instanceof Error ? error.stack : undefined,
       );
     }
