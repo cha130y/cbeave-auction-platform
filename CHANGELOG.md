@@ -39,6 +39,7 @@ The format follows Keep a Changelog principles. Product releases will use semant
 - Added dedicated `auction:extended` Socket.IO broadcasts for accepted anti-sniping bids with extension number, previous and updated deadlines, extension duration, and safe triggering-bid context.
 - Added post-commit `auction:ended` Socket.IO broadcasts with Sold/Unsold status, final price, bid count, reserve result, completion time, and a masked winner for successful auctions.
 - Documented and verified the Docker-based PostgreSQL development environment, including Compose validation, persistent-volume-safe restarts, Prisma migration checks, API database health verification, and destructive reset guidance.
+- Added the CBeave web frontend foundation with centralized API requests, refresh-session restoration, TanStack Query, authenticated Socket.IO setup, and Figma-aligned local, Google, and Facebook authentication screens.
 
 ### Documentation
 

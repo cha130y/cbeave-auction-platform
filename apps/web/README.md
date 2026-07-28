@@ -4,11 +4,21 @@ Next.js App Router frontend for the CBeave auction platform.
 
 ## Current state
 
-The application currently contains the base Next.js and Tailwind CSS scaffold. Frontend foundation and feature integration are the next delivery phase.
+The application now includes the shared frontend foundation and the first production-facing feature slice.
 
-The target experience includes:
+Implemented foundation:
 
-- Registration and local/social login
+- Validated public environment configuration
+- Centralized API requests with normalized NestJS errors
+- Memory-only access-token handling and HttpOnly refresh-session restoration
+- TanStack Query application state
+- Authenticated Socket.IO client setup
+- React Hook Form and Zod validation
+- Responsive Figma-aligned local, Google, and Facebook authentication
+- Local registration supporting required first names and optional last names
+
+The next UI delivery phases include:
+
 - Public auction discovery and details
 - Seller draft, image, preview, and publication workflows
 - Scheduled lobby and real-time Live Arena
