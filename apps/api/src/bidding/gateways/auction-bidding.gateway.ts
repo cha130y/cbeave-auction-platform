@@ -18,6 +18,8 @@ import { BidAcceptedEventDto } from '../dto/bid-accepted-event.dto';
 import { SocketAuthenticationService } from '../../auth/services/socket-authentication.service';
 import { AuctionParticipantsService } from '../services/auction-participants.service';
 import { AuctionStartedEventDto } from '../dto/auction-started-event.dto';
+import { ActiveArenaService } from '../services/active-arena.service';
+import { ActiveArenaStateDto } from '../dto/active-arena-state.dto';
 
 @WebSocketGateway({
   namespace: '/auctions',
@@ -30,6 +32,7 @@ export class AuctionBiddingGateway implements OnGatewayDisconnect {
   constructor(
     private readonly socketAuthenticationService: SocketAuthenticationService,
     private readonly auctionParticipantsService: AuctionParticipantsService,
+    private readonly activeArenaService: ActiveArenaService,
   ) {}
   private readonly logger = new Logger(AuctionBiddingGateway.name);
   private readonly socketMemberships = new Map<string, Map<string, string>>();
@@ -89,6 +92,23 @@ export class AuctionBiddingGateway implements OnGatewayDisconnect {
     this.broadcastParticipantCount(participation);
 
     return participation;
+  }
+
+  @SubscribeMessage('auction:state')
+  async getActiveArenaState(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: AuctionRoomInput | undefined,
+  ): Promise<ActiveArenaStateDto> {
+    const auctionId = this.requireAuctionId(payload);
+
+    const currentUser =
+      await this.socketAuthenticationService.authenticate(client);
+
+    return this.activeArenaService.getState({
+      auctionId,
+      userRole: currentUser.role,
+      userId: currentUser.sub,
+    });
   }
 
   broadcastAcceptedBid(event: BidAcceptedEventDto): void {

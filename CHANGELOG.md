@@ -35,6 +35,7 @@ The format follows Keep a Changelog principles. Product releases will use semant
 - Added administrator-only audit-action history with action-type filtering, newest-first cursor pagination, administrator identity, and typed user, auction, or category targets.
 - Added a public Hot Auctions endpoint that ranks non-expired Active auctions by accepted bid count, ending time, and auction ID while preserving hidden-reserve privacy.
 - Added authenticated Live Arena lobby participation with database-backed join/leave state, live participant counts, multi-tab-safe disconnect cleanup, and automatic scheduled-to-active Socket.IO broadcasts.
+- Added authenticated Active Arena state snapshots with current price, minimum next bid, masked leader, chronological recent bids, participant count, remaining-time authority, seller bid eligibility, and derived reserve state without exposing private auction or bidder fields.
 
 ### Documentation
 
