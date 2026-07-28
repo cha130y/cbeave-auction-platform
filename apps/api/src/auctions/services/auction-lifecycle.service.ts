@@ -4,6 +4,7 @@ import { PrismaService } from '../../database/prisma.service';
 import { AuctionEventType, AuctionStatus } from '../../generated/prisma/enums';
 import { NotificationsService } from '../../notifications/notifications.service';
 import { AuctionBiddingGateway } from '../../bidding/gateways/auction-bidding.gateway';
+import { maskBidderDisplayName } from '../../bidding/utils/mask-bidder-display-name.util';
 
 const AUCTION_LIFECYCLE_INTERVAL_MS = 10_000;
 const AUCTION_LIFECYCLE_BATCH_SIZE = 50;
@@ -74,6 +75,8 @@ export class AuctionLifecycleService {
         sellerId: true,
         title: true,
         currency: true,
+        currentPrice: true,
+        bidCount: true,
         rowVersion: true,
         reservePrice: true,
         bids: {
@@ -90,6 +93,15 @@ export class AuctionLifecycleService {
             id: true,
             bidderId: true,
             amount: true,
+            bidder: {
+              select: {
+                userProfile: {
+                  select: {
+                    displayName: true,
+                  },
+                },
+              },
+            },
           },
         },
       },
@@ -179,6 +191,24 @@ export class AuctionLifecycleService {
 
       if (completed) {
         completedCount += 1;
+
+        const winnerDisplayName =
+          reserveMet && highestBid
+            ? maskBidderDisplayName(
+                highestBid.bidder.userProfile?.displayName ?? 'Bidder',
+              )
+            : null;
+
+        this.auctionBiddingGateway.broadcastAuctionEnded({
+          auctionId: auction.id,
+          status: nextStatus,
+          currency: auction.currency,
+          finalPrice: auction.currentPrice.toFixed(2),
+          bidCount: auction.bidCount,
+          reserveMet,
+          endedAt: now,
+          winnerDisplayName,
+        });
       }
     }
 
