@@ -1,3 +1,17 @@
-# Docker infrastructure
+# Docker development environment
 
-Reserved for Dockerfiles, Compose configuration, PostgreSQL development services, health checks, and environment examples.
+The development Compose configuration provides PostgreSQL 17 for the CBeave API.
+
+## Prerequisites
+
+- Docker Desktop
+- Node.js
+- pnpm
+
+Run all commands from the repository root.
+
+## Validate the Compose configuration
+
+```bash
+docker compose -f infra/docker/compose.dev.yml config
+```
