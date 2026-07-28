@@ -4,10 +4,16 @@ import { BiddingService } from './bidding.service';
 import { AccessControlModule } from '../auth/access-control.module';
 import { AuctionBiddingGateway } from './gateways/auction-bidding.gateway';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { AuctionParticipantsService } from './services/auction-participants.service';
 
 @Module({
   imports: [AccessControlModule, NotificationsModule],
   controllers: [BiddingController],
-  providers: [BiddingService, AuctionBiddingGateway],
+  providers: [
+    BiddingService,
+    AuctionBiddingGateway,
+    AuctionParticipantsService,
+  ],
+  exports: [AuctionBiddingGateway],
 })
 export class BiddingModule {}
