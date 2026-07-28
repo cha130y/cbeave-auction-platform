@@ -3,10 +3,21 @@ import { JwtInfrastructureModule } from '../infrastructure/jwt/jwt-infrastructur
 import { AccessTokenService } from './services/access-token.service';
 import { AccessTokenGuard } from './guards/access-token.guard';
 import { RolesGuard } from './guards/roles.guard';
+import { SocketAuthenticationService } from './services/socket-authentication.service';
 
 @Module({
   imports: [JwtInfrastructureModule],
-  providers: [AccessTokenService, AccessTokenGuard, RolesGuard],
-  exports: [AccessTokenService, AccessTokenGuard, RolesGuard],
+  providers: [
+    AccessTokenService,
+    AccessTokenGuard,
+    RolesGuard,
+    SocketAuthenticationService,
+  ],
+  exports: [
+    AccessTokenService,
+    AccessTokenGuard,
+    RolesGuard,
+    SocketAuthenticationService,
+  ],
 })
 export class AccessControlModule {}

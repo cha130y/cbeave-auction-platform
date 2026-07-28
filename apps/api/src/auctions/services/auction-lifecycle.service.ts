@@ -3,6 +3,7 @@ import { Interval } from '@nestjs/schedule';
 import { PrismaService } from '../../database/prisma.service';
 import { AuctionEventType, AuctionStatus } from '../../generated/prisma/enums';
 import { NotificationsService } from '../../notifications/notifications.service';
+import { AuctionBiddingGateway } from '../../bidding/gateways/auction-bidding.gateway';
 
 const AUCTION_LIFECYCLE_INTERVAL_MS = 10_000;
 const AUCTION_LIFECYCLE_BATCH_SIZE = 50;
@@ -12,6 +13,7 @@ export class AuctionLifecycleService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly notificationsService: NotificationsService,
+    private readonly auctionBiddingGateway: AuctionBiddingGateway,
   ) {}
   private readonly logger = new Logger(AuctionLifecycleService.name);
   private reconciliationRunning = false;
@@ -209,6 +211,7 @@ export class AuctionLifecycleService {
       select: {
         id: true,
         rowVersion: true,
+        currentEndAt: true,
       },
     });
 
@@ -254,6 +257,15 @@ export class AuctionLifecycleService {
 
       if (activated) {
         activatedCount += 1;
+
+        if (auction.currentEndAt) {
+          this.auctionBiddingGateway.broadcastAuctionStarted({
+            auctionId: auction.id,
+            status: AuctionStatus.ACTIVE,
+            startedAt: now.toISOString(),
+            currentEndAt: auction.currentEndAt.toISOString(),
+          });
+        }
       }
     }
 

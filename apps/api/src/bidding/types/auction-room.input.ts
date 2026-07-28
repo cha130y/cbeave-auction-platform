@@ -4,4 +4,5 @@ export type AuctionRoomInput = {
 
 export type AuctionRoomResponse = {
   auctionId: string;
+  participantCount: number;
 };
