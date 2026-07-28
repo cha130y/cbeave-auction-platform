@@ -15,4 +15,6 @@
 - `architecture/erd/future/` — future-state reference only
 - `architecture/erd/comparison.md` — scope comparison
 
-The Version 1 DBML is the design source of truth until `prisma/schema.prisma` is implemented. After that, Prisma migrations become the executable database history while DBML remains the documentation model.
+The implemented Prisma schema and committed migrations under `apps/api/prisma/` are the executable database source of truth. The Version 1 DBML remains the documentation model, and the future-state DBML remains reference-only.
+
+Use `requirements/REQUIREMENTS_TRACEABILITY.md` to track implementation and verification progress. Use `architecture/MODULE_MAP.md` for the current backend structure and the target frontend structure.

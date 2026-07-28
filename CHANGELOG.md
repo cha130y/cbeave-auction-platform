@@ -47,6 +47,7 @@ The format follows Keep a Changelog principles. Product releases will use semant
 - Added a consolidated architecture decision record for the core domain.
 - Added editable Version 1 and future-state DBML diagrams.
 - Added a four-week delivery roadmap and repository module map.
+- Refreshed the project status, roadmap checkpoint, module map, API and web setup guides, traceability headings, and example Docker database connection before frontend implementation; also replaced the starter's build-time Google font dependency and placeholder metadata.
 
 ### Changed
 

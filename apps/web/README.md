@@ -1,36 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CBeave Web
 
-## Getting Started
+Next.js App Router frontend for the CBeave auction platform.
 
-First, run the development server:
+## Current state
+
+The application currently contains the base Next.js and Tailwind CSS scaffold. Frontend foundation and feature integration are the next delivery phase.
+
+The target experience includes:
+
+- Registration and local/social login
+- Public auction discovery and details
+- Seller draft, image, preview, and publication workflows
+- Scheduled lobby and real-time Live Arena
+- Watchlist, notifications, and profile management
+- Administrator user, category, auction, and audit screens
+
+## Local development
+
+Run commands from the repository root.
+
+Install workspace dependencies:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Start the API and web application in separate terminals:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+pnpm dev:api
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+pnpm dev:web
+```
 
-## Learn More
+Open `http://localhost:3000`. The API runs at `http://localhost:3001`.
 
-To learn more about Next.js, take a look at the following resources:
+## Quality checks
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+pnpm --dir apps/web lint
+pnpm --dir apps/web build
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Frontend architecture target
 
-## Deploy on Vercel
+- Route groups separate authentication, marketplace, dashboard, and administration experiences.
+- A shared API layer handles the API base URL, credentials, normalized errors, and access-token use.
+- TanStack Query manages server state and cache invalidation.
+- React Hook Form and Zod manage client-side forms and validation.
+- Socket.IO integrates Live Arena room participation and auction events.
+- Stable shared REST and WebSocket contracts belong in `packages/contracts`.
+- Prisma-generated types must not be imported into the web application.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+See `../../docs/architecture/MODULE_MAP.md` and `../../docs/requirements/REQUIREMENTS_TRACEABILITY.md` before adding feature routes.

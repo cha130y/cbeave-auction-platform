@@ -35,6 +35,19 @@ Finish one complete, stable auction journey before adding breadth. The project i
 
 P1 features are committed, but their implementation must remain minimal and focused. Visual effects may be reduced before correctness, security, or testing is reduced.
 
+## Implementation checkpoint — July 28, 2026
+
+The backend feature scope is implemented and manually verified across authentication, profiles, categories, auction lifecycle, discovery, transactional bidding, real-time Live Arena events, watchlists, notifications, and administration. The PostgreSQL Docker development workflow and committed Prisma migration are also verified.
+
+The next delivery phase is the frontend:
+
+- Establish the shared Next.js application shell, API client, authentication state, query state, forms, and reusable UI primitives.
+- Implement the marketplace, auction details, seller flow, Live Arena, watchlist, notifications, profile, and administration screens.
+- Connect REST and Socket.IO behavior to the verified backend contracts.
+- Add frontend and cross-application automated tests, seed/demo data, API documentation, and final desktop/mobile stabilization.
+
+The weekly plan below remains the approved delivery sequence; this checkpoint records actual progress and does not expand Version 1 scope.
+
 ## Four-week plan
 
 ### Week 1 — Freeze, foundation, and identity
