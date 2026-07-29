@@ -51,7 +51,8 @@ export class AuctionsController {
     return this.auctionsService.listPublic(query);
   }
 
-  // Keep this static route before the dynamic ':auctionId' route.  @Get('hot')
+  // Keep this static route before the dynamic ':auctionId' route.
+  @Get('hot')
   listHot(
     @Query() query: ListHotAuctionsQueryDto,
   ): Promise<ListHotAuctionsResponseDto> {

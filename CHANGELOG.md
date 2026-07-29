@@ -40,6 +40,7 @@ The format follows Keep a Changelog principles. Product releases will use semant
 - Added post-commit `auction:ended` Socket.IO broadcasts with Sold/Unsold status, final price, bid count, reserve result, completion time, and a masked winner for successful auctions.
 - Documented and verified the Docker-based PostgreSQL development environment, including Compose validation, persistent-volume-safe restarts, Prisma migration checks, API database health verification, and destructive reset guidance.
 - Added the CBeave web frontend foundation with centralized API requests, refresh-session restoration, TanStack Query, authenticated Socket.IO setup, and Figma-aligned local, Google, and Facebook authentication screens.
+- Added responsive public auction discovery and detail pages with hot, scheduled, active, and recent-result sections, runtime response validation, loading/error/empty states, and hidden-reserve-safe public data.
 
 ### Documentation
 
@@ -73,5 +74,6 @@ The format follows Keep a Changelog principles. Product releases will use semant
 - Removed Version 1 JSON payload columns from notifications and auction events, and changed the event sequence identifier to an auto-incrementing integer.
 - Required every persisted notification to reference an auction while keeping its bid reference optional.
 - Deferred Buy Now, payments, shipping, messaging, reviews, storefronts, native applications, PWA support, and advanced analytics.
+- Hardened public auction discovery and detail queries to exclude incomplete records that lack required lifecycle timestamps or a primary image.
 
 > This entry records approved documentation and scope changes. It does not claim that application features are already implemented.
