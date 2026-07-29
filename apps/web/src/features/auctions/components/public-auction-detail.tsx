@@ -68,7 +68,7 @@ export function PublicAuctionDetail({ auctionId }: PublicAuctionDetailProps) {
       </Link>
 
       <div className='mt-7 grid gap-8 lg:grid-cols-2'>
-        <div className='relative aspect-[4/3] overflow-hidden rounded-3xl border border-border bg-surface'>
+        <div className='relative aspect-4/3 overflow-hidden rounded-3xl border border-border bg-surface'>
           <Image
             src={primaryImage.url}
             alt={primaryImage.altText ?? auction.title}
