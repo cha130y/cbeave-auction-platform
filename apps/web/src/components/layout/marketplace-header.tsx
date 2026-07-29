@@ -37,7 +37,6 @@ export function MarketplaceHeader() {
         >
           <CBeaveLogo className='scale-90 sm:scale-100' />
         </Link>
-
         <nav
           aria-label='Primary navigation'
           //hidden : Hides navigation by default on mobile
@@ -60,7 +59,6 @@ export function MarketplaceHeader() {
             Live now
           </Link>
         </nav>
-
         <div className='flex min-w-0 items-center justify-end gap-3'>
           {status === 'loading' && (
             <div
@@ -76,10 +74,9 @@ export function MarketplaceHeader() {
               Log in or register
             </Link>
           )}
-
           {status === 'authenticated' && (
             <Link
-              href='/auth'
+              href='/profile'
               className='flex min-w-0 items-center gap-3 rounded-full border border-border bg-surface px-2 py-1.5 transition hover:border-primary/60'
               aria-label={`Open account for ${displayName}`}
             >
