@@ -45,6 +45,23 @@ const PUBLIC_AUCTION_STATUSES: AuctionStatus[] = [
   AuctionStatus.UNSOLD,
 ];
 
+const PUBLIC_AUCTION_REQUIREMENTS = {
+  scheduledStartAt: {
+    not: null,
+  },
+  currentEndAt: {
+    not: null,
+  },
+  publishedAt: {
+    not: null,
+  },
+  auctionImages: {
+    some: {
+      isPrimary: true,
+    },
+  },
+} satisfies Prisma.AuctionWhereInput;
+
 @Injectable()
 export class AuctionsService {
   private readonly logger = new Logger(AuctionsService.name);
@@ -60,6 +77,7 @@ export class AuctionsService {
       where: {
         status: AuctionStatus.ACTIVE,
         deletedAt: null,
+        ...PUBLIC_AUCTION_REQUIREMENTS,
         currentEndAt: {
           gt: new Date(),
         },
@@ -94,6 +112,7 @@ export class AuctionsService {
           in: PUBLIC_AUCTION_STATUSES,
         },
         deletedAt: null,
+        ...PUBLIC_AUCTION_REQUIREMENTS,
       },
       select: publicAuctionDetailSelect,
     });
@@ -112,6 +131,7 @@ export class AuctionsService {
           in: PUBLIC_AUCTION_STATUSES,
         },
         deletedAt: null,
+        ...PUBLIC_AUCTION_REQUIREMENTS,
         ...(input.categoryId
           ? {
               categoryId: input.categoryId,
