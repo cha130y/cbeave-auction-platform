@@ -4,6 +4,11 @@ import { publishAuction } from '@/features/auctions/api/auctions.api';
 import { AuctionImageManager } from '@/features/auctions/components/auction-image-manager';
 import { useOwnedAuctionDraft } from '@/features/auctions/queries/auction.queries';
 import { useAuth } from '@/features/auth/use-auth';
+import {
+  formatDateTime,
+  formatMoney,
+  formatOptionalDateTime,
+} from '@/lib/formatters';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -11,26 +16,6 @@ import { useEffect, useState } from 'react';
 type AuctionDraftScreenProps = {
   auctionId: string;
 };
-
-function formatMoney(amount: string, currency: string): string {
-  //Intl is JavaScript’s built-in internationalization API. It formats values according to locale and regional conventions.
-  //formatMoney('1234.5', 'THB') ==> "฿1,234.50"
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency,
-  }).format(Number(amount));
-}
-
-function formatDate(value: string | null): string {
-  if (!value) {
-    return 'Not scheduled';
-  }
-
-  return new Intl.DateTimeFormat('en-US', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(new Date(value));
-}
 
 export function AuctionDraftScreen({ auctionId }: AuctionDraftScreenProps) {
   const router = useRouter();
@@ -133,7 +118,8 @@ export function AuctionDraftScreen({ auctionId }: AuctionDraftScreenProps) {
           </h1>
 
           <p className='mt-3 text-muted'>
-            {draft.category.name} · Last updated {formatDate(draft.updatedAt)}
+            {draft.category.name} · Last updated{' '}
+            {formatDateTime(draft.updatedAt)}
           </p>
         </div>
 
@@ -212,14 +198,14 @@ export function AuctionDraftScreen({ auctionId }: AuctionDraftScreenProps) {
               <div>
                 <dt className='text-muted'>Starts</dt>
                 <dd className='mt-1 font-bold text-foreground'>
-                  {formatDate(draft.scheduledStartAt)}
+                  {formatOptionalDateTime(draft.scheduledStartAt)}
                 </dd>
               </div>
 
               <div>
                 <dt className='text-muted'>Ends</dt>
                 <dd className='mt-1 font-bold text-foreground'>
-                  {formatDate(draft.currentEndAt)}
+                  {formatOptionalDateTime(draft.currentEndAt)}
                 </dd>
               </div>
             </dl>

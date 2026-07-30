@@ -2,6 +2,7 @@ import {
   PublicAuctionStatus,
   PublicAuctionSummary,
 } from '@/features/auctions/schemas/auction.schemas';
+import { formatCompactDateTime, formatMoney } from '@/lib/formatters';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -23,13 +24,6 @@ const statusClasses: Record<PublicAuctionStatus, string> = {
   UNSOLD: 'bg-surface-muted/90 text-muted',
 };
 
-function formatMoney(amount: string, currency: string): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency,
-  }).format(Number(amount));
-}
-
 function formatAuctionDate(
   status: PublicAuctionStatus,
   scheduledStartAt: string,
@@ -40,12 +34,7 @@ function formatAuctionDate(
       ? new Date(scheduledStartAt)
       : new Date(currentEndAt);
 
-  const formattedDate = new Intl.DateTimeFormat('en-US', {
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  }).format(date);
+  const formattedDate = formatCompactDateTime(date);
 
   switch (status) {
     case 'SCHEDULED':
