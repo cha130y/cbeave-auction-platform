@@ -77,6 +77,28 @@ export function MarketplaceHeader() {
           {status === 'authenticated' && (
             <>
               <Link
+                href='/watchlist'
+                aria-label='Open your watchlist'
+                className='inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-full border border-border bg-surface px-3 text-sm font-bold text-foreground transition hover:border-primary/60 hover:text-primary'
+              >
+                <svg
+                  aria-hidden='true'
+                  viewBox='0 0 24 24'
+                  fill='none'
+                  stroke='currentColor'
+                  strokeWidth='2'
+                  className='size-4'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    d='M5 5.5A2.5 2.5 0 0 1 7.5 3h9A2.5 2.5 0 0 1 19 5.5V21l-7-4-7 4V5.5Z'
+                  />
+                </svg>
+
+                <span className='hidden lg:inline'>Watchlist</span>
+              </Link>
+              <Link
                 href='/sell'
                 className='inline-flex min-h-10 items-center justify-center rounded-full bg-primary px-4 text-sm font-black text-background transition hover:bg-primary-strong'
               >
