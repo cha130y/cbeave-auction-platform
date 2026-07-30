@@ -44,6 +44,7 @@ The format follows Keep a Changelog principles. Product releases will use semant
 - Added responsive authenticated profile editing with prefilled account data, required and optional field validation, nullable-field clearing, persistent updates, and immediate shared-header refresh.
 - Added a responsive authenticated seller auction workflow with validated draft creation and editing, active-category selection, local-time scheduling, Cloudinary image upload and deletion, primary-image handling, publication readiness guidance, and public-detail redirection after publication.
 - Added a responsive authenticated watchlist with auction-detail watch controls, persistent idempotent add/remove behavior, cursor-based loading, direct list removal, empty/error/loading states, and shared-header navigation.
+- Added responsive authenticated web bidding with exact client-side money validation, server-authoritative accepted-bid feedback, masked public bid history, and auction-room real-time updates across browser tabs.
 
 ### Documentation
 
