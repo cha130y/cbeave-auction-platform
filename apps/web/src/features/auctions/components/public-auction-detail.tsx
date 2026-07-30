@@ -1,6 +1,7 @@
 'use client';
 
 import { usePublicAuction } from '@/features/auctions/queries/auction.queries';
+import { WatchAuctionButton } from '@/features/watchlists/components/watch-auction-button';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -100,6 +101,10 @@ export function PublicAuctionDetail({ auctionId }: PublicAuctionDetailProps) {
               {auction.seller.displayName}
             </span>
           </p>
+
+          <div className='mt-6'>
+            <WatchAuctionButton auctionId={auction.id} />
+          </div>
 
           <div className='mt-8 border-y border-border py-6'>
             <p className='text-xs font-black tracking-wider text-muted uppercase'>
