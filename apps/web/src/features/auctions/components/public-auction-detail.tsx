@@ -1,27 +1,16 @@
 'use client';
 
 import { usePublicAuction } from '@/features/auctions/queries/auction.queries';
+import { PlaceBidForm } from '@/features/bidding/components/place-bid-form';
+import { PublicBidHistory } from '@/features/bidding/components/public-bid-history';
 import { WatchAuctionButton } from '@/features/watchlists/components/watch-auction-button';
+import { formatDateTime, formatMoney } from '@/lib/formatters';
 import Image from 'next/image';
 import Link from 'next/link';
 
 type PublicAuctionDetailProps = {
   auctionId: string;
 };
-
-function formatMoney(amount: string, currency: string): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency,
-  }).format(Number(amount));
-}
-
-function formatDate(value: string): string {
-  return new Intl.DateTimeFormat('en-US', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(new Date(value));
-}
 
 export function PublicAuctionDetail({ auctionId }: PublicAuctionDetailProps) {
   const auctionQuery = usePublicAuction(auctionId);
@@ -121,6 +110,10 @@ export function PublicAuctionDetail({ auctionId }: PublicAuctionDetailProps) {
             </p>
           </div>
 
+          <div className='mt-6'>
+            <PlaceBidForm auction={auction} />
+          </div>
+
           <div className='mt-6 grid grid-cols-2 gap-4'>
             <div className='rounded-2xl bg-surface-muted p-4'>
               <p className='text-xs font-bold text-muted uppercase'>Bids</p>
@@ -143,14 +136,14 @@ export function PublicAuctionDetail({ auctionId }: PublicAuctionDetailProps) {
             <p>
               Starts:{' '}
               <span className='text-foreground'>
-                {formatDate(auction.scheduledStartAt)}
+                {formatDateTime(auction.scheduledStartAt)}
               </span>
             </p>
 
             <p>
               Current deadline:{' '}
               <span className='text-foreground'>
-                {formatDate(auction.currentEndAt)}
+                {formatDateTime(auction.currentEndAt)}
               </span>
             </p>
           </div>
@@ -166,6 +159,17 @@ export function PublicAuctionDetail({ auctionId }: PublicAuctionDetailProps) {
           </div>
         </section>
       </div>
+
+      <section className='mt-8 rounded-3xl border border-border bg-surface p-6 sm:p-8'>
+        <h2 className='text-xl font-extrabold text-foreground'>Bid history</h2>
+
+        <p className='mt-2 text-sm leading-6 text-muted'>
+          Accepted bids are shown in chronological order. Bidder names are
+          masked for privacy.
+        </p>
+
+        <PublicBidHistory auctionId={auction.id} currency={auction.currency} />
+      </section>
     </div>
   );
 }
