@@ -1,6 +1,14 @@
 'use client';
 
 import {
+  auctionDraftImageSchema,
+  auctionDraftResponseSchema,
+  publishAuctionResponseSchema,
+  PublishedAuction,
+  type AuctionDraft,
+  type AuctionDraftImage,
+} from '@/features/auctions/schemas/auction-draft.schemas';
+import {
   ListHotAuctionsResponse,
   listHotAuctionsResponseSchema,
   ListPublicAuctionsResponse,
@@ -14,6 +22,32 @@ export type ListPublicAuctionsParams = {
   limit?: number;
   categoryId?: string;
   cursor?: string;
+};
+
+export type CreateAuctionDraftInput = {
+  categoryId: string;
+  title: string;
+  description: string;
+  startingPrice: string;
+  reservePrice: string | null;
+  minBidIncrement: string;
+  scheduledStartAt: string | null;
+  scheduledEndAt: string | null;
+};
+
+export type UpdateAuctionDraftInput = CreateAuctionDraftInput & {
+  auctionId: string;
+};
+
+export type AddAuctionImageInput = {
+  auctionId: string;
+  image: File;
+  altText?: string;
+};
+
+export type DeleteAuctionImageInput = {
+  auctionId: string;
+  imageId: string;
 };
 
 function createQueryString(
@@ -58,5 +92,94 @@ export async function getPublicAuction(
   return publicAuctionDetailSchema.parse(
     //encodeURIComponent() prevents unexpected route characters from changing the requested path
     await apiRequest<unknown>(`/auctions/${encodeURIComponent(auctionId)}`),
+  );
+}
+
+export async function createAuctionDraft(
+  input: CreateAuctionDraftInput,
+): Promise<AuctionDraft> {
+  return auctionDraftResponseSchema.parse(
+    await apiRequest<unknown>('/auctions', {
+      method: 'POST',
+      body: JSON.stringify(input),
+    }),
+  );
+}
+
+export async function getOwnedAuctionDraft(
+  auctionId: string,
+): Promise<AuctionDraft> {
+  return auctionDraftResponseSchema.parse(
+    await apiRequest<unknown>(
+      `/auctions/${encodeURIComponent(auctionId)}/draft`,
+    ),
+  );
+}
+
+export async function updateOwnedAuctionDraft({
+  auctionId,
+  ...input
+}: UpdateAuctionDraftInput) {
+  return auctionDraftResponseSchema.parse(
+    await apiRequest<unknown>(
+      `/auctions/${encodeURIComponent(auctionId)}/draft`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify(input),
+      },
+    ),
+  );
+}
+
+export async function addAuctionImage({
+  auctionId,
+  image,
+  altText,
+}: AddAuctionImageInput): Promise<AuctionDraftImage> {
+  const formData = new FormData();
+
+  formData.append('image', image);
+
+  const normalizedAltText = altText?.trim();
+
+  if (normalizedAltText) {
+    formData.append('altText', normalizedAltText);
+  }
+
+  return auctionDraftImageSchema.parse(
+    await apiRequest<unknown>(
+      `/auctions/${encodeURIComponent(auctionId)}/images`,
+      {
+        method: 'POST',
+        body: formData,
+      },
+    ),
+  );
+}
+
+export async function deleteAuctionImage({
+  auctionId,
+  imageId,
+}: DeleteAuctionImageInput): Promise<void> {
+  await apiRequest<void>(
+    `/auctions/${encodeURIComponent(
+      auctionId,
+    )}/images/${encodeURIComponent(imageId)}`,
+    {
+      method: 'DELETE',
+    },
+  );
+}
+
+export async function publishAuction(
+  auctionId: string,
+): Promise<PublishedAuction> {
+  return publishAuctionResponseSchema.parse(
+    await apiRequest<unknown>(
+      `/auctions/${encodeURIComponent(auctionId)}/publish`,
+      {
+        method: 'POST',
+      },
+    ),
   );
 }
