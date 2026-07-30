@@ -75,34 +75,44 @@ export function MarketplaceHeader() {
             </Link>
           )}
           {status === 'authenticated' && (
-            <Link
-              href='/profile'
-              className='flex min-w-0 items-center gap-3 rounded-full border border-border bg-surface px-2 py-1.5 transition hover:border-primary/60'
-              aria-label={`Open account for ${displayName}`}
-            >
-              {user?.profile?.avatarUrl ? (
-                <Image
-                  src={user.profile.avatarUrl}
-                  alt=''
-                  referrerPolicy='no-referrer'
-                  width={32}
-                  height={32}
-                  unoptimized
-                  className='size-8 rounded-full object-cover'
-                />
-              ) : (
-                <span
-                  aria-hidden='true'
-                  className='grid size-8 shrink-0 place-items-center rounded-full bg-linear-to-br from-accent to-primary text-xs font-black text-white'
-                >
-                  {createInitials(displayName)}
-                </span>
-              )}
+            <>
+              <Link
+                href='/sell'
+                className='inline-flex min-h-10 items-center justify-center rounded-full bg-primary px-4 text-sm font-black text-background transition hover:bg-primary-strong'
+              >
+                <span>Sell</span>
+                <span className='hidden sm:inline'>&nbsp;an item</span>
+              </Link>
 
-              <span className='hidden max-w-32 truncate pr-2 text-sm font-bold text-foreground sm:block'>
-                {displayName}
-              </span>
-            </Link>
+              <Link
+                href='/profile'
+                className='flex min-w-0 items-center gap-3 rounded-full border border-border bg-surface px-2 py-1.5 transition hover:border-primary/60'
+                aria-label={`Open account for ${displayName}`}
+              >
+                {user?.profile?.avatarUrl ? (
+                  <Image
+                    src={user.profile.avatarUrl}
+                    alt=''
+                    referrerPolicy='no-referrer'
+                    width={32}
+                    height={32}
+                    unoptimized
+                    className='size-8 rounded-full object-cover'
+                  />
+                ) : (
+                  <span
+                    aria-hidden='true'
+                    className='grid size-8 shrink-0 place-items-center rounded-full bg-linear-to-br from-accent to-primary text-xs font-black text-white'
+                  >
+                    {createInitials(displayName)}
+                  </span>
+                )}
+
+                <span className='hidden max-w-32 truncate pr-2 text-sm font-bold text-foreground sm:block'>
+                  {displayName}
+                </span>
+              </Link>
+            </>
           )}
         </div>
       </div>
