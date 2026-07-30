@@ -91,8 +91,20 @@ export function PublicAuctionDetail({ auctionId }: PublicAuctionDetailProps) {
             </span>
           </p>
 
-          <div className='mt-6'>
+          <div className='mt-6 flex flex-wrap gap-3'>
             <WatchAuctionButton auctionId={auction.id} />
+
+            {(auction.status === 'SCHEDULED' ||
+              auction.status === 'ACTIVE') && (
+              <Link
+                href={`/auctions/${auction.id}/live`}
+                className='inline-flex min-h-11 items-center justify-center rounded-full bg-primary px-6 font-bold text-background transition hover:bg-primary/90'
+              >
+                {auction.status === 'ACTIVE'
+                  ? 'Enter Live Arena'
+                  : 'Join auction lobby'}
+              </Link>
+            )}
           </div>
 
           <div className='mt-8 border-y border-border py-6'>
