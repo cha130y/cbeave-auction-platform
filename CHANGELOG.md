@@ -42,6 +42,7 @@ The format follows Keep a Changelog principles. Product releases will use semant
 - Added the CBeave web frontend foundation with centralized API requests, refresh-session restoration, TanStack Query, authenticated Socket.IO setup, and Figma-aligned local, Google, and Facebook authentication screens.
 - Added responsive public auction discovery and detail pages with hot, scheduled, active, and recent-result sections, runtime response validation, loading/error/empty states, and hidden-reserve-safe public data.
 - Added responsive authenticated profile editing with prefilled account data, required and optional field validation, nullable-field clearing, persistent updates, and immediate shared-header refresh.
+- Added a responsive authenticated seller auction workflow with validated draft creation and editing, active-category selection, local-time scheduling, Cloudinary image upload and deletion, primary-image handling, publication readiness guidance, and public-detail redirection after publication.
 
 ### Documentation
 
