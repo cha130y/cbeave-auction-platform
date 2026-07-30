@@ -45,6 +45,7 @@ The format follows Keep a Changelog principles. Product releases will use semant
 - Added a responsive authenticated seller auction workflow with validated draft creation and editing, active-category selection, local-time scheduling, Cloudinary image upload and deletion, primary-image handling, publication readiness guidance, and public-detail redirection after publication.
 - Added a responsive authenticated watchlist with auction-detail watch controls, persistent idempotent add/remove behavior, cursor-based loading, direct list removal, empty/error/loading states, and shared-header navigation.
 - Added responsive authenticated web bidding with exact client-side money validation, server-authoritative accepted-bid feedback, masked public bid history, and auction-room real-time updates across browser tabs.
+- Added a responsive authenticated Live Arena lobby with a scheduled countdown, live participant counts, reconnect-safe room participation, and automatic transition into the active auction state without a page refresh.
 
 ### Documentation
 

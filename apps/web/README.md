@@ -10,6 +10,7 @@ The application now includes the shared frontend foundation and the core marketp
 
 Implemented frontend slices:
 
+- Scheduled Live Arena lobby with countdown, live participant counts, reconnect handling, and automatic auction-start transition
 - Validated public environment configuration
 - Centralized API requests with normalized NestJS errors
 - Memory-only access-token handling and HttpOnly refresh-session restoration
@@ -25,7 +26,7 @@ Implemented frontend slices:
 
 Remaining frontend delivery phases:
 
-- Scheduled lobby and full Live Arena experience
+- Active bidding arena, sudden-death extension feedback, and auction-result experience
 - Notification center
 - Administrator user, category, auction, and audit screens
 
