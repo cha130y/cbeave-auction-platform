@@ -43,6 +43,7 @@ The format follows Keep a Changelog principles. Product releases will use semant
 - Added responsive public auction discovery and detail pages with hot, scheduled, active, and recent-result sections, runtime response validation, loading/error/empty states, and hidden-reserve-safe public data.
 - Added responsive authenticated profile editing with prefilled account data, required and optional field validation, nullable-field clearing, persistent updates, and immediate shared-header refresh.
 - Added a responsive authenticated seller auction workflow with validated draft creation and editing, active-category selection, local-time scheduling, Cloudinary image upload and deletion, primary-image handling, publication readiness guidance, and public-detail redirection after publication.
+- Added a responsive authenticated watchlist with auction-detail watch controls, persistent idempotent add/remove behavior, cursor-based loading, direct list removal, empty/error/loading states, and shared-header navigation.
 
 ### Documentation
 
