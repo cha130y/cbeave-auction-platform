@@ -19,11 +19,8 @@ const countdownUnits = [
 ] as const;
 
 export function ActiveArenaPanel({ auction, enabled }: ActiveArenaPanelProps) {
-  const { arenaState, errorMessage, status } = useActiveArenaState(
-    auction.id,
-    enabled,
-  );
-
+  const { arenaState, errorMessage, latestExtension, status } =
+    useActiveArenaState(auction.id, enabled);
   const currentEndAt = arenaState?.currentEndAt ?? '1970-01-01T00:00:00.000Z';
 
   const countdown = useCountdown(currentEndAt);
@@ -60,6 +57,40 @@ export function ActiveArenaPanel({ auction, enabled }: ActiveArenaPanelProps) {
 
   return (
     <div className='mt-8 space-y-6'>
+      {latestExtension && (
+        <section
+          className='rounded-2xl border border-primary/40 bg-primary/10 p-5'
+          role='status'
+          aria-live='polite'
+        >
+          <p className='text-xs font-black tracking-wider text-primary uppercase'>
+            Sudden-death extension #{latestExtension.extensionNumber}
+          </p>
+
+          <h2 className='mt-2 text-xl font-black text-foreground'>
+            Auction extended by {latestExtension.extensionSeconds} seconds
+          </h2>
+
+          <p className='mt-2 text-sm leading-6 text-muted'>
+            Bid #{latestExtension.triggeringBid.sequenceNo} at{' '}
+            <span className='font-bold text-foreground'>
+              {formatMoney(
+                latestExtension.triggeringBid.amount,
+                arenaState.currency,
+              )}
+            </span>{' '}
+            moved the deadline from{' '}
+            <span className='font-bold text-foreground'>
+              {formatDateTime(latestExtension.previousEndAt)}
+            </span>{' '}
+            to{' '}
+            <span className='font-bold text-foreground'>
+              {formatDateTime(latestExtension.newEndAt)}
+            </span>
+            .
+          </p>
+        </section>
+      )}
       <section className='rounded-2xl border border-primary/25 bg-primary/5 p-5 sm:p-6'>
         <div className='flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between'>
           <div>

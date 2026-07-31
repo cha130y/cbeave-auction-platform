@@ -3,7 +3,9 @@
 import { bidAcceptedEventSchema } from '@/features/bidding/schemas/bidding.schemas';
 import {
   activeArenaStateSchema,
+  auctionExtendedEventSchema,
   type ActiveArenaState,
+  type AuctionExtendedEvent,
 } from '@/features/live-arena/schemas/live-arena.schemas';
 import { getAuctionSocket } from '@/lib/realtime/auction-socket';
 import { useEffect, useState } from 'react';
@@ -14,6 +16,7 @@ type UseActiveArenaStateResult = {
   status: ActiveArenaStateStatus;
   errorMessage: string | null;
   arenaState: ActiveArenaState | null;
+  latestExtension: AuctionExtendedEvent | null;
 };
 
 export function useActiveArenaState(
@@ -23,6 +26,8 @@ export function useActiveArenaState(
   const [status, setStatus] = useState<ActiveArenaStateStatus>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [arenaState, setArenaState] = useState<ActiveArenaState | null>(null);
+  const [latestExtension, setLatestExtension] =
+    useState<AuctionExtendedEvent | null>(null);
 
   useEffect(() => {
     if (!enabled) {
@@ -77,17 +82,37 @@ export function useActiveArenaState(
         return;
       }
 
+      //run this method when user place a accepted bid
       requestState();
+    };
+
+    const handleAuctionExtended = (payload: unknown) => {
+      const result = auctionExtendedEventSchema.safeParse(payload);
+
+      if (!result.success || result.data.auctionId !== auctionId) {
+        return;
+      }
+
+      setLatestExtension(result.data);
     };
 
     //Whenever the server sends an auction:bid-accepted event through this socket, call handleBidAccepted
     socket.on('auction:bid-accepted', handleBidAccepted);
+    socket.on('auction:extended', handleAuctionExtended);
+
+    //run this method when enter the room/ refresh page
     requestState();
 
+    //clean up the event listener when
+    // the component unmounts;
+    // auctionId changes;
+    // enabled changes;
+    // the effect needs to register a new listener.
     return () => {
       mounted = false;
       //Stop calling this particular handleBidAccepted function for this event
       socket.off('auction:bid-accepted', handleBidAccepted);
+      socket.off('auction:extended', handleAuctionExtended);
     };
   }, [auctionId, enabled]);
 
@@ -95,5 +120,9 @@ export function useActiveArenaState(
     status: enabled ? status : 'idle',
     errorMessage: enabled ? errorMessage : null,
     arenaState: enabled ? arenaState : null,
+    latestExtension:
+      enabled && latestExtension?.auctionId === auctionId
+        ? latestExtension
+        : null,
   };
 }
