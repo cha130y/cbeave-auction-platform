@@ -24,10 +24,10 @@ Implemented frontend slices:
 - Active Live Arena with authoritative auction state, live participant counts, masked bid activity, remaining-time countdown, seller bid protection, reserve-state updates, and accepted bid placement
 - Live sudden-death feedback with triggering-bid context, previous and updated deadlines, extension counts, and automatic countdown updates
 - Live Arena Sold and Unsold result views with immediate Socket.IO updates, refresh-safe persisted results, final auction facts, and masked winner identity
+- Authenticated notification center with unread filtering, read tracking, auction navigation, cursor-based loading, and a shared-header unread indicator
 
 Remaining frontend delivery phases:
 
-- Notification center
 - Administrator user, category, auction, and audit screens
 
 ## Local development

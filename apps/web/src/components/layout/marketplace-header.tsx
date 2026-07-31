@@ -2,6 +2,7 @@
 
 import { CBeaveLogo } from '@/components/brand/cbeave-logo';
 import { useAuth } from '@/features/auth/use-auth';
+import { useInfiniteNotifications } from '@/features/notifications/queries/notification.queries';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -23,19 +24,32 @@ function createInitials(displayName: string): string {
 
 export function MarketplaceHeader() {
   const { status, user } = useAuth();
+  const unreadNotificationsQuery = useInfiniteNotifications(
+    {
+      limit: 1,
+      unreadOnly: true,
+    },
+    status === 'authenticated',
+  );
+
+  const hasUnreadNotifications =
+    unreadNotificationsQuery.data?.pages.some(
+      (page) => page.items.length > 0,
+    ) ?? false;
 
   const displayName =
     user?.profile?.displayName ?? user?.email.split('@')[0] ?? 'Account';
 
   return (
     <header className='sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur-xl'>
-      <div className='mx-auto flex h-18 w-full max-w-360 items-center justify-between gap-6 px-4 sm:px-6 lg:px-8'>
+      <div className='mx-auto flex h-18 w-full max-w-360 items-center justify-between gap-2 px-4 sm:gap-4 sm:px-6 lg:gap-6 lg:px-8'>
         <Link
           href='/'
           aria-label='Go to the CBeave marketplace'
           className='shrink-0'
         >
-          <CBeaveLogo className='scale-90 sm:scale-100' />
+          <CBeaveLogo compact className='sm:hidden' />
+          <CBeaveLogo className='hidden sm:inline-flex' />
         </Link>
         <nav
           aria-label='Primary navigation'
@@ -59,7 +73,7 @@ export function MarketplaceHeader() {
             Live now
           </Link>
         </nav>
-        <div className='flex min-w-0 items-center justify-end gap-3'>
+        <div className='flex min-w-0 items-center justify-end gap-2 sm:gap-3'>
           {status === 'loading' && (
             <div
               aria-label='Restoring session'
@@ -76,6 +90,41 @@ export function MarketplaceHeader() {
           )}
           {status === 'authenticated' && (
             <>
+              <Link
+                href='/notifications'
+                aria-label={
+                  hasUnreadNotifications
+                    ? 'Open notifications; unread notifications available'
+                    : 'Open notifications'
+                }
+                className='inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-full border border-border bg-surface px-3 text-sm font-bold text-foreground transition hover:border-primary/60 hover:text-primary'
+              >
+                <span className='relative'>
+                  <svg
+                    aria-hidden='true'
+                    viewBox='0 0 24 24'
+                    fill='none'
+                    stroke='currentColor'
+                    strokeWidth='2'
+                    className='size-4'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      d='M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4'
+                    />
+                  </svg>
+
+                  {hasUnreadNotifications && (
+                    <span
+                      aria-hidden='true'
+                      className='absolute -top-1 -right-1 size-2 rounded-full bg-primary'
+                    />
+                  )}
+                </span>
+
+                <span className='hidden xl:inline'>Notifications</span>
+              </Link>
               <Link
                 href='/watchlist'
                 aria-label='Open your watchlist'

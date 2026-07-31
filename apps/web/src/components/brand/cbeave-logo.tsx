@@ -1,4 +1,5 @@
-import { cn } from "@/lib/utils/cn";
+import { cn } from '@/lib/utils/cn';
+import Image from 'next/image';
 
 type CBeaveLogoProps = {
   className?: string;
@@ -10,23 +11,18 @@ export function CBeaveLogo({
   compact = false,
 }: CBeaveLogoProps) {
   return (
-    <div
-      className={cn("inline-flex items-center gap-3", className)}
-      aria-label="CBeave"
+    <span
+      className={cn('inline-flex shrink-0 items-center', className)}
+      aria-label='CBeave'
     >
-      <span className="relative grid size-10 shrink-0 place-items-center overflow-hidden rounded-xl bg-linear-to-br from-accent via-[#734cff] to-primary shadow-[0_0_28px_rgba(0,229,255,0.18)]">
-        <span
-          className="text-[23px] leading-none font-black text-white"
-          aria-hidden="true"
-        >
-          ϟ
-        </span>
-      </span>
-      {!compact && (
-        <span className="text-[1.7rem] leading-none font-extrabold tracking-[-0.055em] text-white">
-          C<span className="text-primary">Beave</span>
-        </span>
-      )}
-    </div>
+      <Image
+        src='/brand/cbeave-wordmark.png'
+        alt=''
+        width={720}
+        height={184}
+        priority
+        className={cn('h-auto object-contain', compact ? 'w-24' : 'w-40')}
+      />
+    </span>
   );
 }
