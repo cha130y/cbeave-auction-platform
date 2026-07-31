@@ -6,7 +6,10 @@ import { ActiveArenaPanel } from '@/features/live-arena/components/active-arena-
 import { useCountdown } from '@/features/live-arena/hooks/use-countdown';
 import { useAuctionLobby } from '@/features/live-arena/realtime/use-auction-lobby';
 import { formatDateTime } from '@/lib/formatters';
+import { AuctionResultPanel } from '@/features/live-arena/components/auction-result-panel';
+import type { AuctionEndedEvent } from '@/features/live-arena/schemas/live-arena.schemas';
 import Link from 'next/link';
+import { maskBidderDisplayName } from '@/lib/display-names';
 
 type AuctionLobbyScreenProps = {
   auctionId: string;
@@ -33,8 +36,13 @@ export function AuctionLobbyScreen({ auctionId }: AuctionLobbyScreenProps) {
     authStatus === 'authenticated' &&
     (auction?.status === 'SCHEDULED' || auction?.status === 'ACTIVE');
 
-  const { connectionStatus, errorMessage, participantCount, startedEvent } =
-    useAuctionLobby(auctionId, canJoinLobby);
+  const {
+    connectionStatus,
+    endedEvent,
+    errorMessage,
+    participantCount,
+    startedEvent,
+  } = useAuctionLobby(auctionId, canJoinLobby);
 
   if (authStatus === 'loading' || auctionQuery.isPending) {
     return (
@@ -90,27 +98,58 @@ export function AuctionLobbyScreen({ auctionId }: AuctionLobbyScreenProps) {
     );
   }
 
-  if (auction.status === 'SOLD' || auction.status === 'UNSOLD') {
+  const persistedResult: AuctionEndedEvent | null =
+    (auction.status === 'SOLD' || auction.status === 'UNSOLD') &&
+    auction.endedAt
+      ? {
+          auctionId: auction.id,
+          status: auction.status,
+          currency: auction.currency,
+          finalPrice: auction.soldPrice ?? auction.currentPrice,
+          bidCount: auction.bidCount,
+          reserveMet: auction.reserveMet,
+          endedAt: auction.endedAt,
+          winnerDisplayName: auction.winner
+            ? maskBidderDisplayName(auction.winner.displayName)
+            : null,
+        }
+      : null;
+
+  const auctionResult = endedEvent ?? persistedResult;
+
+  if (auctionResult) {
     return (
-      <main className='mx-auto w-full max-w-3xl px-4 py-20 text-center'>
-        <p className='text-xs font-black tracking-[0.22em] text-primary uppercase'>
-          Auction complete
-        </p>
-
-        <h1 className='mt-4 text-4xl font-black text-foreground'>
-          This Live Arena has ended
-        </h1>
-
+      <main className='mx-auto w-full max-w-4xl px-4 py-10 sm:px-6 sm:py-16 lg:px-8'>
         <Link
           href={`/auctions/${auction.id}`}
-          className='mt-7 inline-flex min-h-12 items-center rounded-full border border-border px-7 font-bold text-foreground'
+          className='text-sm font-bold text-muted transition hover:text-primary'
         >
-          View auction result
+          ← Back to auction
         </Link>
+
+        <section className='mt-7 rounded-3xl border border-border bg-surface p-6 sm:p-10'>
+          <div className='text-center'>
+            <p className='text-xs font-black tracking-[0.22em] text-primary uppercase'>
+              Live Arena result
+            </p>
+
+            <h1 className='mt-4 text-4xl font-black text-foreground sm:text-5xl'>
+              {auction.title}
+            </h1>
+
+            <p className='mt-3 text-muted'>
+              {auction.category.name} · Listed by{' '}
+              <span className='font-bold text-foreground'>
+                {auction.seller.displayName}
+              </span>
+            </p>
+          </div>
+
+          <AuctionResultPanel result={auctionResult} />
+        </section>
       </main>
     );
   }
-
   const hasStarted = auction.status === 'ACTIVE' || startedEvent !== null;
 
   return (

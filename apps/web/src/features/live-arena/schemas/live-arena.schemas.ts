@@ -37,6 +37,16 @@ export const auctionExtendedEventSchema = z.object({
   triggeringBid: auctionExtensionTriggerBidSchema,
 });
 
+export const auctionEndedEventSchema = z.object({
+  auctionId: uuidV4Schema,
+  status: z.enum(['SOLD', 'UNSOLD']),
+  currency: z.string().regex(/^[A-Z]{3}$/),
+  finalPrice: moneyResponseSchema,
+  bidCount: z.number().int().nonnegative(),
+  reserveMet: z.boolean(),
+  endedAt: dateTimeSchema,
+  winnerDisplayName: z.string().min(1).nullable(),
+});
 export const activeArenaLeaderSchema = z.object({
   bidderDisplayName: z.string().min(1),
   amount: moneyResponseSchema,
@@ -67,3 +77,5 @@ export type AuctionStartedEvent = z.infer<typeof auctionStartedEventSchema>;
 export type ActiveArenaState = z.infer<typeof activeArenaStateSchema>;
 
 export type AuctionExtendedEvent = z.infer<typeof auctionExtendedEventSchema>;
+
+export type AuctionEndedEvent = z.infer<typeof auctionEndedEventSchema>;

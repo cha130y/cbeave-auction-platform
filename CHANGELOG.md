@@ -48,6 +48,7 @@ The format follows Keep a Changelog principles. Product releases will use semant
 - Added a responsive authenticated Live Arena lobby with a scheduled countdown, live participant counts, reconnect-safe room participation, and automatic transition into the active auction state without a page refresh.
 - Added a responsive authenticated Active Arena with server-authoritative price and bid state, masked current leader and recent activity, live participant counts, remaining-time countdown, seller bid protection, reserve-state updates, and accepted bidding through the arena.
 - Added live sudden-death extension feedback with runtime-validated Socket.IO events, extension numbering, triggering-bid context, exact extension duration, previous and updated deadlines, countdown refresh, and persistent arena extension counts.
+- Added responsive Live Arena Sold and Unsold result views with post-commit Socket.IO updates, refresh-safe persisted results, final price, accepted-bid count, reserve outcome, completion time, and masked winner identity.
 
 ### Documentation
 
