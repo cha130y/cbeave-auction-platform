@@ -1,7 +1,6 @@
 'use client';
 
 import { usePublicAuction } from '@/features/auctions/queries/auction.queries';
-import { PlaceBidForm } from '@/features/bidding/components/place-bid-form';
 import { PublicBidHistory } from '@/features/bidding/components/public-bid-history';
 import { WatchAuctionButton } from '@/features/watchlists/components/watch-auction-button';
 import { formatDateTime, formatMoney } from '@/lib/formatters';
@@ -120,10 +119,6 @@ export function PublicAuctionDetail({ auctionId }: PublicAuctionDetailProps) {
               Minimum increment:{' '}
               {formatMoney(auction.minBidIncrement, auction.currency)}
             </p>
-          </div>
-
-          <div className='mt-6'>
-            <PlaceBidForm auction={auction} />
           </div>
 
           <div className='mt-6 grid grid-cols-2 gap-4'>

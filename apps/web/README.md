@@ -4,8 +4,6 @@ Next.js App Router frontend for the CBeave auction platform.
 
 ## Current state
 
-## Current state
-
 The application now includes the shared frontend foundation and the core marketplace workflows.
 
 Implemented frontend slices:
@@ -23,10 +21,11 @@ Implemented frontend slices:
 - Authenticated bid placement with exact money validation
 - Public masked bid history with cursor pagination
 - Auction-room real-time bid updates across browser tabs
+- Active Live Arena with authoritative auction state, live participant counts, masked bid activity, remaining-time countdown, seller bid protection, reserve-state updates, and accepted bid placement
 
 Remaining frontend delivery phases:
 
-- Active bidding arena, sudden-death extension feedback, and auction-result experience
+- Sudden-death extension feedback and auction-result experience
 - Notification center
 - Administrator user, category, auction, and audit screens
 
