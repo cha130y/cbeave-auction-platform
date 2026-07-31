@@ -107,8 +107,14 @@ export function useAuctionLobby(
       setErrorMessage('The Live Arena connection could not be established.');
     };
 
-    //joinAuction runs again after reconnection.
+    const handleDisconnect = () => {
+      joined = false;
+      setConnectionStatus('connecting');
+    };
+
+    //calls joinAuction whenever the socket connects or reconnects.
     socket.on('connect', joinAuction);
+    socket.on('disconnect', handleDisconnect);
     socket.on('auction:participant-count', handleParticipantCount);
     socket.on('auction:started', handleAuctionStarted);
     socket.on('connect_error', handleConnectionError);
@@ -123,12 +129,15 @@ export function useAuctionLobby(
     return () => {
       mounted = false;
 
+      //socket.off use for remove listener
       socket.off('connect', joinAuction);
+      socket.off('disconnect', handleDisconnect);
       socket.off('auction:participant-count', handleParticipantCount);
       socket.off('auction:started', handleAuctionStarted);
       socket.off('connect_error', handleConnectionError);
 
       if (joined && socket.connected) {
+        //Send an event to the server.
         socket.emit('auction:leave', {
           auctionId,
         });

@@ -1,3 +1,7 @@
+import {
+  moneyResponseSchema,
+  publicBidSchema,
+} from '@/features/bidding/schemas/bidding.schemas';
 import z from 'zod';
 
 const uuidV4Schema = z.uuid({
@@ -18,6 +22,31 @@ export const auctionStartedEventSchema = z.object({
   currentEndAt: dateTimeSchema,
 });
 
+export const activeArenaLeaderSchema = z.object({
+  bidderDisplayName: z.string().min(1),
+  amount: moneyResponseSchema,
+});
+
+export const activeArenaStateSchema = z.object({
+  auctionId: uuidV4Schema,
+  title: z.string().min(1),
+  status: z.literal('ACTIVE'),
+  currency: z.string().regex(/^[A-Z]{3}$/),
+  currentPrice: moneyResponseSchema,
+  minimumNextBid: moneyResponseSchema,
+  bidCount: z.number().int().nonnegative(),
+  reserveMet: z.boolean(),
+  startedAt: dateTimeSchema,
+  currentEndAt: dateTimeSchema,
+  extensionCount: z.number().int().nonnegative(),
+  participantCount: z.number().int().nonnegative(),
+  canBid: z.boolean(),
+  leader: activeArenaLeaderSchema.nullable(),
+  recentBids: z.array(publicBidSchema),
+});
+
 export type AuctionParticipation = z.infer<typeof auctionParticipationSchema>;
 
 export type AuctionStartedEvent = z.infer<typeof auctionStartedEventSchema>;
+
+export type ActiveArenaState = z.infer<typeof activeArenaStateSchema>;

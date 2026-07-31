@@ -3,7 +3,6 @@
 import type { PublicAuctionDetail } from '@/features/auctions/schemas/auction.schemas';
 import { useAuth } from '@/features/auth/use-auth';
 import { usePlaceBid } from '@/features/bidding/queries/bidding.queries';
-import { useAuctionBidEvents } from '@/features/bidding/realtime/use-auction-bid-events';
 import {
   createPlaceBidFormSchema,
   type PlaceBidFormValues,
@@ -20,6 +19,8 @@ type PlaceBidFormProps = {
     PublicAuctionDetail,
     'id' | 'status' | 'currency' | 'currentPrice' | 'minBidIncrement' | 'seller'
   >;
+  minimumNextBid?: string;
+  canBid?: boolean;
 };
 
 function readErrorMessage(error: unknown): string {
@@ -30,19 +31,17 @@ function readErrorMessage(error: unknown): string {
   return 'Your bid could not be placed. Please try again.';
 }
 
-export function PlaceBidForm({ auction }: PlaceBidFormProps) {
+export function PlaceBidForm({
+  auction,
+  minimumNextBid,
+  canBid = true,
+}: PlaceBidFormProps) {
   const { status, user } = useAuth();
   const placeBidMutation = usePlaceBid();
 
-  useAuctionBidEvents(
-    auction.id,
-    status === 'authenticated' && auction.status === 'ACTIVE',
-  );
-
-  const minimumBid = addMoneyAmounts(
-    auction.currentPrice,
-    auction.minBidIncrement,
-  );
+  const minimumBid =
+    minimumNextBid ??
+    addMoneyAmounts(auction.currentPrice, auction.minBidIncrement);
 
   const [requestError, setRequestError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -141,6 +140,20 @@ export function PlaceBidForm({ auction }: PlaceBidFormProps) {
 
         <p className='mt-1 text-sm text-muted'>
           Only regular user accounts can place bids.
+        </p>
+      </div>
+    );
+  }
+
+  if (!canBid) {
+    return (
+      <div className='rounded-2xl border border-border bg-surface-muted p-5'>
+        <p className='font-bold text-foreground'>
+          Bidding is unavailable for this account
+        </p>
+
+        <p className='mt-1 text-sm text-muted'>
+          This account is not eligible to bid in the current auction.
         </p>
       </div>
     );

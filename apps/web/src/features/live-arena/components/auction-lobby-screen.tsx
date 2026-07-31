@@ -2,6 +2,7 @@
 
 import { usePublicAuction } from '@/features/auctions/queries/auction.queries';
 import { useAuth } from '@/features/auth/use-auth';
+import { ActiveArenaPanel } from '@/features/live-arena/components/active-arena-panel';
 import { useCountdown } from '@/features/live-arena/hooks/use-countdown';
 import { useAuctionLobby } from '@/features/live-arena/realtime/use-auction-lobby';
 import { formatDateTime } from '@/lib/formatters';
@@ -124,9 +125,8 @@ export function AuctionLobbyScreen({ auctionId }: AuctionLobbyScreenProps) {
       <section className='mt-7 overflow-hidden rounded-3xl border border-border bg-surface'>
         <div className='border-b border-border px-6 py-8 text-center sm:px-10 sm:py-12'>
           <p className='text-xs font-black tracking-[0.22em] text-primary uppercase'>
-            Live Arena lobby
+            {hasStarted ? 'Live Arena' : 'Live Arena lobby'}
           </p>
-
           <h1 className='mx-auto mt-4 max-w-3xl text-4xl leading-tight font-black text-foreground sm:text-5xl'>
             {auction.title}
           </h1>
@@ -168,16 +168,10 @@ export function AuctionLobbyScreen({ auctionId }: AuctionLobbyScreenProps) {
             </div>
 
             {hasStarted ? (
-              <div className='mt-8 rounded-2xl border border-primary/25 bg-primary/5 p-6'>
-                <h2 className='text-2xl font-black text-foreground'>
-                  The auction is live
-                </h2>
-
-                <p className='mt-2 leading-7 text-muted'>
-                  The active bidding experience is ready for the next frontend
-                  slice.
-                </p>
-              </div>
+              <ActiveArenaPanel
+                auction={auction}
+                enabled={connectionStatus === 'connected'}
+              />
             ) : (
               <>
                 <h2 className='mt-8 text-2xl font-black text-foreground'>
@@ -223,10 +217,9 @@ export function AuctionLobbyScreen({ auctionId }: AuctionLobbyScreenProps) {
               </p>
             )}
           </div>
-
-          <aside className='rounded-2xl bg-surface-muted p-6'>
+          <aside className='self-start rounded-2xl bg-surface-muted p-6'>
             <p className='text-xs font-black tracking-wider text-muted uppercase'>
-              In the lobby
+              {hasStarted ? 'In the arena' : 'In the lobby'}
             </p>
 
             <p className='mt-3 font-mono text-5xl font-black text-primary'>
@@ -235,17 +228,22 @@ export function AuctionLobbyScreen({ auctionId }: AuctionLobbyScreenProps) {
 
             <p className='mt-2 text-sm leading-6 text-muted'>
               {participantCount === 1
-                ? 'participant is waiting'
-                : 'participants are waiting'}
+                ? hasStarted
+                  ? 'participant is connected'
+                  : 'participant is waiting'
+                : hasStarted
+                  ? 'participants are connected'
+                  : 'participants are waiting'}
             </p>
 
             <div className='mt-6 border-t border-border pt-6'>
               <p className='text-sm leading-6 text-muted'>
-                Stay on this page. The lobby will receive the auction start
-                event automatically.
+                {hasStarted
+                  ? 'Prices and accepted bids update from the server in real time.'
+                  : 'Stay on this page. The lobby will receive the auction start event automatically.'}
               </p>
             </div>
-          </aside>
+          </aside>{' '}
         </div>
       </section>
     </main>

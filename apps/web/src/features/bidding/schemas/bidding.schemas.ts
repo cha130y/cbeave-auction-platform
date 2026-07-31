@@ -3,8 +3,7 @@ import z from 'zod';
 
 const uuidV4Schema = z.uuid({ version: 'v4' });
 const dateTimeSchema = z.iso.datetime();
-const moneyResponseSchema = z.string().regex(/^\d+\.\d{2}$/);
-
+export const moneyResponseSchema = z.string().regex(/^\d+\.\d{2}$/);
 const moneyInputPattern =
   /^(?:0\.(?:0[1-9]|[1-9]\d?)|[1-9]\d{0,15}(?:\.\d{1,2})?)$/;
 
