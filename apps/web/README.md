@@ -22,6 +22,7 @@ Implemented frontend slices:
 - Public masked bid history with cursor pagination
 - Auction-room real-time bid updates across browser tabs
 - Active Live Arena with authoritative auction state, live participant counts, masked bid activity, remaining-time countdown, seller bid protection, reserve-state updates, and accepted bid placement
+- - Auction-result experience with triggering-bid context, previous and updated deadlines, extension counts, and automatic countdown updates
 
 Remaining frontend delivery phases:
 
