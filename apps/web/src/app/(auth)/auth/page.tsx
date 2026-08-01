@@ -1,11 +1,26 @@
-import { AuthScreen } from "@/features/auth/components/auth-screen";
-import type { Metadata } from "next";
+import type { Metadata } from 'next';
+
+import { AuthScreen } from '@/features/auth/components/auth-screen';
 
 export const metadata: Metadata = {
-  title: "Log in or register | CBeave",
-  description: "Access your CBeave auction account.",
+  title: 'Log in or register | CBeave',
+  description: 'Access your CBeave auction account.',
 };
 
-export default function AuthenticationPage() {
-  return <AuthScreen />;
+type AuthenticationPageProps = {
+  searchParams: Promise<{
+    oauthError?: string | string[];
+  }>;
+};
+
+export default async function AuthenticationPage({
+  searchParams,
+}: AuthenticationPageProps) {
+  const { oauthError } = await searchParams;
+
+  return (
+    <AuthScreen
+      oauthError={typeof oauthError === 'string' ? oauthError : undefined}
+    />
+  );
 }
