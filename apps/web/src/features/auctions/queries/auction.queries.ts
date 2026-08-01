@@ -1,13 +1,16 @@
 'use client';
 
 import {
+  deleteOwnedAuctionDraft,
   getOwnedAuctionDraft,
   getPublicAuction,
   listHotAuctions,
+  listOwnedAuctions,
   listPublicAuctions,
-  ListPublicAuctionsParams,
+  type ListOwnedAuctionsParams,
+  type ListPublicAuctionsParams,
 } from '@/features/auctions/api/auctions.api';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 export const auctionQueryKeys = {
   all: ['auction'] as const,
@@ -27,6 +30,11 @@ export const auctionQueryKeys = {
 
   draft: (auctionId: string) =>
     [...auctionQueryKeys.drafts(), auctionId] as const,
+
+  ownedLists: () => [...auctionQueryKeys.all, 'owned-list'] as const,
+
+  ownedList: (params: ListOwnedAuctionsParams) =>
+    [...auctionQueryKeys.ownedLists(), params] as const,
 };
 
 export function usePublicAuctions(params: ListPublicAuctionsParams) {
@@ -50,10 +58,34 @@ export function usePublicAuction(auctionId: string) {
   });
 }
 
+export function useOwnedAuctions(params: ListOwnedAuctionsParams) {
+  return useQuery({
+    queryKey: auctionQueryKeys.ownedList(params),
+    queryFn: () => listOwnedAuctions(params),
+  });
+}
+
 export function useOwnedAuctionDraft(auctionId: string) {
   return useQuery({
     queryKey: auctionQueryKeys.draft(auctionId),
     queryFn: () => getOwnedAuctionDraft(auctionId),
     enabled: auctionId.length > 0,
+  });
+}
+
+export function useDeleteOwnedAuctionDraft() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deleteOwnedAuctionDraft,
+    onSuccess: async (_result, auctionId) => {
+      queryClient.removeQueries({
+        queryKey: auctionQueryKeys.draft(auctionId),
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: auctionQueryKeys.ownedLists(),
+      });
+    },
   });
 }

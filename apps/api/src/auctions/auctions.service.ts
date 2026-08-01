@@ -37,6 +37,11 @@ import { publicAuctionDetailSelect } from './queries/public-auction-detail.selec
 import { mapPublicAuctionDetailResponse } from './mappers/map-public-auction-detail-response.mapper';
 import { ListHotAuctionsInput } from './types/list-hot-auctions.input';
 import { ListHotAuctionsResponseDto } from './dto/list-hot-auctions-response.dto';
+import { ListOwnedAuctionsInput } from './types/list-owned-auctions.input';
+import { ListOwnedAuctionsResponseDto } from './dto/list-owned-auctions-response.dto';
+import { ownedAuctionSummarySelect } from './queries/owned-auction-summary.select';
+import { mapOwnedAuctionSummaryResponse } from './mappers/map-owned-auction-summary-response.mapper';
+import { DeleteAuctionDraftInput } from './types/delete-auction-draft.input';
 
 const PUBLIC_AUCTION_STATUSES: AuctionStatus[] = [
   AuctionStatus.SCHEDULED,
@@ -69,6 +74,49 @@ export class AuctionsService {
     private readonly prisma: PrismaService,
     private readonly cloudinaryService: CloudinaryService,
   ) {}
+
+  async listOwned(
+    input: ListOwnedAuctionsInput,
+  ): Promise<ListOwnedAuctionsResponseDto> {
+    const auctions = await this.prisma.auction.findMany({
+      where: {
+        sellerId: input.sellerId,
+        deletedAt: null,
+        ...(input.status
+          ? {
+              status: input.status,
+            }
+          : {}),
+      },
+      ...(input.cursor
+        ? {
+            cursor: {
+              id: input.cursor,
+            },
+            skip: 1,
+          }
+        : {}),
+      orderBy: [
+        {
+          updatedAt: 'desc',
+        },
+        {
+          id: 'desc',
+        },
+      ],
+      take: input.limit + 1,
+      select: ownedAuctionSummarySelect,
+    });
+
+    const hasMore = auctions.length > input.limit;
+    const page = hasMore ? auctions.slice(0, input.limit) : auctions;
+    const lastAuction = page[page.length - 1];
+
+    return {
+      items: page.map(mapOwnedAuctionSummaryResponse),
+      nextCursor: hasMore && lastAuction ? lastAuction.id : null,
+    };
+  }
 
   async listHot(
     input: ListHotAuctionsInput,
@@ -572,6 +620,74 @@ export class AuctionsService {
         );
       }
       throw error;
+    }
+  }
+
+  async deleteOwnedDraft(input: DeleteAuctionDraftInput): Promise<void> {
+    const storageKeys = await this.prisma.$transaction(async (transaction) => {
+      const auction = await transaction.auction.findFirst({
+        where: {
+          id: input.auctionId,
+          sellerId: input.sellerId,
+          deletedAt: null,
+        },
+        select: {
+          status: true,
+          auctionImages: {
+            select: {
+              storageKey: true,
+            },
+          },
+        },
+      });
+
+      if (!auction) {
+        throw new NotFoundException('Auction draft not found');
+      }
+
+      if (auction.status !== AuctionStatus.DRAFT) {
+        throw new ConflictException('Only draft auctions can be deleted');
+      }
+
+      const deletionResult = await transaction.auction.updateMany({
+        where: {
+          id: input.auctionId,
+          sellerId: input.sellerId,
+          status: AuctionStatus.DRAFT,
+          deletedAt: null,
+        },
+        data: {
+          deletedAt: new Date(),
+          rowVersion: {
+            increment: 1,
+          },
+        },
+      });
+
+      if (deletionResult.count !== 1) {
+        throw new ConflictException(
+          'Auction draft changed before it could be deleted',
+        );
+      }
+
+      await transaction.auctionImage.deleteMany({
+        where: {
+          auctionId: input.auctionId,
+        },
+      });
+
+      return auction.auctionImages.map((image) => image.storageKey);
+    });
+
+    for (const storageKey of storageKeys) {
+      try {
+        await this.cloudinaryService.deleteImage(storageKey);
+      } catch (error) {
+        this.logger.error(
+          `Failed to delete Cloudinary image ${storageKey}`,
+          error instanceof Error ? error.stack : undefined,
+        );
+      }
     }
   }
 
