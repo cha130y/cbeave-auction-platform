@@ -15,7 +15,7 @@ Implemented frontend slices:
 - TanStack Query application state and authenticated Socket.IO connectivity
 - Responsive local, Google, and Facebook authentication
 - Public auction discovery, hot-auction ranking, details, and completed results
-- Authenticated profile editing
+- Authenticated profile editing with validated avatar uploads and immediate shared-header refresh
 - Seller draft creation, owned-auction listing, status filtering, draft resumption, editing, image management, publication, Draft deletion, and validated Scheduled cancellation
 - Authenticated watchlist management
 - Authenticated bid placement with exact money validation
