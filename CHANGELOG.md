@@ -55,6 +55,7 @@ The format follows Keep a Changelog principles. Product releases will use semant
 - Added seller-owned Scheduled auction cancellation with validated reasons, ownership, state, and no-bid protections, idempotent lifecycle events, affected-watcher notifications, and immediate responsive My Auctions refresh.
 - Added responsive administrator auction management with administrator-only status-filtered listing, cursor-based loading, public-detail navigation, Scheduled and Active cancellation forms, immediate query refresh, and audited lifecycle, action, and notification persistence.
 - Added responsive administrator category management with administrator-only full-tree browsing, root and child creation, category editing, activation and deactivation controls, inactive-parent protection, public-category cache refresh, audited actions, and mobile-friendly hierarchical cards.
+- Added responsive administrator audit history with administrator-only routing, action-type filtering, newest-first cursor pagination, typed user, auction, and category targets, audit notes, timestamps, and mobile-friendly action cards.
 
 ### Documentation
 
