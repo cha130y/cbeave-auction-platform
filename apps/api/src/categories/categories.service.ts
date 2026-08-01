@@ -13,11 +13,13 @@ import { PrismaClientKnownRequestError } from '../generated/prisma/internal/pris
 import { UpdateCategoryInput } from './types/update-category.input';
 import { SetCategoryActivationInput } from './types/set-category-activation.input';
 import { CategoryActivationResponseDto } from './dto/category-activation-response.dto';
+import { AdminCategoryResponseDto } from './dto/admin-category-response.dto';
 
 @Injectable()
 export class CategoriesService {
   constructor(private readonly prisma: PrismaService) {}
 
+  //use for public
   async findActiveTree(): Promise<CategoryResponseDto[]> {
     return this.prisma.category.findMany({
       where: {
@@ -41,6 +43,43 @@ export class CategoriesService {
             name: true,
             slug: true,
             description: true,
+          },
+          orderBy: {
+            name: 'asc',
+          },
+        },
+      },
+      orderBy: {
+        name: 'asc',
+      },
+    });
+  }
+
+  //complete administrator response
+  async findAdminTree(): Promise<AdminCategoryResponseDto[]> {
+    return this.prisma.category.findMany({
+      where: {
+        parentId: null,
+      },
+      select: {
+        id: true,
+        parentId: true,
+        name: true,
+        slug: true,
+        description: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
+        children: {
+          select: {
+            id: true,
+            parentId: true,
+            name: true,
+            slug: true,
+            description: true,
+            isActive: true,
+            createdAt: true,
+            updatedAt: true,
           },
           orderBy: {
             name: 'asc',
