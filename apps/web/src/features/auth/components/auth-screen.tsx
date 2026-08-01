@@ -15,8 +15,8 @@ import { useAuth } from '@/features/auth/use-auth';
 import { ApiError } from '@/lib/api/api-error';
 import { cn } from '@/lib/utils/cn';
 import { zodResolver } from '@hookform/resolvers/zod';
-import Link from 'next/link';
-import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { useForm, useWatch, type UseFormRegisterReturn } from 'react-hook-form';
 
 type AuthMode = 'login' | 'register';
@@ -199,13 +199,13 @@ function LoginForm() {
           />
           Remember me
         </label>
-        <span
+        {/* <span
           className='cursor-not-allowed font-semibold text-primary/45'
           title='Password reset is planned after the V1 release'
           aria-disabled='true'
         >
           Forgot password?
-        </span>
+        </span> */}
       </div>
 
       <button
@@ -375,8 +375,26 @@ function RegisterForm({
   );
 }
 
+function AuthenticatedRedirect() {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace('/');
+  }, [router]);
+
+  return (
+    <main className='grid min-h-svh place-items-center bg-background px-5'>
+      <div className='flex flex-col items-center gap-5 text-center'>
+        <CBeaveLogo />
+        <div className='size-7 animate-spin rounded-full border-2 border-white/10 border-t-primary' />
+        <p className='text-sm text-muted'>Opening the marketplace…</p>
+      </div>
+    </main>
+  );
+}
+
 export function AuthScreen() {
-  const { logout, status, user } = useAuth();
+  const { status } = useAuth();
   const [mode, setMode] = useState<AuthMode>('login');
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -392,38 +410,8 @@ export function AuthScreen() {
     );
   }
 
-  if (status === 'authenticated' && user) {
-    return (
-      <main className='relative grid min-h-svh place-items-center overflow-hidden bg-background px-5 py-12'>
-        <div className='pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(0,229,255,0.12),transparent_38%),radial-gradient(circle_at_10%_90%,rgba(168,85,247,0.12),transparent_35%)]' />
-        <section className='relative w-full max-w-md rounded-3xl border border-border bg-surface/90 p-7 text-center shadow-2xl shadow-black/35 backdrop-blur-xl sm:p-9'>
-          <CBeaveLogo className='justify-center' />
-          <p className='mt-8 text-xs font-bold tracking-[0.18em] text-primary'>
-            SESSION READY
-          </p>
-          <h1 className='mt-3 text-3xl font-extrabold tracking-tight'>
-            Welcome back, {user.profile?.displayName ?? user.email}
-          </h1>
-          <p className='mt-3 text-sm leading-6 text-muted'>
-            Your secure session has been restored. The marketplace experience is
-            the next frontend slice.
-          </p>
-          <Link
-            href='/'
-            className='mt-7 flex h-12 w-full items-center justify-center rounded-xl bg-primary text-sm font-extrabold text-[#041216]'
-          >
-            Continue to CBeave
-          </Link>
-          <button
-            type='button'
-            onClick={() => void logout()}
-            className='mt-3 h-11 w-full rounded-xl border border-border text-sm font-semibold text-white/65 transition hover:bg-white/5 hover:text-white'
-          >
-            Sign out
-          </button>
-        </section>
-      </main>
-    );
+  if (status === 'authenticated') {
+    return <AuthenticatedRedirect />;
   }
 
   return (

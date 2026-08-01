@@ -68,6 +68,7 @@ The format follows Keep a Changelog principles. Product releases will use semant
 
 ### Changed
 
+- Streamlined the web authentication experience with direct marketplace redirects after local or social sign-in, a non-stale authenticated `/auth` transition, and a dismissible account menu with Profile and resilient Sign out actions.
 - Clarified that Guest is an unauthenticated state, while persisted roles are `USER` and `ADMIN`.
 - Clarified that one normal user account can both buy and sell.
 - Restricted administrator accounts from marketplace selling and bidding.
