@@ -149,7 +149,7 @@ function LoginForm() {
     defaultValues: {
       email: '',
       password: '',
-      rememberMe: false,
+      // rememberMe: false,
     },
     resolver: zodResolver(loginCredentialsSchema),
   });
@@ -191,7 +191,7 @@ function LoginForm() {
       />
 
       <div className='flex items-center justify-between gap-4 text-xs'>
-        <label className='flex cursor-pointer items-center gap-2 text-white/55'>
+        {/* <label className='flex cursor-pointer items-center gap-2 text-white/55'>
           <input
             {...register('rememberMe')}
             type='checkbox'
@@ -199,7 +199,7 @@ function LoginForm() {
           />
           Remember me
         </label>
-        {/* <span
+        <span
           className='cursor-not-allowed font-semibold text-primary/45'
           title='Password reset is planned after the V1 release'
           aria-disabled='true'
@@ -393,10 +393,19 @@ function AuthenticatedRedirect() {
   );
 }
 
-export function AuthScreen() {
+type AuthScreenProps = {
+  oauthError?: string;
+};
+
+export function AuthScreen({ oauthError }: AuthScreenProps) {
   const { status } = useAuth();
   const [mode, setMode] = useState<AuthMode>('login');
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  const oauthErrorMessage =
+    oauthError === 'facebook_cancelled'
+      ? 'Facebook login was cancelled. No account changes were made.'
+      : null;
 
   if (status === 'loading') {
     return (
@@ -462,9 +471,15 @@ export function AuthScreen() {
 
           {mode === 'login' ? (
             <>
-              <AuthenticationStatus message={successMessage} tone='success' />
-              {successMessage && <div className='h-4' />}
-              <LoginForm />
+              <>
+                <AuthenticationStatus message={oauthErrorMessage} />
+                {oauthErrorMessage && <div className='h-4' />}
+
+                <AuthenticationStatus message={successMessage} tone='success' />
+                {successMessage && <div className='h-4' />}
+
+                <LoginForm />
+              </>
             </>
           ) : (
             <RegisterForm

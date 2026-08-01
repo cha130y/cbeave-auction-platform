@@ -29,10 +29,14 @@ export class FacebookAuthGuard extends AuthGuard('facebook') {
         response,
         FACEBOOK_STATE_CONFIGURATION,
       );
+
+      if (request.query.error === 'access_denied') {
+        return true;
+      }
     }
+
     return (await super.canActivate(context)) as boolean;
   }
-
   getAuthenticateOptions(
     context: ExecutionContext,
   ): { state: string } | undefined {

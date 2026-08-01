@@ -186,6 +186,18 @@ export class AuthController {
     @Req() request: SocialAuthenticatedRequest,
     @Res() response: Response,
   ): Promise<void> {
+    if (request.query.error === 'access_denied') {
+      const webAuthUrl = new URL(
+        '/auth',
+        this.configService.get('WEB_APP_URL', { infer: true }),
+      );
+
+      webAuthUrl.searchParams.set('oauthError', 'facebook_cancelled');
+
+      response.redirect(webAuthUrl.toString());
+      return;
+    }
+
     await this.completeSocialLogin(request, response, 'facebook');
   }
 }
