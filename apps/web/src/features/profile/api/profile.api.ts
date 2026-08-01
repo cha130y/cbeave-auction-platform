@@ -15,3 +15,15 @@ export async function updateProfile(
     }),
   );
 }
+
+export async function updateProfileAvatar(avatar: File): Promise<CurrentUser> {
+  const formData = new FormData();
+  formData.append('avatar', avatar);
+
+  return currentUserSchema.parse(
+    await apiRequest<unknown>('/users/me/avatar', {
+      method: 'PUT',
+      body: formData,
+    }),
+  );
+}
