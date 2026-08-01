@@ -5,12 +5,14 @@ import {
   useHotAuctions,
   usePublicAuctions,
 } from '@/features/auctions/queries/auction.queries';
+import { useAuth } from '@/features/auth/use-auth';
 import Link from 'next/link';
 import { useMemo } from 'react';
 
 export function MarketplaceHome() {
   const hotAuctionsQuery = useHotAuctions(4);
   const publicAuctionsQuery = usePublicAuctions({ limit: 50 });
+  const { status } = useAuth();
 
   const scheduledAuctions = useMemo(() => {
     const auctions = publicAuctionsQuery.data?.items ?? [];
@@ -86,13 +88,14 @@ export function MarketplaceHome() {
               >
                 Explore hot auctions
               </Link>
-
               <Link
-                href='/auth'
+                href={status === 'authenticated' ? '/profile' : '/auth'}
                 className='inline-flex min-h-12 items-center justify-center rounded-full border border-border-strong bg-surface/50 px-7 text-sm font-black text-foreground transition hover:border-primary hover:text-primary'
               >
-                Log in or register
-              </Link>
+                {status === 'authenticated'
+                  ? 'View your profile'
+                  : 'Log in or register'}
+              </Link>{' '}
             </div>
           </div>
         </div>

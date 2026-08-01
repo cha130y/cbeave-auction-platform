@@ -40,6 +40,8 @@ export function MarketplaceHeader() {
   const displayName =
     user?.profile?.displayName ?? user?.email.split('@')[0] ?? 'Account';
 
+  const isAdmin = user?.role === 'ADMIN';
+
   return (
     <header className='sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur-xl'>
       <div className='mx-auto flex h-18 w-full max-w-360 items-center justify-between gap-2 px-4 sm:gap-4 sm:px-6 lg:gap-6 lg:px-8'>
@@ -90,6 +92,15 @@ export function MarketplaceHeader() {
           )}
           {status === 'authenticated' && (
             <>
+              {isAdmin && (
+                <Link
+                  href='/admin/users'
+                  className='inline-flex min-h-10 shrink-0 items-center justify-center rounded-full border border-primary/40 px-4 text-sm font-black text-primary transition hover:bg-primary/10'
+                >
+                  Admin users
+                </Link>
+              )}
+
               <Link
                 href='/notifications'
                 aria-label={
@@ -147,13 +158,16 @@ export function MarketplaceHeader() {
 
                 <span className='hidden lg:inline'>Watchlist</span>
               </Link>
-              <Link
-                href='/sell'
-                className='inline-flex min-h-10 items-center justify-center rounded-full bg-primary px-4 text-sm font-black text-background transition hover:bg-primary-strong'
-              >
-                <span>Sell</span>
-                <span className='hidden sm:inline'>&nbsp;an item</span>
-              </Link>
+
+              {!isAdmin && (
+                <Link
+                  href='/sell'
+                  className='inline-flex min-h-10 items-center justify-center rounded-full bg-primary px-4 text-sm font-black text-background transition hover:bg-primary-strong'
+                >
+                  <span>Sell</span>
+                  <span className='hidden sm:inline'>&nbsp;an item</span>
+                </Link>
+              )}
 
               <Link
                 href='/profile'
