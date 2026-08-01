@@ -25,10 +25,11 @@ Implemented frontend slices:
 - Live sudden-death feedback with triggering-bid context, previous and updated deadlines, extension counts, and automatic countdown updates
 - Live Arena Sold and Unsold result views with immediate Socket.IO updates, refresh-safe persisted results, final auction facts, and masked winner identity
 - Authenticated notification center with unread filtering, read tracking, auction navigation, cursor-based loading, and a shared-header unread indicator
+- Administrator user management with status filtering, cursor-based loading, audited suspension/reactivation, confirmation forms, and responsive account cards
 
 Remaining frontend delivery phases:
 
-- Administrator user, category, auction, and audit screens
+- Administrator category, auction, and audit screens
 
 ## Local development
 
