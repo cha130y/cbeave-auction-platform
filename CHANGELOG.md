@@ -53,6 +53,7 @@ The format follows Keep a Changelog principles. Product releases will use semant
 - Added responsive administrator user management with role-protected routing, status filtering, cursor-based loading, audited suspension and reactivation, required audit notes, confirmation controls, query refresh, and mobile-friendly account cards.
 - Added authenticated seller-owned auction management with status filtering, cursor pagination, draft resumption, responsive shared-header navigation, and ownership-safe soft deletion of Draft auctions with Cloudinary image cleanup.
 - Added seller-owned Scheduled auction cancellation with validated reasons, ownership, state, and no-bid protections, idempotent lifecycle events, affected-watcher notifications, and immediate responsive My Auctions refresh.
+- Added responsive administrator auction management with administrator-only status-filtered listing, cursor-based loading, public-detail navigation, Scheduled and Active cancellation forms, immediate query refresh, and audited lifecycle, action, and notification persistence.
 
 ### Documentation
 

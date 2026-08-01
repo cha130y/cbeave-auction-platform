@@ -5,6 +5,7 @@ import { useAuth } from '@/features/auth/use-auth';
 import { useInfiniteNotifications } from '@/features/notifications/queries/notification.queries';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRef } from 'react';
 
 function createInitials(displayName: string): string {
   const words = displayName.trim().split(/\s+/).filter(Boolean);
@@ -40,6 +41,11 @@ export function MarketplaceHeader() {
   const displayName =
     user?.profile?.displayName ?? user?.email.split('@')[0] ?? 'Account';
   const isAdmin = user?.role === 'ADMIN';
+  const adminMenuRef = useRef<HTMLDetailsElement>(null);
+
+  const closeAdminMenu = () => {
+    adminMenuRef.current?.removeAttribute('open');
+  };
 
   return (
     <header className='sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur-xl'>
@@ -92,12 +98,32 @@ export function MarketplaceHeader() {
           {status === 'authenticated' && (
             <>
               {isAdmin && (
-                <Link
-                  href='/admin/users'
-                  className='inline-flex min-h-10 shrink-0 items-center justify-center rounded-full border border-primary/40 px-4 text-sm font-black text-primary transition hover:bg-primary/10'
-                >
-                  Admin users
-                </Link>
+                <details ref={adminMenuRef} className='group relative shrink-0'>
+                  <summary className='inline-flex min-h-10 cursor-pointer list-none items-center justify-center rounded-full border border-primary/40 px-4 text-sm font-black text-primary transition hover:bg-primary/10 [&::-webkit-details-marker]:hidden'>
+                    Admin
+                  </summary>
+
+                  <nav
+                    aria-label='Administrator navigation'
+                    className='absolute top-full right-0 z-50 mt-2 grid min-w-44 gap-1 rounded-xl border border-border bg-surface p-2 shadow-xl'
+                  >
+                    <Link
+                      href='/admin/auctions'
+                      onClick={closeAdminMenu}
+                      className='rounded-lg px-3 py-2 text-sm font-bold text-foreground transition hover:bg-primary/10 hover:text-primary'
+                    >
+                      Auctions
+                    </Link>
+
+                    <Link
+                      href='/admin/users'
+                      onClick={closeAdminMenu}
+                      className='rounded-lg px-3 py-2 text-sm font-bold text-foreground transition hover:bg-primary/10 hover:text-primary'
+                    >
+                      Users
+                    </Link>
+                  </nav>
+                </details>
               )}
 
               <Link
