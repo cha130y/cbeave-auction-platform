@@ -85,7 +85,7 @@ export function AdminUsersScreen() {
             Administration
           </p>
 
-          <h1 className='mt-3 text-4xl font-black tracking-tight text-foreground sm:text-5xl'>
+          <h1 className='mt-3 text-3xl font-black tracking-tight text-foreground sm:text-5xl'>
             User management
           </h1>
 

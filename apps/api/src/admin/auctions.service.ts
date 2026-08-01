@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -14,6 +15,10 @@ import { NotificationsService } from '../notifications/notifications.service';
 import { CancelAuctionResponseDto } from './dto/cancel-auction-response.dto';
 import { adminCancellableAuctionSelect } from './queries/admin-cancellable-auction.select';
 import { CancelAuctionInput } from './types/cancel-auction.input';
+import { ListAdminAuctionsInput } from './types/list-admin-auctions.input';
+import { ListAdminAuctionsResponseDto } from './dto/list-admin-auctions-response.dto';
+import { adminAuctionSummarySelect } from './queries/admin-auction-summary.select';
+import { mapAdminAuctionSummaryResponse } from './mappers/map-admin-auction-summary-response.mapper';
 
 const CANCELLABLE_AUCTION_STATUSES: AuctionStatus[] = [
   AuctionStatus.SCHEDULED,
@@ -26,6 +31,61 @@ export class AdminAuctionsService {
     private readonly prisma: PrismaService,
     private readonly notificationsService: NotificationsService,
   ) {}
+
+  async listAuctions(
+    input: ListAdminAuctionsInput,
+  ): Promise<ListAdminAuctionsResponseDto> {
+    if (input.cursor) {
+      const cursorExists = await this.prisma.auction.findFirst({
+        where: {
+          id: input.cursor,
+          deletedAt: null,
+          ...(input.status ? { status: input.status } : {}),
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (!cursorExists) {
+        throw new BadRequestException('Invalid auction cursor');
+      }
+    }
+
+    const auctions = await this.prisma.auction.findMany({
+      where: {
+        deletedAt: null,
+        ...(input.status ? { status: input.status } : {}),
+      },
+      ...(input.cursor
+        ? {
+            cursor: {
+              id: input.cursor,
+            },
+            skip: 1,
+          }
+        : {}),
+      orderBy: [
+        {
+          createdAt: 'desc',
+        },
+        {
+          id: 'desc',
+        },
+      ],
+      take: input.limit + 1,
+      select: adminAuctionSummarySelect,
+    });
+
+    const hasMore = auctions.length > input.limit;
+    const page = hasMore ? auctions.slice(0, input.limit) : auctions;
+    const lastAuction = page[page.length - 1];
+
+    return {
+      items: page.map(mapAdminAuctionSummaryResponse),
+      nextCursor: hasMore && lastAuction ? lastAuction.id : null,
+    };
+  }
 
   async cancelAuction(
     input: CancelAuctionInput,
