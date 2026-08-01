@@ -5,7 +5,8 @@ import { useAuth } from '@/features/auth/use-auth';
 import { useInfiniteNotifications } from '@/features/notifications/queries/notification.queries';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRef } from 'react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useRef } from 'react';
 
 function createInitials(displayName: string): string {
   const words = displayName.trim().split(/\s+/).filter(Boolean);
@@ -24,7 +25,8 @@ function createInitials(displayName: string): string {
 }
 
 export function MarketplaceHeader() {
-  const { status, user } = useAuth();
+  const { logout, status, user } = useAuth();
+  const router = useRouter();
   const unreadNotificationsQuery = useInfiniteNotifications(
     {
       limit: 1,
@@ -42,6 +44,52 @@ export function MarketplaceHeader() {
     user?.profile?.displayName ?? user?.email.split('@')[0] ?? 'Account';
   const isAdmin = user?.role === 'ADMIN';
   const adminMenuRef = useRef<HTMLDetailsElement>(null);
+  const accountMenuRef = useRef<HTMLDetailsElement>(null);
+
+  const closeAccountMenu = () => {
+    accountMenuRef.current?.removeAttribute('open');
+  };
+
+  const handleLogout = async () => {
+    closeAccountMenu();
+
+    try {
+      await logout();
+    } catch {
+      // Auth state is cleared locally even when the server request fails.
+    }
+
+    router.replace('/auth');
+  };
+
+  useEffect(() => {
+    const handleOutsideClick = (event: PointerEvent) => {
+      if (!(event.target instanceof Node)) {
+        return;
+      }
+
+      for (const menu of [adminMenuRef.current, accountMenuRef.current]) {
+        if (menu?.open && !menu.contains(event.target)) {
+          menu.removeAttribute('open');
+        }
+      }
+    };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        adminMenuRef.current?.removeAttribute('open');
+        accountMenuRef.current?.removeAttribute('open');
+      }
+    };
+
+    document.addEventListener('pointerdown', handleOutsideClick);
+    document.addEventListener('keydown', handleEscape);
+
+    return () => {
+      document.removeEventListener('pointerdown', handleOutsideClick);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, []);
 
   const closeAdminMenu = () => {
     adminMenuRef.current?.removeAttribute('open');
@@ -235,34 +283,56 @@ export function MarketplaceHeader() {
                 </Link>
               )}
 
-              <Link
-                href='/profile'
-                className='flex min-w-0 items-center gap-3 rounded-full border border-border bg-surface px-2 py-1.5 transition hover:border-primary/60'
-                aria-label={`Open account for ${displayName}`}
-              >
-                {user?.profile?.avatarUrl ? (
-                  <Image
-                    src={user.profile.avatarUrl}
-                    alt=''
-                    referrerPolicy='no-referrer'
-                    width={32}
-                    height={32}
-                    unoptimized
-                    className='size-8 rounded-full object-cover'
-                  />
-                ) : (
-                  <span
-                    aria-hidden='true'
-                    className='grid size-8 shrink-0 place-items-center rounded-full bg-linear-to-br from-accent to-primary text-xs font-black text-white'
-                  >
-                    {createInitials(displayName)}
-                  </span>
-                )}
+              <details ref={accountMenuRef} className='group relative min-w-0'>
+                <summary
+                  aria-label={`Open account menu for ${displayName}`}
+                  className='flex min-w-0 cursor-pointer list-none items-center gap-3 rounded-full border border-border bg-surface px-2 py-1.5 transition hover:border-primary/60 [&::-webkit-details-marker]:hidden'
+                >
+                  {user?.profile?.avatarUrl ? (
+                    <Image
+                      src={user.profile.avatarUrl}
+                      alt=''
+                      referrerPolicy='no-referrer'
+                      width={32}
+                      height={32}
+                      unoptimized
+                      className='size-8 rounded-full object-cover'
+                    />
+                  ) : (
+                    <span
+                      aria-hidden='true'
+                      className='grid size-8 shrink-0 place-items-center rounded-full bg-linear-to-br from-accent to-primary text-xs font-black text-white'
+                    >
+                      {createInitials(displayName)}
+                    </span>
+                  )}
 
-                <span className='hidden max-w-32 truncate pr-2 text-sm font-bold text-foreground sm:block'>
-                  {displayName}
-                </span>
-              </Link>
+                  <span className='hidden max-w-32 truncate pr-2 text-sm font-bold text-foreground sm:block'>
+                    {displayName}
+                  </span>
+                </summary>
+
+                <nav
+                  aria-label='Account navigation'
+                  className='absolute top-full right-0 z-50 mt-2 grid min-w-44 gap-1 rounded-xl border border-border bg-surface p-2 shadow-xl'
+                >
+                  <Link
+                    href='/profile'
+                    onClick={closeAccountMenu}
+                    className='rounded-lg px-3 py-2 text-sm font-bold text-foreground transition hover:bg-primary/10 hover:text-primary'
+                  >
+                    Profile
+                  </Link>
+
+                  <button
+                    type='button'
+                    onClick={() => void handleLogout()}
+                    className='rounded-lg px-3 py-2 text-left text-sm font-bold text-danger transition hover:bg-danger/10'
+                  >
+                    Sign out
+                  </button>
+                </nav>
+              </details>
             </>
           )}
         </div>
