@@ -19,6 +19,7 @@ import type { AccessTokenPayload } from '../auth/types/access-token-payload.type
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CategoryActivationResponseDto } from './dto/category-activation-response.dto';
+import { AdminCategoryResponseDto } from './dto/admin-category-response.dto';
 
 @Controller('categories')
 export class CategoriesController {
@@ -26,6 +27,13 @@ export class CategoriesController {
   @Get()
   findAll(): Promise<CategoryResponseDto[]> {
     return this.categoriesService.findActiveTree();
+  }
+
+  @Get('admin')
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  findAllForAdmin(): Promise<AdminCategoryResponseDto[]> {
+    return this.categoriesService.findAdminTree();
   }
 
   @Post()

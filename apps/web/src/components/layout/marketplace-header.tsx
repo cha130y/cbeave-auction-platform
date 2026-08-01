@@ -116,6 +116,14 @@ export function MarketplaceHeader() {
                     </Link>
 
                     <Link
+                      href='/admin/categories'
+                      onClick={closeAdminMenu}
+                      className='rounded-lg px-3 py-2 text-sm font-bold text-foreground transition hover:bg-primary/10 hover:text-primary'
+                    >
+                      Categories
+                    </Link>
+
+                    <Link
                       href='/admin/users'
                       onClick={closeAdminMenu}
                       className='rounded-lg px-3 py-2 text-sm font-bold text-foreground transition hover:bg-primary/10 hover:text-primary'
