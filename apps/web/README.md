@@ -58,6 +58,7 @@ Open `http://localhost:3000`. The API runs at `http://localhost:3001`.
 
 ```bash
 pnpm --dir apps/web lint
+pnpm --dir apps/web test
 pnpm --dir apps/web build
 ```
 

@@ -57,6 +57,7 @@ The format follows Keep a Changelog principles. Product releases will use semant
 - Added responsive administrator category management with administrator-only full-tree browsing, root and child creation, category editing, activation and deactivation controls, inactive-parent protection, public-category cache refresh, audited actions, and mobile-friendly hierarchical cards.
 - Added responsive administrator audit history with administrator-only routing, action-type filtering, newest-first cursor pagination, typed user, auction, and category targets, audit notes, timestamps, and mobile-friendly action cards.
 - Improved Facebook OAuth cancellation by returning denied consent to the web login screen with a friendly message while preserving OAuth state validation.
+- Added a Vitest and Testing Library frontend unit-test foundation with shared jsdom setup and initial coverage for money calculations, authentication validation, and authenticated bid submission.
 
 ### Documentation
 
