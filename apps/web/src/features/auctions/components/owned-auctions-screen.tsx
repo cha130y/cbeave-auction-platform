@@ -1,5 +1,6 @@
 'use client';
 
+import { CancelOwnedAuctionForm } from '@/features/auctions/components/cancel-owned-auction-form';
 import {
   useDeleteOwnedAuctionDraft,
   useOwnedAuctions,
@@ -34,6 +35,9 @@ export function OwnedAuctionsScreen() {
   const router = useRouter();
   const { status } = useAuth();
   const [statusFilter, setStatusFilter] = useState<OwnedAuctionStatus | ''>('');
+  const [cancellingAuctionId, setCancellingAuctionId] = useState<string | null>(
+    null,
+  );
 
   const auctionsQuery = useOwnedAuctions({
     limit: 50,
@@ -235,6 +239,30 @@ export function OwnedAuctionsScreen() {
                           : 'View auction'}
                       </Link>
                     )}
+
+                    {auction.status === 'SCHEDULED' &&
+                      //The form is not currently open for this card
+                      cancellingAuctionId !== auction.id && (
+                        <button
+                          type='button'
+                          className='min-h-10 rounded-full border border-danger/40 px-5 text-sm font-bold text-danger transition hover:bg-danger hover:text-white'
+                          onClick={() => {
+                            setCancellingAuctionId(auction.id);
+                          }}
+                        >
+                          Cancel scheduled auction
+                        </button>
+                      )}
+
+                    {auction.status === 'SCHEDULED' &&
+                      cancellingAuctionId === auction.id && (
+                        <CancelOwnedAuctionForm
+                          auctionId={auction.id}
+                          onClose={() => {
+                            setCancellingAuctionId(null);
+                          }}
+                        />
+                      )}
 
                     {auction.status === 'DRAFT' && (
                       <button

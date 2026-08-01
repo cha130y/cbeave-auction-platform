@@ -7,6 +7,7 @@ import {
   listHotAuctions,
   listOwnedAuctions,
   listPublicAuctions,
+  cancelOwnedAuction,
   type ListOwnedAuctionsParams,
   type ListPublicAuctionsParams,
 } from '@/features/auctions/api/auctions.api';
@@ -86,6 +87,35 @@ export function useDeleteOwnedAuctionDraft() {
       await queryClient.invalidateQueries({
         queryKey: auctionQueryKeys.ownedLists(),
       });
+    },
+  });
+}
+
+export function useCancelOwnedAuction() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: cancelOwnedAuction,
+
+    //It removes the obsolete public detail cache, marks the affected lists as outdated, then those active lists fetch fresh data from the backend.
+    onSuccess: async (cancelledAuction) => {
+      queryClient.removeQueries({
+        queryKey: auctionQueryKeys.detail(cancelledAuction.id),
+      });
+
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: auctionQueryKeys.ownedLists(),
+        }),
+
+        queryClient.invalidateQueries({
+          queryKey: auctionQueryKeys.publicLists(),
+        }),
+
+        queryClient.invalidateQueries({
+          queryKey: auctionQueryKeys.hotLists(),
+        }),
+      ]);
     },
   });
 }
