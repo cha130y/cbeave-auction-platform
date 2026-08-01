@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { v2 as cloudinary } from 'cloudinary';
+import { v2 as cloudinary, type UploadApiOptions } from 'cloudinary';
 import { EnvVariable } from '../../config/env.validation';
 import { StoredImage } from './types/stored-image.type';
 
@@ -36,18 +36,13 @@ export class CloudinaryService {
     });
   }
 
-  uploadAuctionImage(
+  private uploadImage(
     fileBuffer: Buffer,
-    auctionId: string,
+    options: UploadApiOptions,
   ): Promise<StoredImage> {
     return new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
-        {
-          folder: `cbeave/auctions/${auctionId}`,
-          resource_type: 'image',
-          unique_filename: true,
-          overwrite: false,
-        },
+        options,
         (error, result) => {
           if (error) {
             reject(new Error(error.message));
@@ -70,6 +65,27 @@ export class CloudinaryService {
     });
   }
 
+  uploadAuctionImage(
+    fileBuffer: Buffer,
+    auctionId: string,
+  ): Promise<StoredImage> {
+    return this.uploadImage(fileBuffer, {
+      folder: `cbeave/auctions/${auctionId}`,
+      resource_type: 'image',
+      unique_filename: true,
+      overwrite: false,
+    });
+  }
+
+  uploadUserAvatar(fileBuffer: Buffer, userId: string): Promise<StoredImage> {
+    return this.uploadImage(fileBuffer, {
+      public_id: `cbeave/users/${userId}/avatar`,
+      resource_type: 'image',
+      unique_filename: false,
+      overwrite: true,
+      invalidate: true,
+    });
+  }
   async deleteImage(storageKey: string): Promise<void> {
     const deletionResult: unknown = await cloudinary.uploader.destroy(
       storageKey,

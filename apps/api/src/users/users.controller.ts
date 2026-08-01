@@ -6,6 +6,10 @@ import {
   NotFoundException,
   Patch,
   UseGuards,
+  ParseFilePipeBuilder,
+  Put,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { AccessTokenGuard } from '../auth/guards/access-token.guard';
@@ -14,6 +18,11 @@ import type { AccessTokenPayload } from '../auth/types/access-token-payload.type
 import { CurrentUserResponseDto } from './dto/current-user-response.dto';
 import { buildFullName } from './utils/build-full-name.util';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import {
+  MAX_USER_AVATAR_SIZE_BYTES,
+  USER_AVATAR_FILE_TYPE_PATTERN,
+} from './constants/user-avatar.constant';
 
 type CurrentUserRecord = NonNullable<
   Awaited<ReturnType<UsersService['findCurrentUserById']>>
@@ -80,6 +89,39 @@ export class UsersController {
       currentUser.sub,
       updateProfileDto,
     );
+    return this.mapCurrentUserResponse(user);
+  }
+
+  @Put('me/avatar')
+  @UseGuards(AccessTokenGuard)
+  @UseInterceptors(
+    FileInterceptor('avatar', {
+      limits: {
+        fileSize: MAX_USER_AVATAR_SIZE_BYTES,
+      },
+    }),
+  )
+  async updateCurrentUserAvatar(
+    @CurrentUser() currentUser: AccessTokenPayload,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({
+          fileType: USER_AVATAR_FILE_TYPE_PATTERN,
+        })
+        .addMaxSizeValidator({
+          maxSize: MAX_USER_AVATAR_SIZE_BYTES,
+        })
+        .build({
+          fileIsRequired: true,
+        }),
+    )
+    avatar: Express.Multer.File,
+  ): Promise<CurrentUserResponseDto> {
+    const user = await this.usersService.updateCurrentUserAvatar(
+      currentUser.sub,
+      avatar.buffer,
+    );
+
     return this.mapCurrentUserResponse(user);
   }
 }

@@ -1,6 +1,7 @@
 'use client';
 import { useAuth } from '@/features/auth/use-auth';
 import { updateProfile } from '@/features/profile/api/profile.api';
+import { ProfileAvatarForm } from '@/features/profile/components/profile-avatar-form';
 import {
   profileFormSchema,
   ProfileFormValues,
@@ -123,12 +124,8 @@ export function ProfileScreen() {
 
       <div className='overflow-hidden rounded-3xl border border-border bg-surface'>
         <div className='border-b border-border px-5 py-6 sm:px-8'>
-          <p className='text-sm font-bold text-foreground'>
-            {user.profile?.fullName ?? user.email}
-          </p>
-          <p className='mt-1 text-sm text-muted'>{user.email}</p>
+          <ProfileAvatarForm />
         </div>
-
         <form
           className='space-y-6 px-5 py-6 sm:px-8 sm:py-8'
           onSubmit={submit}

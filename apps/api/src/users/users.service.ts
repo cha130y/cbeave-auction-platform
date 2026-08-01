@@ -2,6 +2,7 @@ import {
   ConflictException,
   Injectable,
   ForbiddenException,
+  ServiceUnavailableException,
 } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { CreateLocalUserInput } from './types/create-local-user.input';
@@ -9,6 +10,7 @@ import { PrismaClientKnownRequestError } from '../generated/prisma/internal/pris
 import { UpdateUserProfileInput } from './types/update-user-profile.input';
 import { UserStatus } from '../generated/prisma/enums';
 import { ResolveSocialUserInput } from './types/resolve-social-user.input';
+import { CloudinaryService } from '../infrastructure/cloudinary/cloudinary.service';
 
 const currentUserSelect = {
   id: true,
@@ -50,7 +52,10 @@ const socialAuthenticationUserSelect = {
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
   async createLocalUser(input: CreateLocalUserInput): Promise<void> {
     const { email, passwordHash, firstName, lastName, displayName } = input;
@@ -121,6 +126,35 @@ export class UsersService {
       data: {
         userProfile: {
           update: input,
+        },
+      },
+      select: currentUserSelect,
+    });
+  }
+
+  async updateCurrentUserAvatar(userId: string, fileBuffer: Buffer) {
+    let storedAvatar;
+
+    try {
+      storedAvatar = await this.cloudinaryService.uploadUserAvatar(
+        fileBuffer,
+        userId,
+      );
+    } catch {
+      throw new ServiceUnavailableException(
+        'Avatar upload is temporarily unavailable',
+      );
+    }
+
+    return this.prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        userProfile: {
+          update: {
+            avatarUrl: storedAvatar.url,
+          },
         },
       },
       select: currentUserSelect,
