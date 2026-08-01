@@ -10,6 +10,8 @@ import {
   type ListOwnedAuctionsResponse,
   type OwnedAuctionStatus,
   type PublishedAuction,
+  cancelOwnedAuctionResponseSchema,
+  type CancelledOwnedAuction,
 } from '@/features/auctions/schemas/auction-draft.schemas';
 import {
   ListHotAuctionsResponse,
@@ -31,6 +33,11 @@ export type ListOwnedAuctionsParams = {
   limit?: number;
   status?: OwnedAuctionStatus;
   cursor?: string;
+};
+
+export type CancelOwnedAuctionInput = {
+  auctionId: string;
+  reason: string;
 };
 
 export type CreateAuctionDraftInput = {
@@ -141,6 +148,21 @@ export async function deleteOwnedAuctionDraft(
   await apiRequest<void>(`/auctions/${encodeURIComponent(auctionId)}/draft`, {
     method: 'DELETE',
   });
+}
+
+export async function cancelOwnedAuction({
+  auctionId,
+  reason,
+}: CancelOwnedAuctionInput): Promise<CancelledOwnedAuction> {
+  return cancelOwnedAuctionResponseSchema.parse(
+    await apiRequest<unknown>(
+      `/auctions/${encodeURIComponent(auctionId)}/cancel`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify({ reason }),
+      },
+    ),
+  );
 }
 
 export async function updateOwnedAuctionDraft({
