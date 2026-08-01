@@ -27,10 +27,11 @@ Implemented frontend slices:
 - Authenticated notification center with unread filtering, read tracking, auction navigation, cursor-based loading, and a shared-header unread indicator
 - Administrator user management with status filtering, cursor-based loading, audited suspension/reactivation, confirmation forms, and responsive account cards
 - Administrator auction management with status filtering, cursor-based loading, public-detail navigation, audited Scheduled and Active cancellation, confirmation forms, and responsive auction cards
+- Administrator category management with root and child hierarchy browsing, category creation and editing, activation controls, parent-state protection, immediate query refresh, and responsive category cards
 
 Remaining frontend delivery phases:
 
-- Administrator category and audit screens
+- Administrator audit screen
 
 ## Local development
 
