@@ -28,10 +28,9 @@ Implemented frontend slices:
 - Administrator user management with status filtering, cursor-based loading, audited suspension/reactivation, confirmation forms, and responsive account cards
 - Administrator auction management with status filtering, cursor-based loading, public-detail navigation, audited Scheduled and Active cancellation, confirmation forms, and responsive auction cards
 - Administrator category management with root and child hierarchy browsing, category creation and editing, activation controls, parent-state protection, immediate query refresh, and responsive category cards
+- Administrator audit history with action-type filtering, cursor-based loading, administrator identity, typed action targets, audit notes, timestamps, and responsive action cards
 
 Remaining frontend delivery phases:
-
-- Administrator audit screen
 
 ## Local development
 
