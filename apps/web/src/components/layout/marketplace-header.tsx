@@ -147,6 +147,32 @@ export function MarketplaceHeader() {
 
                 <span className='hidden lg:inline'>Watchlist</span>
               </Link>
+
+              {user?.role !== 'ADMIN' && (
+                <Link
+                  href='/sell/auctions'
+                  aria-label='Open your auctions'
+                  className='inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-full border border-border bg-surface px-3 text-sm font-bold text-foreground transition hover:border-primary/60 hover:text-primary'
+                >
+                  <svg
+                    aria-hidden='true'
+                    viewBox='0 0 24 24'
+                    fill='none'
+                    stroke='currentColor'
+                    strokeWidth='2'
+                    className='size-4'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      d='M4 6h16M4 12h16M4 18h10'
+                    />
+                  </svg>
+
+                  <span className='hidden xl:inline'>My auctions</span>
+                </Link>
+              )}
+
               <Link
                 href='/sell'
                 className='inline-flex min-h-10 items-center justify-center rounded-full bg-primary px-4 text-sm font-black text-background transition hover:bg-primary-strong'

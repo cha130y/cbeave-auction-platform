@@ -3,10 +3,13 @@
 import {
   auctionDraftImageSchema,
   auctionDraftResponseSchema,
+  listOwnedAuctionsResponseSchema,
   publishAuctionResponseSchema,
-  PublishedAuction,
   type AuctionDraft,
   type AuctionDraftImage,
+  type ListOwnedAuctionsResponse,
+  type OwnedAuctionStatus,
+  type PublishedAuction,
 } from '@/features/auctions/schemas/auction-draft.schemas';
 import {
   ListHotAuctionsResponse,
@@ -21,6 +24,12 @@ import { apiRequest } from '@/lib/api/api-client';
 export type ListPublicAuctionsParams = {
   limit?: number;
   categoryId?: string;
+  cursor?: string;
+};
+
+export type ListOwnedAuctionsParams = {
+  limit?: number;
+  status?: OwnedAuctionStatus;
   cursor?: string;
 };
 
@@ -86,6 +95,16 @@ export async function listHotAuctions(
   );
 }
 
+export async function listOwnedAuctions(
+  params: ListOwnedAuctionsParams = {},
+): Promise<ListOwnedAuctionsResponse> {
+  const queryString = createQueryString(params);
+
+  return listOwnedAuctionsResponseSchema.parse(
+    await apiRequest<unknown>(`/auctions/mine${queryString}`),
+  );
+}
+
 export async function getPublicAuction(
   auctionId: string,
 ): Promise<PublicAuctionDetail> {
@@ -114,6 +133,14 @@ export async function getOwnedAuctionDraft(
       `/auctions/${encodeURIComponent(auctionId)}/draft`,
     ),
   );
+}
+
+export async function deleteOwnedAuctionDraft(
+  auctionId: string,
+): Promise<void> {
+  await apiRequest<void>(`/auctions/${encodeURIComponent(auctionId)}/draft`, {
+    method: 'DELETE',
+  });
 }
 
 export async function updateOwnedAuctionDraft({

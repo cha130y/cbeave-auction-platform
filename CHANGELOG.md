@@ -50,6 +50,7 @@ The format follows Keep a Changelog principles. Product releases will use semant
 - Added live sudden-death extension feedback with runtime-validated Socket.IO events, extension numbering, triggering-bid context, exact extension duration, previous and updated deadlines, countdown refresh, and persistent arena extension counts.
 - Added responsive Live Arena Sold and Unsold result views with post-commit Socket.IO updates, refresh-safe persisted results, final price, accepted-bid count, reserve outcome, completion time, and masked winner identity.
 - Added a responsive authenticated notification center with All/Unread filtering, unread header indicators, idempotent read controls, auction navigation, cursor-based loading, and verified Outbid, Auction Won, Seller Result, and Cancellation presentation; also replaced the temporary web brand mark with the supplied CBeave wordmark and tightened the mobile header layout.
+- Added authenticated seller-owned auction management with status filtering, cursor pagination, draft resumption, responsive shared-header navigation, and ownership-safe soft deletion of Draft auctions with Cloudinary image cleanup.
 
 ### Documentation
 

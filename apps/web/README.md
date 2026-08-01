@@ -16,7 +16,7 @@ Implemented frontend slices:
 - Responsive local, Google, and Facebook authentication
 - Public auction discovery, hot-auction ranking, details, and completed results
 - Authenticated profile editing
-- Seller draft creation, editing, image management, and publication
+- Seller draft creation, owned-auction listing, status filtering, draft resumption, editing, image management, publication, and Draft deletion
 - Authenticated watchlist management
 - Authenticated bid placement with exact money validation
 - Public masked bid history with cursor pagination
