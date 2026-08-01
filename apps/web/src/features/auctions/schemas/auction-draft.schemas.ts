@@ -118,7 +118,74 @@ export const publishAuctionResponseSchema = z.object({
   rowVersion: z.number().int().positive(),
 });
 
+export const ownedAuctionStatusSchema = z.enum([
+  'DRAFT',
+  'SCHEDULED',
+  'ACTIVE',
+  'SOLD',
+  'UNSOLD',
+  'CANCELLED',
+]);
+
+export const ownedAuctionSummarySchema = z.object({
+  id: uuidV4Schema,
+  title: z.string().min(1),
+  status: ownedAuctionStatusSchema,
+  currency: z.string().regex(/^[A-Z]{3}$/),
+  currentPrice: moneyResponseSchema,
+  bidCount: z.number().int().nonnegative(),
+  scheduledStartAt: dateTimeSchema.nullable(),
+  currentEndAt: dateTimeSchema.nullable(),
+  createdAt: dateTimeSchema,
+  updatedAt: dateTimeSchema,
+  primaryImage: z
+    .object({
+      url: z.url(),
+      altText: z.string().nullable(),
+    })
+    .nullable(),
+  category: publicAuctionCategorySchema,
+});
+
+export const listOwnedAuctionsResponseSchema = z.object({
+  items: z.array(ownedAuctionSummarySchema),
+  nextCursor: uuidV4Schema.nullable(),
+});
+
+export const cancelOwnedAuctionFormSchema = z.object({
+  reason: z
+    .string()
+    .trim()
+    .min(3, 'Enter at least 3 characters')
+    .max(500, 'Use at most 500 characters'),
+});
+
+export const cancelOwnedAuctionResponseSchema = z.object({
+  id: uuidV4Schema,
+  sellerId: uuidV4Schema,
+  title: z.string().min(1),
+  status: z.literal('CANCELLED'),
+  cancellationReason: z.string().nullable(),
+  endedAt: dateTimeSchema.nullable(),
+  rowVersion: z.number().int().positive(),
+});
+
 export type AuctionDraftFormValues = z.infer<typeof auctionDraftFormSchema>;
 export type AuctionDraft = z.infer<typeof auctionDraftResponseSchema>;
 export type AuctionDraftImage = z.infer<typeof auctionDraftImageSchema>;
 export type PublishedAuction = z.infer<typeof publishAuctionResponseSchema>;
+export type OwnedAuctionStatus = z.infer<typeof ownedAuctionStatusSchema>;
+
+export type OwnedAuctionSummary = z.infer<typeof ownedAuctionSummarySchema>;
+
+export type ListOwnedAuctionsResponse = z.infer<
+  typeof listOwnedAuctionsResponseSchema
+>;
+
+export type CancelOwnedAuctionFormValues = z.infer<
+  typeof cancelOwnedAuctionFormSchema
+>;
+
+export type CancelledOwnedAuction = z.infer<
+  typeof cancelOwnedAuctionResponseSchema
+>;

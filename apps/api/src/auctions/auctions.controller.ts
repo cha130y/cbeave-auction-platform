@@ -39,6 +39,10 @@ import { ListPublicAuctionsResponseDto } from './dto/list-public-auctions-respon
 import { PublicAuctionDetailResponseDto } from './dto/public-auction-detail-response.dto';
 import { ListHotAuctionsQueryDto } from './dto/list-hot-auctions-query.dto';
 import { ListHotAuctionsResponseDto } from './dto/list-hot-auctions-response.dto';
+import { ListOwnedAuctionsQueryDto } from './dto/list-owned-auctions-query.dto';
+import { ListOwnedAuctionsResponseDto } from './dto/list-owned-auctions-response.dto';
+import { CancelOwnedAuctionDto } from './dto/cancel-owned-auction.dto';
+import { CancelOwnedAuctionResponseDto } from './dto/cancel-owned-auction-response.dto';
 
 @Controller('auctions')
 export class AuctionsController {
@@ -58,6 +62,21 @@ export class AuctionsController {
   ): Promise<ListHotAuctionsResponseDto> {
     return this.auctionsService.listHot({
       limit: query.limit,
+    });
+  }
+
+  @Get('mine')
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @Roles(UserRole.USER)
+  listOwned(
+    @CurrentUser() currentUser: AccessTokenPayload,
+    @Query() query: ListOwnedAuctionsQueryDto,
+  ): Promise<ListOwnedAuctionsResponseDto> {
+    return this.auctionsService.listOwned({
+      sellerId: currentUser.sub,
+      cursor: query.cursor,
+      limit: query.limit,
+      status: query.status,
     });
   }
 
@@ -93,6 +112,37 @@ export class AuctionsController {
       ...updateAuctionDraftDto,
       auctionId,
       sellerId: currentUser.sub,
+    });
+  }
+
+  @Delete(':auctionId/draft')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @Roles(UserRole.USER)
+  deleteOwnedDraft(
+    @Param('auctionId', new ParseUUIDPipe({ version: '4' }))
+    auctionId: string,
+    @CurrentUser() currentUser: AccessTokenPayload,
+  ): Promise<void> {
+    return this.auctionsService.deleteOwnedDraft({
+      auctionId,
+      sellerId: currentUser.sub,
+    });
+  }
+
+  @Patch(':auctionId/cancel')
+  @UseGuards(AccessTokenGuard, RolesGuard)
+  @Roles(UserRole.USER)
+  cancelOwnedScheduled(
+    @Param('auctionId', new ParseUUIDPipe({ version: '4' }))
+    auctionId: string,
+    @CurrentUser() currentUser: AccessTokenPayload,
+    @Body() body: CancelOwnedAuctionDto,
+  ): Promise<CancelOwnedAuctionResponseDto> {
+    return this.auctionsService.cancelOwnedScheduled({
+      auctionId,
+      sellerId: currentUser.sub,
+      reason: body.reason,
     });
   }
 

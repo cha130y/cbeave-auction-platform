@@ -3,10 +3,15 @@
 import {
   auctionDraftImageSchema,
   auctionDraftResponseSchema,
+  listOwnedAuctionsResponseSchema,
   publishAuctionResponseSchema,
-  PublishedAuction,
   type AuctionDraft,
   type AuctionDraftImage,
+  type ListOwnedAuctionsResponse,
+  type OwnedAuctionStatus,
+  type PublishedAuction,
+  cancelOwnedAuctionResponseSchema,
+  type CancelledOwnedAuction,
 } from '@/features/auctions/schemas/auction-draft.schemas';
 import {
   ListHotAuctionsResponse,
@@ -22,6 +27,17 @@ export type ListPublicAuctionsParams = {
   limit?: number;
   categoryId?: string;
   cursor?: string;
+};
+
+export type ListOwnedAuctionsParams = {
+  limit?: number;
+  status?: OwnedAuctionStatus;
+  cursor?: string;
+};
+
+export type CancelOwnedAuctionInput = {
+  auctionId: string;
+  reason: string;
 };
 
 export type CreateAuctionDraftInput = {
@@ -86,6 +102,16 @@ export async function listHotAuctions(
   );
 }
 
+export async function listOwnedAuctions(
+  params: ListOwnedAuctionsParams = {},
+): Promise<ListOwnedAuctionsResponse> {
+  const queryString = createQueryString(params);
+
+  return listOwnedAuctionsResponseSchema.parse(
+    await apiRequest<unknown>(`/auctions/mine${queryString}`),
+  );
+}
+
 export async function getPublicAuction(
   auctionId: string,
 ): Promise<PublicAuctionDetail> {
@@ -112,6 +138,29 @@ export async function getOwnedAuctionDraft(
   return auctionDraftResponseSchema.parse(
     await apiRequest<unknown>(
       `/auctions/${encodeURIComponent(auctionId)}/draft`,
+    ),
+  );
+}
+
+export async function deleteOwnedAuctionDraft(
+  auctionId: string,
+): Promise<void> {
+  await apiRequest<void>(`/auctions/${encodeURIComponent(auctionId)}/draft`, {
+    method: 'DELETE',
+  });
+}
+
+export async function cancelOwnedAuction({
+  auctionId,
+  reason,
+}: CancelOwnedAuctionInput): Promise<CancelledOwnedAuction> {
+  return cancelOwnedAuctionResponseSchema.parse(
+    await apiRequest<unknown>(
+      `/auctions/${encodeURIComponent(auctionId)}/cancel`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify({ reason }),
+      },
     ),
   );
 }
