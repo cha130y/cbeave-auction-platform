@@ -66,6 +66,7 @@ export const activeArenaStateSchema = z.object({
   extensionCount: z.number().int().nonnegative(),
   participantCount: z.number().int().nonnegative(),
   canBid: z.boolean(),
+  isCurrentUserLeading: z.boolean(),
   leader: activeArenaLeaderSchema.nullable(),
   recentBids: z.array(publicBidSchema),
 });

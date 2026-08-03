@@ -33,6 +33,7 @@ export function MarketplaceHeader() {
       unreadOnly: true,
     },
     status === 'authenticated',
+    10_000,
   );
 
   const hasUnreadNotifications =

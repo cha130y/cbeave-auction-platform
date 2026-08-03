@@ -25,6 +25,7 @@ export const notificationQueryKeys = {
 export function useInfiniteNotifications(
   params: NotificationListOptions = {},
   enabled = true,
+  refetchInterval: number | false = false,
 ) {
   const limit = params.limit ?? 20;
   const unreadOnly = params.unreadOnly ?? false;
@@ -50,6 +51,7 @@ export function useInfiniteNotifications(
     //determines whether the request is allowed to run.
     //authStatus = authenticated ==> enabled = true ==> GET /notifications
     enabled,
+    refetchInterval: enabled ? refetchInterval : false,
   });
 }
 

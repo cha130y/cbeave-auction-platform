@@ -36,24 +36,85 @@ export function useActiveArenaState(
 
     const socket = getAuctionSocket();
     let mounted = true;
+    let hasLoadedState = false;
+    let requestInFlight = false;
+    let refreshQueued = false;
+    let failedAttempts = 0;
+    let retryTimer: number | null = null;
+
+    const clearRetry = () => {
+      if (retryTimer !== null) {
+        window.clearTimeout(retryTimer);
+        retryTimer = null;
+      }
+    };
+
+    const scheduleRetry = (delay: number) => {
+      if (!mounted || retryTimer !== null) {
+        return;
+      }
+
+      retryTimer = window.setTimeout(() => {
+        retryTimer = null;
+
+        if (socket.connected) {
+          requestState();
+        } else {
+          socket.connect();
+        }
+      }, delay);
+    };
+
+    const handleRequestFailure = (message: string) => {
+      failedAttempts += 1;
+
+      if (failedAttempts >= 3) {
+        setStatus('error');
+        setErrorMessage(message);
+      } else {
+        setStatus('loading');
+      }
+
+      scheduleRetry(failedAttempts >= 3 ? 2_000 : 750);
+    };
 
     const requestState = () => {
-      setStatus('loading');
+      if (!mounted) {
+        return;
+      }
+
+      if (!socket.connected) {
+        scheduleRetry(500);
+        return;
+      }
+
+      if (requestInFlight) {
+        refreshQueued = true;
+        return;
+      }
+
+      requestInFlight = true;
+
+      if (!hasLoadedState) {
+        setStatus('loading');
+      }
+
       setErrorMessage(null);
 
-      socket.timeout(5_000).emit(
+      socket.timeout(3_000).emit(
         'auction:state',
         {
           auctionId,
         },
         (error: Error | null, payload: unknown) => {
+          requestInFlight = false;
+
           if (!mounted) {
             return;
           }
 
           if (error) {
-            setStatus('error');
-            setErrorMessage(
+            handleRequestFailure(
               'The active auction state could not be loaded. Please try again.',
             );
             return;
@@ -62,15 +123,22 @@ export function useActiveArenaState(
           const result = activeArenaStateSchema.safeParse(payload);
 
           if (!result.success || result.data.auctionId !== auctionId) {
-            setStatus('error');
-            setErrorMessage(
+            handleRequestFailure(
               'The Live Arena returned an invalid auction state.',
             );
             return;
           }
 
+          clearRetry();
+          failedAttempts = 0;
+          hasLoadedState = true;
           setArenaState(result.data);
           setStatus('success');
+
+          if (refreshQueued) {
+            refreshQueued = false;
+            requestState();
+          }
         },
       );
     };
@@ -94,14 +162,24 @@ export function useActiveArenaState(
       }
 
       setLatestExtension(result.data);
+      requestState();
+    };
+
+    const handleConnect = () => {
+      requestState();
     };
 
     //Whenever the server sends an auction:bid-accepted event through this socket, call handleBidAccepted
     socket.on('auction:bid-accepted', handleBidAccepted);
     socket.on('auction:extended', handleAuctionExtended);
+    socket.on('connect', handleConnect);
 
     //run this method when enter the room/ refresh page
-    requestState();
+    if (socket.connected) {
+      requestState();
+    } else {
+      socket.connect();
+    }
 
     //clean up the event listener when
     // the component unmounts;
@@ -110,9 +188,11 @@ export function useActiveArenaState(
     // the effect needs to register a new listener.
     return () => {
       mounted = false;
+      clearRetry();
       //Stop calling this particular handleBidAccepted function for this event
       socket.off('auction:bid-accepted', handleBidAccepted);
       socket.off('auction:extended', handleAuctionExtended);
+      socket.off('connect', handleConnect);
     };
   }, [auctionId, enabled]);
 
