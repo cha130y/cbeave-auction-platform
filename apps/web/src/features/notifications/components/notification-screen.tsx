@@ -29,6 +29,7 @@ export function NotificationScreen() {
       unreadOnly,
     },
     status === 'authenticated',
+    10_000,
   );
 
   const markReadMutation = useMarkNotificationRead();

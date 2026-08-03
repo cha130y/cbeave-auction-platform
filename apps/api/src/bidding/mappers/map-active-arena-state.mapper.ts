@@ -45,6 +45,7 @@ export function mapActiveArenaState(
     extensionCount: auction.extensionCount,
     participantCount,
     canBid: viewerRole === UserRole.USER && auction.sellerId !== viewerUserId,
+    isCurrentUserLeading: highestBid?.bidderId === viewerUserId,
     leader,
     // Create a copy, then reverse it for an oldest-to-newest UI feed.
     recentBids: [...auction.bids].reverse().map(mapPublicBidHistoryResponse),

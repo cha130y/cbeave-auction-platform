@@ -25,6 +25,7 @@ export const activeArenaStateSelect = {
     },
     take: ACTIVE_ARENA_RECENT_BID_LIMIT,
     select: {
+      bidderId: true,
       amount: true,
       sequenceNo: true,
       placedAt: true,

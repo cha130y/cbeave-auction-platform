@@ -42,9 +42,39 @@ export function useAuctionLobby(
     const socket = getAuctionSocket();
 
     let joined = false;
+    let joinInFlight = false;
     let mounted = true;
+    let retryTimer: number | null = null;
+
+    const clearRetry = () => {
+      if (retryTimer !== null) {
+        window.clearTimeout(retryTimer);
+        retryTimer = null;
+      }
+    };
+
+    const scheduleJoinRetry = () => {
+      if (!mounted || retryTimer !== null) {
+        return;
+      }
+
+      retryTimer = window.setTimeout(() => {
+        retryTimer = null;
+
+        if (socket.connected) {
+          joinAuction();
+        } else {
+          socket.connect();
+        }
+      }, 1_500);
+    };
 
     const joinAuction = () => {
+      if (joinInFlight) {
+        return;
+      }
+
+      joinInFlight = true;
       setConnectionStatus('connecting');
       setErrorMessage(null);
 
@@ -54,6 +84,8 @@ export function useAuctionLobby(
           auctionId,
         },
         (error: Error | null, payload: unknown) => {
+          joinInFlight = false;
+
           if (!mounted) {
             return;
           }
@@ -61,8 +93,9 @@ export function useAuctionLobby(
           if (error) {
             setConnectionStatus('error');
             setErrorMessage(
-              'The Live Arena connection timed out. Please try again.',
+              'The Live Arena is reconnecting. No refresh is required.',
             );
+            scheduleJoinRetry();
             return;
           }
 
@@ -74,9 +107,11 @@ export function useAuctionLobby(
             setErrorMessage(
               'The Live Arena returned an invalid lobby response.',
             );
+            scheduleJoinRetry();
             return;
           }
 
+          clearRetry();
           joined = true;
           setParticipantCount(result.data.participantCount);
           setConnectionStatus('connected');
@@ -102,6 +137,9 @@ export function useAuctionLobby(
         return;
       }
 
+      clearRetry();
+      setErrorMessage(null);
+      setConnectionStatus('connected');
       setStartedEvent(result.data);
     };
 
@@ -117,11 +155,13 @@ export function useAuctionLobby(
 
     const handleConnectionError = () => {
       setConnectionStatus('error');
-      setErrorMessage('The Live Arena connection could not be established.');
+      setErrorMessage('The Live Arena is reconnecting. No refresh is required.');
     };
 
     const handleDisconnect = () => {
       joined = false;
+      joinInFlight = false;
+      clearRetry();
       setConnectionStatus('connecting');
     };
 
@@ -142,6 +182,7 @@ export function useAuctionLobby(
 
     return () => {
       mounted = false;
+      clearRetry();
 
       //socket.off use for remove listener
       socket.off('connect', joinAuction);
@@ -164,7 +205,8 @@ export function useAuctionLobby(
     connectionStatus: enabled ? connectionStatus : 'idle',
     errorMessage: enabled ? errorMessage : null,
     participantCount: enabled ? participantCount : 0,
-    startedEvent: enabled ? startedEvent : null,
+    startedEvent:
+      enabled && startedEvent?.auctionId === auctionId ? startedEvent : null,
     endedEvent:
       enabled && endedEvent?.auctionId === auctionId ? endedEvent : null,
   };

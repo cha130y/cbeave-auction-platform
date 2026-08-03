@@ -10,6 +10,8 @@ import { AuctionResultPanel } from '@/features/live-arena/components/auction-res
 import type { AuctionEndedEvent } from '@/features/live-arena/schemas/live-arena.schemas';
 import Link from 'next/link';
 import { maskBidderDisplayName } from '@/lib/display-names';
+import Image from 'next/image';
+import { useEffect } from 'react';
 
 type AuctionLobbyScreenProps = {
   auctionId: string;
@@ -43,6 +45,24 @@ export function AuctionLobbyScreen({ auctionId }: AuctionLobbyScreenProps) {
     participantCount,
     startedEvent,
   } = useAuctionLobby(auctionId, canJoinLobby);
+
+  const refetchAuction = auctionQuery.refetch;
+
+  useEffect(() => {
+    if (auction?.status !== 'SCHEDULED' || !countdown.isComplete) {
+      return;
+    }
+
+    void refetchAuction();
+
+    const refreshTimer = window.setInterval(() => {
+      void refetchAuction();
+    }, 2_000);
+
+    return () => {
+      window.clearInterval(refreshTimer);
+    };
+  }, [auction?.status, countdown.isComplete, refetchAuction]);
 
   if (authStatus === 'loading' || auctionQuery.isPending) {
     return (
@@ -151,6 +171,8 @@ export function AuctionLobbyScreen({ auctionId }: AuctionLobbyScreenProps) {
     );
   }
   const hasStarted = auction.status === 'ACTIVE' || startedEvent !== null;
+  const primaryImage =
+    auction.images.find((image) => image.isPrimary) ?? auction.images[0];
 
   return (
     <main className='mx-auto w-full max-w-5xl px-4 py-10 sm:px-6 sm:py-16 lg:px-8'>
@@ -162,7 +184,19 @@ export function AuctionLobbyScreen({ auctionId }: AuctionLobbyScreenProps) {
       </Link>
 
       <section className='mt-7 overflow-hidden rounded-3xl border border-border bg-surface'>
-        <div className='border-b border-border px-6 py-8 text-center sm:px-10 sm:py-12'>
+        <div className='grid border-b border-border lg:grid-cols-[20rem_1fr]'>
+          <div className='relative min-h-56 overflow-hidden bg-background lg:min-h-72'>
+            <Image
+              src={primaryImage.url}
+              alt={primaryImage.altText ?? auction.title}
+              fill
+              priority
+              sizes='(max-width: 1024px) 100vw, 320px'
+              className='object-cover'
+            />
+          </div>
+
+          <div className='flex flex-col justify-center px-6 py-8 text-center sm:px-10 sm:py-12'>
           <p className='text-xs font-black tracking-[0.22em] text-primary uppercase'>
             {hasStarted ? 'Live Arena' : 'Live Arena lobby'}
           </p>
@@ -176,6 +210,7 @@ export function AuctionLobbyScreen({ auctionId }: AuctionLobbyScreenProps) {
               {auction.seller.displayName}
             </span>
           </p>
+          </div>
         </div>
 
         <div className='grid gap-8 px-6 py-8 sm:px-10 sm:py-10 lg:grid-cols-[1fr_18rem]'>
@@ -209,7 +244,7 @@ export function AuctionLobbyScreen({ auctionId }: AuctionLobbyScreenProps) {
             {hasStarted ? (
               <ActiveArenaPanel
                 auction={auction}
-                enabled={connectionStatus === 'connected'}
+                enabled={authStatus === 'authenticated'}
               />
             ) : (
               <>
@@ -247,7 +282,7 @@ export function AuctionLobbyScreen({ auctionId }: AuctionLobbyScreenProps) {
               </>
             )}
 
-            {errorMessage && (
+            {errorMessage && !hasStarted && (
               <p
                 className='mt-5 rounded-xl border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger'
                 role='alert'

@@ -55,8 +55,56 @@ export function ActiveArenaPanel({ auction, enabled }: ActiveArenaPanelProps) {
     currentPrice: arenaState.currentPrice,
   };
 
+  const isFinalTwoMinutes =
+    countdown.isReady &&
+    !countdown.isComplete &&
+    countdown.totalMilliseconds <= 120_000;
+
+  const finalMinutesMessage = arenaState.isCurrentUserLeading
+    ? arenaState.reserveMet
+      ? {
+          eyebrow: 'You are currently winning',
+          title: 'Stay ahead until the auction ends',
+          description:
+            'Your bid is leading and the reserve has been met. The sale is confirmed only after the server closes the auction.',
+        }
+      : {
+          eyebrow: 'You are currently leading',
+          title: 'The reserve has not been met yet',
+          description:
+            'Your bid is highest, but the auction can still end without a sale unless the reserve is met.',
+        }
+    : {
+        eyebrow: 'Final two minutes',
+        title: 'Another bidder is currently leading',
+        description: `Place at least ${formatMoney(
+          arenaState.minimumNextBid,
+          arenaState.currency,
+        )} to take the lead before the auction ends.`,
+      };
+
   return (
     <div className='mt-8 space-y-6'>
+      {isFinalTwoMinutes && (
+        <section
+          className='rounded-2xl border border-danger/40 bg-danger/10 p-5'
+          role='status'
+          aria-live='polite'
+        >
+          <p className='text-xs font-black tracking-wider text-danger uppercase'>
+            {finalMinutesMessage.eyebrow}
+          </p>
+
+          <h2 className='mt-2 text-xl font-black text-foreground'>
+            {finalMinutesMessage.title}
+          </h2>
+
+          <p className='mt-2 text-sm leading-6 text-muted'>
+            {finalMinutesMessage.description}
+          </p>
+        </section>
+      )}
+
       {latestExtension && (
         <section
           className='rounded-2xl border border-primary/40 bg-primary/10 p-5'

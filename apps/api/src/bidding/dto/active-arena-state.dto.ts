@@ -20,6 +20,7 @@ export class ActiveArenaStateDto {
   extensionCount: number;
   participantCount: number;
   canBid: boolean;
+  isCurrentUserLeading: boolean;
   leader: ActiveArenaLeaderDto | null;
   recentBids: PublicBidResponseDto[];
 }
