@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 :root {
   --background: #0d0d12;
@@ -30,9 +30,9 @@
   --color-accent: var(--accent);
   --color-danger: var(--danger);
   --color-success: var(--success);
-  --font-sans: "Outfit", "Avenir Next", "Segoe UI", Arial, sans-serif;
-  --font-mono: "JetBrains Mono", "Cascadia Code", "SFMono-Regular", Consolas,
-    monospace;
+  --font-sans: 'Outfit', 'Avenir Next', 'Segoe UI', Arial, sans-serif;
+  --font-mono:
+    'JetBrains Mono', 'Cascadia Code', 'SFMono-Regular', Consolas, monospace;
 }
 
 * {
@@ -63,4 +63,150 @@ a {
 ::selection {
   background: rgba(0, 229, 255, 0.28);
   color: white;
+}
+
+.hero-orbit {
+  --hero-rotate-x: 0deg;
+  --hero-rotate-y: 0deg;
+  --hero-orbit-radius: clamp(6rem, 28vw, 12rem);
+  --hero-card-width: clamp(7rem, 30vw, 10rem);
+  --hero-card-height: calc(var(--hero-card-width) * 2 / 3);
+  --hero-logo-size: clamp(8rem, 34vw, 13rem);
+
+  position: relative;
+  width: 100%;
+  min-height: clamp(22rem, 70vw, 30rem);
+  perspective: 1200px;
+}
+
+.hero-orbit__scene {
+  position: absolute;
+  inset: 0;
+  transform: rotateX(var(--hero-rotate-x)) rotateY(var(--hero-rotate-y));
+  transform-style: preserve-3d;
+  transition: transform 160ms ease-out;
+}
+
+.hero-orbit__logo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--hero-logo-size);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%) translateZ(20px);
+  z-index: 2;
+  pointer-events: none;
+  filter: drop-shadow(0 0 28px rgb(0 229 255 / 22%));
+  mask-image: radial-gradient(circle, black 48%, transparent 74%);
+  -webkit-mask-image: radial-gradient(circle, black 48%, transparent 74%);
+}
+
+.hero-orbit__ring {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  transform-style: preserve-3d;
+}
+
+.hero-orbit__slot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--hero-card-width);
+  height: var(--hero-card-height);
+  margin-top: calc(var(--hero-card-height) / -2);
+  margin-left: calc(var(--hero-card-width) / -2);
+  transform: rotateY(var(--hero-card-angle))
+    translateZ(var(--hero-orbit-radius));
+  transform-style: preserve-3d;
+  animation: hero-card-orbit 18s linear infinite;
+  will-change: transform;
+}
+
+.hero-orbit__card {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid transparent;
+  border-radius: 1rem;
+  background:
+    linear-gradient(var(--surface), var(--surface)) padding-box,
+    linear-gradient(135deg, var(--primary), var(--accent) 55%, var(--danger))
+      border-box;
+  box-shadow:
+    0 0 20px rgb(0 229 255 / 18%),
+    0 0 45px rgb(168 85 247 / 10%);
+  transition:
+    box-shadow 200ms ease,
+    border-color 200ms ease;
+}
+
+.hero-orbit__card:hover,
+.hero-orbit__card:focus-visible {
+  box-shadow:
+    0 0 28px rgb(0 229 255 / 38%),
+    0 0 65px rgb(168 85 247 / 22%);
+}
+
+@keyframes hero-card-orbit {
+  from {
+    transform: rotateY(var(--hero-card-angle))
+      translateZ(var(--hero-orbit-radius));
+  }
+
+  to {
+    transform: rotateY(calc(var(--hero-card-angle) + 1turn))
+      translateZ(var(--hero-orbit-radius));
+  }
+}
+
+@media (min-width: 64rem) {
+  .hero-orbit {
+    --hero-orbit-radius: 18rem;
+    --hero-card-width: 12rem;
+    --hero-card-height: 8rem;
+    --hero-logo-size: 17rem;
+
+    min-height: 34rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-orbit__scene {
+    transform: none;
+    transition: none;
+  }
+}
+
+@keyframes sudden-death-alert {
+  0%,
+  100% {
+    border-color: rgb(255 59 92 / 45%);
+    box-shadow: 0 0 18px rgb(255 59 92 / 12%);
+    filter: brightness(1);
+    transform: scale(1);
+  }
+
+  50% {
+    border-color: rgb(255 85 110);
+    box-shadow:
+      0 0 16px rgb(255 59 92 / 80%),
+      0 0 56px rgb(255 59 92 / 45%);
+    filter: brightness(1.18);
+    transform: scale(1.008);
+  }
+}
+
+.animate-sudden-death-alert {
+  animation: sudden-death-alert 1.5s ease-in-out infinite;
+  will-change: border-color, box-shadow, filter, transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-sudden-death-alert {
+    animation: none;
+  }
 }
