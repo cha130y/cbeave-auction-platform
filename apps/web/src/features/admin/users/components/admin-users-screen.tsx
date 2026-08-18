@@ -1,5 +1,6 @@
 'use client';
 
+import { AdminGateSkeleton } from '@/features/admin/components/admin-gate-skeleton';
 import {
   AdminUserStatusForm,
   type AdminUserStatusAction,
@@ -9,9 +10,8 @@ import type {
   AdminUser,
   AdminUserStatus,
 } from '@/features/admin/users/schemas/admin-user.schemas';
-import { useAuth } from '@/features/auth/use-auth';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState, useRef } from 'react';
+import { useRequireAdmin } from '@/features/auth/use-require-admin';
+import { useState, useRef, useEffect } from 'react';
 import { formatDateTime, formatOptionalDateTime } from '@/lib/formatters';
 
 type StatusFilter = 'ALL' | AdminUserStatus;
@@ -26,14 +26,11 @@ const statusClassNames: Record<AdminUserStatus, string> = {
 };
 
 export function AdminUsersScreen() {
-  const router = useRouter();
-  const { status, user } = useAuth();
+  const { isAdmin } = useRequireAdmin();
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL');
   const [selectedStatusChange, setSelectedStatusChange] =
     useState<PendingStatusChange>(null);
   const statusFormRef = useRef<HTMLDivElement>(null);
-
-  const isAdmin = status === 'authenticated' && user?.role === 'ADMIN';
 
   const usersQuery = useInfiniteAdminUsers(
     {
@@ -43,17 +40,6 @@ export function AdminUsersScreen() {
     //query when isAdmin = true
     isAdmin,
   );
-
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.replace('/auth');
-      return;
-    }
-
-    if (status === 'authenticated' && user?.role !== 'ADMIN') {
-      router.replace('/');
-    }
-  }, [router, status, user?.role]);
 
   //runs after React renders the selected audit form
   useEffect(() => {
@@ -68,11 +54,7 @@ export function AdminUsersScreen() {
   }, [selectedStatusChange]);
 
   if (!isAdmin) {
-    return (
-      <div className='mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 lg:px-8'>
-        <div className='h-96 animate-pulse rounded-3xl border border-border bg-surface' />
-      </div>
-    );
+    return <AdminGateSkeleton />;
   }
 
   const users = usersQuery.data?.pages.flatMap((page) => page.items) ?? [];

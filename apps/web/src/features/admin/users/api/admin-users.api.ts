@@ -9,6 +9,7 @@ import {
   type ListAdminUsersResponse,
 } from '@/features/admin/users/schemas/admin-user.schemas';
 import { apiRequest } from '@/lib/api/api-client';
+import { createQueryString } from '@/lib/api/query-string';
 
 export type ListAdminUsersParams = {
   cursor?: string;
@@ -20,33 +21,11 @@ export type ChangeAdminUserStatusParams = ChangeUserStatusInput & {
   userId: string;
 };
 
-function createAdminUsersQueryString(params: ListAdminUsersParams): string {
-  const searchParams = new URLSearchParams();
-
-  if (params.cursor) {
-    searchParams.set('cursor', params.cursor);
-  }
-
-  if (params.limit !== undefined) {
-    searchParams.set('limit', String(params.limit));
-  }
-
-  if (params.status) {
-    searchParams.set('status', params.status);
-  }
-
-  const queryString = searchParams.toString();
-
-  return queryString ? `?${queryString}` : '';
-}
-
 export async function listAdminUsers(
   params: ListAdminUsersParams = {},
 ): Promise<ListAdminUsersResponse> {
   return listAdminUsersResponseSchema.parse(
-    await apiRequest<unknown>(
-      `/admin/users${createAdminUsersQueryString(params)}`,
-    ),
+    await apiRequest<unknown>(`/admin/users${createQueryString(params)}`),
   );
 }
 

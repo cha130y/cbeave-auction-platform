@@ -2,13 +2,12 @@ import {
   moneyResponseSchema,
   publicBidSchema,
 } from '@/features/bidding/schemas/bidding.schemas';
+import {
+  uuidV4Schema,
+  dateTimeSchema,
+  currencyCodeSchema,
+} from '@/lib/schemas/primitives';
 import z from 'zod';
-
-const uuidV4Schema = z.uuid({
-  version: 'v4',
-});
-
-const dateTimeSchema = z.iso.datetime();
 
 export const podiumBidSchema = z.object({
   sequenceNo: z.number().int().positive(),
@@ -46,7 +45,7 @@ export const auctionExtendedEventSchema = z.object({
 export const auctionEndedEventSchema = z.object({
   auctionId: uuidV4Schema,
   status: z.enum(['SOLD', 'UNSOLD']),
-  currency: z.string().regex(/^[A-Z]{3}$/),
+  currency: currencyCodeSchema,
   finalPrice: moneyResponseSchema,
   bidCount: z.number().int().nonnegative(),
   reserveMet: z.boolean(),
@@ -63,7 +62,7 @@ export const activeArenaStateSchema = z.object({
   auctionId: uuidV4Schema,
   title: z.string().min(1),
   status: z.literal('ACTIVE'),
-  currency: z.string().regex(/^[A-Z]{3}$/),
+  currency: currencyCodeSchema,
   currentPrice: moneyResponseSchema,
   minimumNextBid: moneyResponseSchema,
   bidCount: z.number().int().nonnegative(),

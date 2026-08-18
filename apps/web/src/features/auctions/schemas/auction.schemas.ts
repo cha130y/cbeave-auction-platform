@@ -1,8 +1,7 @@
 import { assetUrlSchema } from '@/lib/schemas/asset-url.schema';
+import { uuidV4Schema, dateTimeSchema } from '@/lib/schemas/primitives';
 import z from 'zod';
 
-const uuidV4Schema = z.uuid({ version: 'v4' });
-const dateTimeSchema = z.iso.datetime();
 const moneySchema = z.string().regex(/^\d+\.\d{2}$/, {
   message: 'Expected a monetary value with two decimal places',
 });

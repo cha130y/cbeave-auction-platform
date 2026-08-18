@@ -1,11 +1,16 @@
-import { ownedAuctionStatusSchema } from '@/features/auctions/schemas/auction-draft.schemas';
+import {
+  ownedAuctionStatusSchema,
+  cancelOwnedAuctionResponseSchema,
+} from '@/features/auctions/schemas/auction-draft.schemas';
 import { publicAuctionCategorySchema } from '@/features/auctions/schemas/auction.schemas';
 import { assetUrlSchema } from '@/lib/schemas/asset-url.schema';
+import {
+  uuidV4Schema,
+  dateTimeSchema,
+  moneyResponseSchema as moneySchema,
+  currencyCodeSchema,
+} from '@/lib/schemas/primitives';
 import { z } from 'zod';
-
-const uuidV4Schema = z.uuid({ version: 'v4' });
-const dateTimeSchema = z.iso.datetime();
-const moneySchema = z.string().regex(/^\d+\.\d{2}$/);
 
 const adminAuctionSellerSchema = z.object({
   id: uuidV4Schema,
@@ -22,7 +27,7 @@ export const adminAuctionSchema = z.object({
   id: uuidV4Schema,
   title: z.string().min(1),
   status: ownedAuctionStatusSchema,
-  currency: z.string().regex(/^[A-Z]{3}$/),
+  currency: currencyCodeSchema,
   currentPrice: moneySchema,
   bidCount: z.number().int().nonnegative(),
   scheduledStartAt: dateTimeSchema.nullable(),
@@ -50,15 +55,8 @@ export const cancelAdminAuctionFormSchema = z.object({
     .max(500, 'Use at most 500 characters'),
 });
 
-export const cancelAdminAuctionResponseSchema = z.object({
-  id: uuidV4Schema,
-  sellerId: uuidV4Schema,
-  title: z.string().min(1),
-  status: z.literal('CANCELLED'),
-  cancellationReason: z.string().nullable(),
-  endedAt: dateTimeSchema.nullable(),
-  rowVersion: z.number().int().positive(),
-});
+export const cancelAdminAuctionResponseSchema =
+  cancelOwnedAuctionResponseSchema;
 
 export type AdminAuction = z.infer<typeof adminAuctionSchema>;
 

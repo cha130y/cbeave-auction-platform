@@ -1,9 +1,10 @@
+import { dateTimeSchema } from '@/lib/schemas/primitives';
 import { z } from 'zod';
 
 export const userRoleSchema = z.enum(['USER', 'ADMIN']);
 export const userStatusSchema = z.enum(['ACTIVE', 'SUSPENDED', 'DEACTIVATED']);
 
-const nullableDateTimeSchema = z.string().datetime().nullable();
+const nullableDateTimeSchema = dateTimeSchema.nullable();
 
 export const currentUserProfileSchema = z.object({
   firstName: z.string(),
@@ -14,18 +15,18 @@ export const currentUserProfileSchema = z.object({
   bio: z.string().nullable(),
   phone: z.string().nullable(),
   location: z.string().nullable(),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
+  createdAt: dateTimeSchema,
+  updatedAt: dateTimeSchema,
 });
 
 export const currentUserSchema = z.object({
-  id: z.string().uuid(),
-  email: z.string().email(),
+  id: z.uuid(),
+  email: z.email(),
   role: userRoleSchema,
   status: userStatusSchema,
   emailVerifiedAt: nullableDateTimeSchema,
   lastLoginAt: nullableDateTimeSchema,
-  createdAt: z.string().datetime(),
+  createdAt: dateTimeSchema,
   profile: currentUserProfileSchema.nullable(),
 });
 

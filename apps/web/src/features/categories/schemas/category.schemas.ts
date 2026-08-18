@@ -1,6 +1,5 @@
+import { uuidV4Schema } from '@/lib/schemas/primitives';
 import z from 'zod';
-
-const uuidV4Schema = z.uuid({ version: 'v4' });
 
 export const categoryChildSchema = z.object({
   id: uuidV4Schema,

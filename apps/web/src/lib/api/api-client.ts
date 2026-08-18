@@ -7,7 +7,7 @@ import {
 } from "./access-token.store";
 import { ApiError } from "./api-error";
 
-const apiBaseUrl = publicEnv.NEXT_PUBLIC_API_URL.replace(/\/+$/, "");
+export const apiBaseUrl = publicEnv.NEXT_PUBLIC_API_URL.replace(/\/+$/, "");
 
 type ApiRequestInit = RequestInit & {
   retryUnauthorized?: boolean;

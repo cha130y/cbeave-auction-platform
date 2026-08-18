@@ -22,6 +22,7 @@ import {
   publicAuctionDetailSchema,
 } from '@/features/auctions/schemas/auction.schemas';
 import { apiRequest } from '@/lib/api/api-client';
+import { createQueryString } from '@/lib/api/query-string';
 
 export type ListPublicAuctionsParams = {
   limit?: number;
@@ -65,22 +66,6 @@ export type DeleteAuctionImageInput = {
   auctionId: string;
   imageId: string;
 };
-
-function createQueryString(
-  params: Record<string, string | number | undefined>,
-): string {
-  const searchParams = new URLSearchParams();
-
-  for (const [key, value] of Object.entries(params)) {
-    if (value !== undefined) {
-      searchParams.set(key, String(value));
-    }
-  }
-
-  const queryString = searchParams.toString();
-
-  return queryString ? `?${queryString}` : '';
-}
 
 export async function listPublicAuctions(
   params: ListPublicAuctionsParams = {},

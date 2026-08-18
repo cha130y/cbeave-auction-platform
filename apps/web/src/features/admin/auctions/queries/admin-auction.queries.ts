@@ -5,6 +5,8 @@ import {
   listAdminAuctions,
   type ListAdminAuctionsParams,
 } from '@/features/admin/auctions/api/admin-auctions.api';
+import type { ListAdminAuctionsResponse } from '@/features/admin/auctions/schemas/admin-auction.schemas';
+import { cursorPagination } from '@/lib/api/cursor-pagination';
 import {
   useInfiniteQuery,
   useMutation,
@@ -42,9 +44,7 @@ export function useInfiniteAdminAuctions(
         status,
       }),
 
-    initialPageParam: null as string | null,
-
-    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+    ...cursorPagination<ListAdminAuctionsResponse>(),
 
     enabled,
   });

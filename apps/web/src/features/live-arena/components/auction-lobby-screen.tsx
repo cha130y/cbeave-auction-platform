@@ -1,6 +1,7 @@
 'use client';
 
 import { usePublicAuction } from '@/features/auctions/queries/auction.queries';
+import { getPrimaryImage } from '@/features/auctions/utils/get-primary-image';
 import { useAuth } from '@/features/auth/use-auth';
 import { useCountdown } from '@/features/live-arena/hooks/use-countdown';
 import { useAuctionLobby } from '@/features/live-arena/realtime/use-auction-lobby';
@@ -172,8 +173,7 @@ export function AuctionLobbyScreen({ auctionId }: AuctionLobbyScreenProps) {
     );
   }
   const hasStarted = auction.status === 'ACTIVE' || startedEvent !== null;
-  const primaryImage =
-    auction.images.find((image) => image.isPrimary) ?? auction.images[0];
+  const primaryImage = getPrimaryImage(auction.images);
 
   return (
     <main className='mx-auto w-full max-w-5xl px-4 py-10 sm:px-6 sm:py-16 lg:px-8'>

@@ -7,6 +7,7 @@ import {
   type PlaceBidResponse,
 } from '@/features/bidding/schemas/bidding.schemas';
 import { apiRequest } from '@/lib/api/api-client';
+import { createQueryString } from '@/lib/api/query-string';
 
 export type ListPublicBidsParams = {
   auctionId: string;
@@ -19,30 +20,12 @@ export type PlaceBidInput = {
   amount: string;
 };
 
-function createBidHistoryQueryString(
-  params: Pick<ListPublicBidsParams, 'limit' | 'cursor'>,
-): string {
-  const searchParams = new URLSearchParams();
-
-  if (params.limit !== undefined) {
-    searchParams.set('limit', String(params.limit));
-  }
-
-  if (params.cursor !== undefined) {
-    searchParams.set('cursor', String(params.cursor));
-  }
-
-  const queryString = searchParams.toString();
-
-  return queryString ? `?${queryString}` : '';
-}
-
 export async function listPublicBids({
   auctionId,
   limit,
   cursor,
 }: ListPublicBidsParams): Promise<ListPublicBidsResponse> {
-  const queryString = createBidHistoryQueryString({
+  const queryString = createQueryString({
     limit,
     cursor,
   });

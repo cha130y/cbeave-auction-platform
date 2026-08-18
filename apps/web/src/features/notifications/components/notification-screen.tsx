@@ -1,6 +1,6 @@
 'use client';
 
-import { useAuth } from '@/features/auth/use-auth';
+import { useRequireAuth } from '@/features/auth/use-require-auth';
 import {
   useInfiniteNotifications,
   useMarkNotificationRead,
@@ -8,8 +8,7 @@ import {
 import type { NotificationType } from '@/features/notifications/schemas/notification.schemas';
 import { formatDateTime } from '@/lib/formatters';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 const notificationTypeLabels: Record<NotificationType, string> = {
   OUTBID: 'Outbid',
@@ -19,8 +18,7 @@ const notificationTypeLabels: Record<NotificationType, string> = {
 };
 
 export function NotificationScreen() {
-  const router = useRouter();
-  const { status } = useAuth();
+  const { status } = useRequireAuth();
   const [unreadOnly, setUnreadOnly] = useState(false);
 
   const notificationsQuery = useInfiniteNotifications(
@@ -33,12 +31,6 @@ export function NotificationScreen() {
   );
 
   const markReadMutation = useMarkNotificationRead();
-
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.replace('/auth');
-    }
-  }, [router, status]);
 
   if (status !== 'authenticated' || notificationsQuery.isPending) {
     return (

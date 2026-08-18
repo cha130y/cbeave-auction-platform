@@ -1,15 +1,15 @@
 'use client';
 
+import { AdminGateSkeleton } from '@/features/admin/components/admin-gate-skeleton';
 import { useInfiniteAdminActions } from '@/features/admin/actions/queries/admin-action.queries';
 import {
   adminActionTypes,
   type AdminAction,
   type AdminActionType,
 } from '@/features/admin/actions/schemas/admin-action.schemas';
-import { useAuth } from '@/features/auth/use-auth';
+import { useRequireAdmin } from '@/features/auth/use-require-admin';
 import { formatDateTime } from '@/lib/formatters';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 type ActionTypeFilter = 'ALL' | AdminActionType;
 
@@ -66,13 +66,10 @@ function getActionTarget(action: AdminAction) {
 }
 
 export function AdminActionsScreen() {
-  const router = useRouter();
-  const { status, user } = useAuth();
+  const { isAdmin } = useRequireAdmin();
 
   const [actionTypeFilter, setActionTypeFilter] =
     useState<ActionTypeFilter>('ALL');
-
-  const isAdmin = status === 'authenticated' && user?.role === 'ADMIN';
 
   const actionsQuery = useInfiniteAdminActions(
     {
@@ -82,23 +79,8 @@ export function AdminActionsScreen() {
     isAdmin,
   );
 
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.replace('/auth');
-      return;
-    }
-
-    if (status === 'authenticated' && user?.role !== 'ADMIN') {
-      router.replace('/');
-    }
-  }, [router, status, user?.role]);
-
   if (!isAdmin) {
-    return (
-      <div className='mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 lg:px-8'>
-        <div className='h-96 animate-pulse rounded-3xl border border-border bg-surface' />
-      </div>
-    );
+    return <AdminGateSkeleton />;
   }
 
   const actions = actionsQuery.data?.pages.flatMap((page) => page.items) ?? [];

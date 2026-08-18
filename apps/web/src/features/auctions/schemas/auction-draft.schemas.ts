@@ -1,8 +1,11 @@
 import { publicAuctionCategorySchema } from '@/features/auctions/schemas/auction.schemas';
 import { assetUrlSchema } from '@/lib/schemas/asset-url.schema';
+import {
+  uuidV4Schema,
+  dateTimeSchema,
+  moneyResponseSchema,
+} from '@/lib/schemas/primitives';
 import z from 'zod';
-
-const uuidV4Schema = z.uuid({ version: 'v4' });
 
 const moneyInputSchema = z
   .string()
@@ -11,9 +14,6 @@ const moneyInputSchema = z
     /^(?:0\.(?:0[1-9]|[1-9]\d?)|[1-9]\d{0,15}(?:\.\d{1,2})?)$/,
     'Enter a positive amount with at most 2 decimal places',
   );
-
-const moneyResponseSchema = z.string().regex(/^\d+\.\d{2}$/);
-const dateTimeSchema = z.iso.datetime();
 
 export const auctionDraftFormSchema = z
   .object({

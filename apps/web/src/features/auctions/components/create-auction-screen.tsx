@@ -4,9 +4,8 @@ import { createAuctionDraft } from '@/features/auctions/api/auctions.api';
 import { AuctionDraftForm } from '@/features/auctions/components/auction-draft-form';
 import { mapAuctionDraftInput } from '@/features/auctions/mappers/map-auction-draft-form-values';
 import type { AuctionDraftFormValues } from '@/features/auctions/schemas/auction-draft.schemas';
-import { useAuth } from '@/features/auth/use-auth';
+import { useRequireAuth } from '@/features/auth/use-require-auth';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
 
 const defaultValues: AuctionDraftFormValues = {
   categoryId: '',
@@ -21,13 +20,7 @@ const defaultValues: AuctionDraftFormValues = {
 
 export function CreateAuctionScreen() {
   const router = useRouter();
-  const { status } = useAuth();
-
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.replace('/auth');
-    }
-  }, [router, status]);
+  const { status } = useRequireAuth();
 
   if (status !== 'authenticated') {
     return (

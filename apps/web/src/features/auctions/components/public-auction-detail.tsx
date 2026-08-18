@@ -1,6 +1,7 @@
 'use client';
 
 import { usePublicAuction } from '@/features/auctions/queries/auction.queries';
+import { getPrimaryImage } from '@/features/auctions/utils/get-primary-image';
 import { PublicBidHistory } from '@/features/bidding/components/public-bid-history';
 import { WatchAuctionButton } from '@/features/watchlists/components/watch-auction-button';
 import { formatDateTime, formatMoney } from '@/lib/formatters';
@@ -44,8 +45,7 @@ export function PublicAuctionDetail({ auctionId }: PublicAuctionDetailProps) {
   }
 
   const auction = auctionQuery.data;
-  const primaryImage =
-    auction.images.find((image) => image.isPrimary) ?? auction.images[0];
+  const primaryImage = getPrimaryImage(auction.images);
 
   return (
     <div className='mx-auto w-full max-w-360 px-4 py-10 sm:px-6 lg:px-8'>

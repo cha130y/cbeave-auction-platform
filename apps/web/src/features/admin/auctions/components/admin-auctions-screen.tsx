@@ -1,19 +1,19 @@
 'use client';
 
+import { AdminGateSkeleton } from '@/features/admin/components/admin-gate-skeleton';
 import { AdminAuctionCancellationForm } from '@/features/admin/auctions/components/admin-auction-cancellation-form';
 import { useInfiniteAdminAuctions } from '@/features/admin/auctions/queries/admin-auction.queries';
 import type {
   AdminAuction,
   AdminAuctionStatus,
 } from '@/features/admin/auctions/schemas/admin-auction.schemas';
-import { useAuth } from '@/features/auth/use-auth';
+import { useRequireAdmin } from '@/features/auth/use-require-admin';
 import {
   formatDateTime,
   formatMoney,
   formatOptionalDateTime,
 } from '@/lib/formatters';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
 type StatusFilter = 'ALL' | AdminAuctionStatus;
@@ -35,8 +35,7 @@ const publiclyVisibleStatuses: AdminAuctionStatus[] = [
 ];
 
 export function AdminAuctionsScreen() {
-  const router = useRouter();
-  const { status, user } = useAuth();
+  const { isAdmin } = useRequireAdmin();
 
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL');
   const [selectedAuction, setSelectedAuction] = useState<AdminAuction | null>(
@@ -45,8 +44,6 @@ export function AdminAuctionsScreen() {
 
   const cancellationFormRef = useRef<HTMLDivElement>(null);
 
-  const isAdmin = status === 'authenticated' && user?.role === 'ADMIN';
-
   const auctionsQuery = useInfiniteAdminAuctions(
     {
       limit: 20,
@@ -54,17 +51,6 @@ export function AdminAuctionsScreen() {
     },
     isAdmin,
   );
-
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.replace('/auth');
-      return;
-    }
-
-    if (status === 'authenticated' && user?.role !== 'ADMIN') {
-      router.replace('/');
-    }
-  }, [router, status, user?.role]);
 
   useEffect(() => {
     if (!selectedAuction) {
@@ -78,11 +64,7 @@ export function AdminAuctionsScreen() {
   }, [selectedAuction]);
 
   if (!isAdmin) {
-    return (
-      <div className='mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 lg:px-8'>
-        <div className='h-96 animate-pulse rounded-3xl border border-border bg-surface' />
-      </div>
-    );
+    return <AdminGateSkeleton />;
   }
 
   const auctions =
