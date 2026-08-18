@@ -23,6 +23,26 @@ export const publicAuctionDetailSelect = {
   extensionCount: true,
   soldPrice: true,
 
+  bids: {
+    orderBy: {
+      sequenceNo: 'desc',
+    },
+    take: 3,
+    select: {
+      amount: true,
+      sequenceNo: true,
+      bidder: {
+        select: {
+          userProfile: {
+            select: {
+              displayName: true,
+            },
+          },
+        },
+      },
+    },
+  },
+
   auctionImages: {
     orderBy: {
       position: 'asc',

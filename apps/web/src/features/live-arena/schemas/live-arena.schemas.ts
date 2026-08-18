@@ -10,6 +10,12 @@ const uuidV4Schema = z.uuid({
 
 const dateTimeSchema = z.iso.datetime();
 
+export const podiumBidSchema = z.object({
+  sequenceNo: z.number().int().positive(),
+  amount: moneyResponseSchema,
+  bidderDisplayName: z.string().min(1),
+});
+
 export const auctionParticipationSchema = z.object({
   auctionId: uuidV4Schema,
   participantCount: z.number().int().nonnegative(),
@@ -46,6 +52,7 @@ export const auctionEndedEventSchema = z.object({
   reserveMet: z.boolean(),
   endedAt: dateTimeSchema,
   winnerDisplayName: z.string().min(1).nullable(),
+  podiumBids: z.array(podiumBidSchema).max(3),
 });
 export const activeArenaLeaderSchema = z.object({
   bidderDisplayName: z.string().min(1),

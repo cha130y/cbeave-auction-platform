@@ -82,17 +82,15 @@ export class AuctionLifecycleService {
         bids: {
           orderBy: [
             {
-              amount: 'desc',
-            },
-            {
               sequenceNo: 'desc',
             },
           ],
-          take: 1,
+          take: 3,
           select: {
             id: true,
             bidderId: true,
             amount: true,
+            sequenceNo: true,
             bidder: {
               select: {
                 userProfile: {
@@ -208,6 +206,16 @@ export class AuctionLifecycleService {
           reserveMet,
           endedAt: now,
           winnerDisplayName,
+
+          podiumBids: reserveMet
+            ? auction.bids.map((bid) => ({
+                sequenceNo: bid.sequenceNo,
+                amount: bid.amount.toFixed(2),
+                bidderDisplayName: maskBidderDisplayName(
+                  bid.bidder.userProfile?.displayName ?? 'Bidder',
+                ),
+              }))
+            : [],
         });
       }
     }

@@ -18,6 +18,12 @@ export class PublicAuctionWinnerResponseDto {
   avatarUrl: string | null;
 }
 
+export class PublicAuctionPodiumBidResponseDto {
+  sequenceNo: number;
+  amount: string;
+  bidderDisplayName: string;
+}
+
 export class PublicAuctionDetailResponseDto {
   id: string;
   title: string;
@@ -37,6 +43,7 @@ export class PublicAuctionDetailResponseDto {
   endedAt: Date | null;
   extensionCount: number;
   soldPrice: string | null;
+  podiumBids: PublicAuctionPodiumBidResponseDto[];
   images: PublicAuctionDetailImageResponseDto[];
   category: PublicAuctionCategoryResponseDto;
   seller: PublicAuctionSellerResponseDto;

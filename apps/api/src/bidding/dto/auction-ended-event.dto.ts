@@ -9,4 +9,10 @@ export class AuctionEndedEventDto {
   reserveMet: boolean;
   endedAt: Date;
   winnerDisplayName: string | null;
+
+  podiumBids: Array<{
+    sequenceNo: number;
+    amount: string;
+    bidderDisplayName: string;
+  }>;
 }

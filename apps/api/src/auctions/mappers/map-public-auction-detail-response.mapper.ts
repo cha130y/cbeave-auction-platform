@@ -1,6 +1,8 @@
 import { PublicAuctionDetailResponseDto } from '../dto/public-auction-detail-response.dto';
 import { PublicAuctionDetailRecord } from '../queries/public-auction-detail.select';
 import { deriveAuctionReserveMet } from '../utils/derive-auction-reserve-met.util';
+import { maskBidderDisplayName } from '../../bidding/utils/mask-bidder-display-name.util';
+import { AuctionStatus } from '../../generated/prisma/enums';
 
 export function mapPublicAuctionDetailResponse(
   auction: PublicAuctionDetailRecord,
@@ -39,6 +41,16 @@ export function mapPublicAuctionDetailResponse(
     endedAt: auction.endedAt,
     extensionCount: auction.extensionCount,
     soldPrice: auction.soldPrice?.toFixed(2) ?? null,
+    podiumBids:
+      auction.status === AuctionStatus.SOLD
+        ? auction.bids.map((bid) => ({
+            sequenceNo: bid.sequenceNo,
+            amount: bid.amount.toFixed(2),
+            bidderDisplayName: maskBidderDisplayName(
+              bid.bidder.userProfile?.displayName ?? 'Bidder',
+            ),
+          }))
+        : [],
     images: auction.auctionImages.map((image) => ({
       id: image.id,
       url: image.url,
