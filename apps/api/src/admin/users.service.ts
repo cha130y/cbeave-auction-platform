@@ -19,6 +19,8 @@ import {
 import { adminUserSummarySelect } from './queries/admin-user-summary.select';
 import { mapAdminUserSummaryResponse } from './mappers/map-admin-user-summary-response.mapper';
 import { ChangeUserStatusInput } from './types/change-user-status.input';
+import { assertCursorExists } from '../common/pagination/assert-cursor-exists.util';
+import { paginate } from '../common/pagination/paginate.util';
 
 @Injectable()
 export class AdminUsersService {
@@ -28,19 +30,14 @@ export class AdminUsersService {
     input: ListAdminUsersInput,
   ): Promise<ListAdminUsersResponseDto> {
     if (input.cursor) {
-      const cursorExists = await this.prisma.user.findFirst({
-        where: {
+      await assertCursorExists(
+        this.prisma.user,
+        {
           id: input.cursor,
           role: UserRole.USER,
         },
-        select: {
-          id: true,
-        },
-      });
-
-      if (!cursorExists) {
-        throw new BadRequestException('Invalid user cursor');
-      }
+        'Invalid user cursor',
+      );
     }
     const users = await this.prisma.user.findMany({
       where: {
@@ -67,13 +64,15 @@ export class AdminUsersService {
       select: adminUserSummarySelect,
     });
 
-    const hasMore = users.length > input.limit;
-    const page = hasMore ? users.slice(0, input.limit) : users;
-    const lastUser = page[page.length - 1];
+    const { page, nextCursor } = paginate(
+      users,
+      input.limit,
+      (user) => user.id,
+    );
 
     return {
       items: page.map(mapAdminUserSummaryResponse),
-      nextCursor: hasMore && lastUser ? lastUser.id : null,
+      nextCursor,
     };
   }
 

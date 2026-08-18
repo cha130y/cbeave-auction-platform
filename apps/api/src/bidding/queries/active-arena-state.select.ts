@@ -1,4 +1,5 @@
 import { Prisma } from '../../generated/prisma/client';
+import { bidderDisplayNameSelect } from './bidder-display-name.select';
 
 export const ACTIVE_ARENA_RECENT_BID_LIMIT = 10;
 
@@ -29,15 +30,7 @@ export const activeArenaStateSelect = {
       amount: true,
       sequenceNo: true,
       placedAt: true,
-      bidder: {
-        select: {
-          userProfile: {
-            select: {
-              displayName: true,
-            },
-          },
-        },
-      },
+      bidder: bidderDisplayNameSelect,
     },
   },
 } satisfies Prisma.AuctionSelect;

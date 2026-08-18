@@ -1,9 +1,11 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { ListAdminActionsResponseDto } from './dto/list-admin-actions-response.dto';
 import { mapAdminActionSummaryResponse } from './mappers/map-admin-action-summary-response.mapper';
 import { adminActionSummarySelect } from './queries/admin-action-summary.select';
 import { ListAdminActionsInput } from './types/list-admin-actions.input';
+import { assertCursorExists } from '../common/pagination/assert-cursor-exists.util';
+import { paginate } from '../common/pagination/paginate.util';
 
 @Injectable()
 export class AdminActionsService {
@@ -13,8 +15,9 @@ export class AdminActionsService {
     input: ListAdminActionsInput,
   ): Promise<ListAdminActionsResponseDto> {
     if (input.cursor) {
-      const cursorExists = await this.prisma.adminAction.findFirst({
-        where: {
+      await assertCursorExists(
+        this.prisma.adminAction,
+        {
           id: input.cursor,
           ...(input.actionType
             ? {
@@ -22,14 +25,8 @@ export class AdminActionsService {
               }
             : {}),
         },
-        select: {
-          id: true,
-        },
-      });
-
-      if (!cursorExists) {
-        throw new BadRequestException('Invalid admin action cursor');
-      }
+        'Invalid admin action cursor',
+      );
     }
 
     const actions = await this.prisma.adminAction.findMany({
@@ -58,13 +55,15 @@ export class AdminActionsService {
       select: adminActionSummarySelect,
     });
 
-    const hasMore = actions.length > input.limit;
-    const page = hasMore ? actions.slice(0, input.limit) : actions;
-    const lastAction = page[page.length - 1];
+    const { page, nextCursor } = paginate(
+      actions,
+      input.limit,
+      (action) => action.id,
+    );
 
     return {
       items: page.map(mapAdminActionSummaryResponse),
-      nextCursor: hasMore && lastAction ? lastAction.id : null,
+      nextCursor,
     };
   }
 }

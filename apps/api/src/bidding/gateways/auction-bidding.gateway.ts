@@ -26,7 +26,15 @@ import { AuctionEndedEventDto } from '../dto/auction-ended-event.dto';
 @WebSocketGateway({
   namespace: '/auctions',
   cors: {
-    origin: 'http://localhost:3000',
+    // Read lazily so this reflects WEB_APP_URL once ConfigModule has loaded
+    // it into process.env; a static reference here would resolve too early
+    // (this decorator evaluates before ConfigModule.forRoot runs).
+    origin: (
+      _requestOrigin: string | undefined,
+      callback: (error: Error | null, origin?: string) => void,
+    ) => {
+      callback(null, process.env.WEB_APP_URL);
+    },
     credentials: true,
   },
 })
@@ -114,7 +122,7 @@ export class AuctionBiddingGateway implements OnGatewayDisconnect {
   }
 
   broadcastAcceptedBid(event: BidAcceptedEventDto): void {
-    try {
+    this.safeEmit(() => {
       const auctionRoom = this.server.to(this.createRoomName(event.auctionId));
 
       auctionRoom.emit('auction:bid-accepted', event);
@@ -124,35 +132,31 @@ export class AuctionBiddingGateway implements OnGatewayDisconnect {
       if (extensionEvent) {
         auctionRoom.emit('auction:extended', extensionEvent);
       }
-    } catch (error: unknown) {
-      this.logger.error(
-        `Failed to broadcast bid events for auction ${event.auctionId}`,
-        error instanceof Error ? error.stack : undefined,
-      );
-    }
+    }, `Failed to broadcast bid events for auction ${event.auctionId}`);
   }
 
   broadcastAuctionStarted(event: AuctionStartedEventDto): void {
-    try {
+    this.safeEmit(() => {
       this.server
         .to(this.createRoomName(event.auctionId))
         .emit('auction:started', event);
-    } catch (error: unknown) {
-      this.logger.error(
-        `Failed to broadcast auction start for ${event.auctionId}`,
-        error instanceof Error ? error.stack : undefined,
-      );
-    }
+    }, `Failed to broadcast auction start for ${event.auctionId}`);
   }
 
   broadcastAuctionEnded(event: AuctionEndedEventDto): void {
-    try {
+    this.safeEmit(() => {
       this.server
         .to(this.createRoomName(event.auctionId))
         .emit('auction:ended', event);
+    }, `Failed to broadcast auction result for ${event.auctionId}`);
+  }
+
+  private safeEmit(action: () => void, errorMessage: string): void {
+    try {
+      action();
     } catch (error: unknown) {
       this.logger.error(
-        `Failed to broadcast auction result for ${event.auctionId}`,
+        errorMessage,
         error instanceof Error ? error.stack : undefined,
       );
     }

@@ -1,11 +1,11 @@
-type SoldAuctionResult = {
+export type SoldAuctionResult = {
   sold: true;
   winnerUserId: string;
   winningBidId: string;
   soldPrice: string;
 };
 
-type UnsoldAuctionResult = {
+export type UnsoldAuctionResult = {
   sold: false;
   highestBidId: string | null;
 };

@@ -1,11 +1,10 @@
 import { AdminAuctionSummaryResponseDto } from '../dto/list-admin-auctions-response.dto';
 import { AdminAuctionSummaryRecord } from '../queries/admin-auction-summary.select';
+import { mapPrimaryImage } from '../../auctions/utils/map-primary-image.util';
 
 export function mapAdminAuctionSummaryResponse(
   auction: AdminAuctionSummaryRecord,
 ): AdminAuctionSummaryResponseDto {
-  const primaryImage = auction.auctionImages[0] ?? null;
-
   return {
     id: auction.id,
     title: auction.title,
@@ -20,12 +19,7 @@ export function mapAdminAuctionSummaryResponse(
     cancellationReason: auction.cancellationReason,
     createdAt: auction.createdAt,
     updatedAt: auction.updatedAt,
-    primaryImage: primaryImage
-      ? {
-          url: primaryImage.url,
-          altText: primaryImage.altText,
-        }
-      : null,
+    primaryImage: mapPrimaryImage(auction.auctionImages[0]),
     category: auction.category,
     seller: {
       id: auction.seller.id,

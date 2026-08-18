@@ -1,11 +1,10 @@
 import { OwnedAuctionSummaryResponseDto } from '../dto/owned-auction-summary-response.dto';
 import { OwnedAuctionSummaryRecord } from '../queries/owned-auction-summary.select';
+import { mapPrimaryImage } from '../utils/map-primary-image.util';
 
 export function mapOwnedAuctionSummaryResponse(
   auction: OwnedAuctionSummaryRecord,
 ): OwnedAuctionSummaryResponseDto {
-  const primaryImage = auction.auctionImages[0] ?? null;
-
   return {
     id: auction.id,
     title: auction.title,
@@ -17,12 +16,7 @@ export function mapOwnedAuctionSummaryResponse(
     currentEndAt: auction.currentEndAt,
     createdAt: auction.createdAt,
     updatedAt: auction.updatedAt,
-    primaryImage: primaryImage
-      ? {
-          url: primaryImage.url,
-          altText: primaryImage.altText,
-        }
-      : null,
+    primaryImage: mapPrimaryImage(auction.auctionImages[0]),
     category: auction.category,
   };
 }

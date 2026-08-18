@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -19,6 +18,8 @@ import { ListAdminAuctionsInput } from './types/list-admin-auctions.input';
 import { ListAdminAuctionsResponseDto } from './dto/list-admin-auctions-response.dto';
 import { adminAuctionSummarySelect } from './queries/admin-auction-summary.select';
 import { mapAdminAuctionSummaryResponse } from './mappers/map-admin-auction-summary-response.mapper';
+import { assertCursorExists } from '../common/pagination/assert-cursor-exists.util';
+import { paginate } from '../common/pagination/paginate.util';
 
 const CANCELLABLE_AUCTION_STATUSES: AuctionStatus[] = [
   AuctionStatus.SCHEDULED,
@@ -36,20 +37,15 @@ export class AdminAuctionsService {
     input: ListAdminAuctionsInput,
   ): Promise<ListAdminAuctionsResponseDto> {
     if (input.cursor) {
-      const cursorExists = await this.prisma.auction.findFirst({
-        where: {
+      await assertCursorExists(
+        this.prisma.auction,
+        {
           id: input.cursor,
           deletedAt: null,
           ...(input.status ? { status: input.status } : {}),
         },
-        select: {
-          id: true,
-        },
-      });
-
-      if (!cursorExists) {
-        throw new BadRequestException('Invalid auction cursor');
-      }
+        'Invalid auction cursor',
+      );
     }
 
     const auctions = await this.prisma.auction.findMany({
@@ -77,13 +73,15 @@ export class AdminAuctionsService {
       select: adminAuctionSummarySelect,
     });
 
-    const hasMore = auctions.length > input.limit;
-    const page = hasMore ? auctions.slice(0, input.limit) : auctions;
-    const lastAuction = page[page.length - 1];
+    const { page, nextCursor } = paginate(
+      auctions,
+      input.limit,
+      (auction) => auction.id,
+    );
 
     return {
       items: page.map(mapAdminAuctionSummaryResponse),
-      nextCursor: hasMore && lastAuction ? lastAuction.id : null,
+      nextCursor,
     };
   }
 

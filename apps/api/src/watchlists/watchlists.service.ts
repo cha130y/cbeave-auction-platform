@@ -7,6 +7,7 @@ import { ListWatchlistInput } from './types/list-watchlist.input';
 import { ListWatchlistResponseDto } from './dto/list-watchlist-response.dto';
 import { watchlistItemSelect } from './queries/watchlist-item.select';
 import { mapWatchlistItemResponse } from './mappers/map-watchlist-item-response.mapper';
+import { paginate } from '../common/pagination/paginate.util';
 
 const PUBLIC_AUCTION_STATUSES: AuctionStatus[] = [
   AuctionStatus.SCHEDULED,
@@ -110,13 +111,15 @@ export class WatchlistsService {
       select: watchlistItemSelect,
     });
 
-    const hasMore = entries.length > input.limit;
-    const page = hasMore ? entries.slice(0, input.limit) : entries;
-    const lastEntry = page[page.length - 1];
+    const { page, nextCursor } = paginate(
+      entries,
+      input.limit,
+      (entry) => entry.auctionId,
+    );
 
     return {
       items: page.map(mapWatchlistItemResponse),
-      nextCursor: hasMore && lastEntry ? lastEntry.auctionId : null,
+      nextCursor,
     };
   }
 }

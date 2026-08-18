@@ -1,4 +1,5 @@
 import { Prisma } from '../../generated/prisma/client';
+import { bidderDisplayNameSelect } from '../../bidding/queries/bidder-display-name.select';
 
 export const publicAuctionDetailSelect = {
   id: true,
@@ -31,15 +32,7 @@ export const publicAuctionDetailSelect = {
     select: {
       amount: true,
       sequenceNo: true,
-      bidder: {
-        select: {
-          userProfile: {
-            select: {
-              displayName: true,
-            },
-          },
-        },
-      },
+      bidder: bidderDisplayNameSelect,
     },
   },
 
