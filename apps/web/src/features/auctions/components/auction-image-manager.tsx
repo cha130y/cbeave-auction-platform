@@ -8,7 +8,7 @@ import { auctionQueryKeys } from '@/features/auctions/queries/auction.queries';
 import type { AuctionDraftImage } from '@/features/auctions/schemas/auction-draft.schemas';
 import { useQueryClient } from '@tanstack/react-query';
 import Image from 'next/image';
-import type { FormEvent } from 'react';
+import type { SubmitEvent } from 'react';
 import { useState } from 'react';
 
 const maximumImageCount = 5;
@@ -45,7 +45,7 @@ export function AuctionImageManager({
     });
   }
 
-  async function handleUpload(event: FormEvent<HTMLFormElement>) {
+  async function handleUpload(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const form = event.currentTarget;

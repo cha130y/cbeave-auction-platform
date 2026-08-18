@@ -4,7 +4,7 @@ import { useAuth } from '@/features/auth/use-auth';
 import { updateProfileAvatar } from '@/features/profile/api/profile.api';
 import { ApiError } from '@/lib/api/api-error';
 import Image from 'next/image';
-import { useRef, useState, type ChangeEvent, type FormEvent } from 'react';
+import { useRef, useState, type ChangeEvent, type SubmitEvent } from 'react';
 
 const MAX_AVATAR_SIZE_BYTES = 2 * 1024 * 1024;
 
@@ -73,7 +73,7 @@ export function ProfileAvatarForm() {
     setSelectedFile(file);
   };
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     setRequestError(null);
     setSuccessMessage(null);

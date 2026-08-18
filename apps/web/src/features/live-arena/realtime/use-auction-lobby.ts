@@ -9,6 +9,10 @@ import {
 } from '@/features/live-arena/schemas/live-arena.schemas';
 import { getAuctionSocket } from '@/lib/realtime/auction-socket';
 import { useEffect, useState } from 'react';
+import { createSocketRetry } from './create-socket-retry';
+import { parseAuctionPayload } from './parse-auction-payload';
+
+const JOIN_RETRY_DELAY_MS = 1_500;
 
 type LobbyConnectionStatus = 'idle' | 'connecting' | 'connected' | 'error';
 
@@ -44,30 +48,12 @@ export function useAuctionLobby(
     let joined = false;
     let joinInFlight = false;
     let mounted = true;
-    let retryTimer: number | null = null;
 
-    const clearRetry = () => {
-      if (retryTimer !== null) {
-        window.clearTimeout(retryTimer);
-        retryTimer = null;
-      }
-    };
-
-    const scheduleJoinRetry = () => {
-      if (!mounted || retryTimer !== null) {
-        return;
-      }
-
-      retryTimer = window.setTimeout(() => {
-        retryTimer = null;
-
-        if (socket.connected) {
-          joinAuction();
-        } else {
-          socket.connect();
-        }
-      }, 1_500);
-    };
+    const retry = createSocketRetry({
+      socket,
+      isActive: () => mounted,
+      onRetry: () => joinAuction(),
+    });
 
     const joinAuction = () => {
       if (joinInFlight) {
@@ -95,62 +81,78 @@ export function useAuctionLobby(
             setErrorMessage(
               'The Live Arena is reconnecting. No refresh is required.',
             );
-            scheduleJoinRetry();
+            retry.schedule(JOIN_RETRY_DELAY_MS);
             return;
           }
 
           //This protects the frontend from malformed or unexpected socket data
-          const result = auctionParticipationSchema.safeParse(payload);
+          const participation = parseAuctionPayload(
+            auctionParticipationSchema,
+            payload,
+            auctionId,
+          );
 
-          if (!result.success || result.data.auctionId !== auctionId) {
+          if (!participation) {
             setConnectionStatus('error');
             setErrorMessage(
               'The Live Arena returned an invalid lobby response.',
             );
-            scheduleJoinRetry();
+            retry.schedule(JOIN_RETRY_DELAY_MS);
             return;
           }
 
-          clearRetry();
+          retry.clear();
           joined = true;
-          setParticipantCount(result.data.participantCount);
+          setParticipantCount(participation.participantCount);
           setConnectionStatus('connected');
         },
       );
     };
 
     const handleParticipantCount = (payload: unknown) => {
-      const result = auctionParticipationSchema.safeParse(payload);
+      const participation = parseAuctionPayload(
+        auctionParticipationSchema,
+        payload,
+        auctionId,
+      );
 
-      if (!result.success || result.data.auctionId !== auctionId) {
+      if (!participation) {
         return;
       }
 
-      setParticipantCount(result.data.participantCount);
+      setParticipantCount(participation.participantCount);
     };
 
     const handleAuctionStarted = (payload: unknown) => {
-      const result = auctionStartedEventSchema.safeParse(payload);
-
       //prevents an event from another auction room from changing this lobby.
-      if (!result.success || result.data.auctionId !== auctionId) {
+      const started = parseAuctionPayload(
+        auctionStartedEventSchema,
+        payload,
+        auctionId,
+      );
+
+      if (!started) {
         return;
       }
 
-      clearRetry();
+      retry.clear();
       setErrorMessage(null);
       setConnectionStatus('connected');
-      setStartedEvent(result.data);
+      setStartedEvent(started);
     };
 
     const handleAuctionEnded = (payload: unknown) => {
-      const result = auctionEndedEventSchema.safeParse(payload);
+      const ended = parseAuctionPayload(
+        auctionEndedEventSchema,
+        payload,
+        auctionId,
+      );
 
-      if (!result.success || result.data.auctionId !== auctionId) {
+      if (!ended) {
         return;
       }
 
-      setEndedEvent(result.data);
+      setEndedEvent(ended);
     };
 
     const handleConnectionError = () => {
@@ -161,7 +163,7 @@ export function useAuctionLobby(
     const handleDisconnect = () => {
       joined = false;
       joinInFlight = false;
-      clearRetry();
+      retry.clear();
       setConnectionStatus('connecting');
     };
 
@@ -182,7 +184,7 @@ export function useAuctionLobby(
 
     return () => {
       mounted = false;
-      clearRetry();
+      retry.clear();
 
       //socket.off use for remove listener
       socket.off('connect', joinAuction);
