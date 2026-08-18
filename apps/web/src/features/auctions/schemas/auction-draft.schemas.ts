@@ -1,4 +1,5 @@
 import { publicAuctionCategorySchema } from '@/features/auctions/schemas/auction.schemas';
+import { assetUrlSchema } from '@/lib/schemas/asset-url.schema';
 import z from 'zod';
 
 const uuidV4Schema = z.uuid({ version: 'v4' });
@@ -79,7 +80,7 @@ export const auctionDraftFormSchema = z
 export const auctionDraftImageSchema = z.object({
   id: uuidV4Schema,
   auctionId: uuidV4Schema,
-  url: z.url(),
+  url: assetUrlSchema,
   altText: z.string().nullable(),
   position: z.number().int().nonnegative(),
   isPrimary: z.boolean(),
@@ -140,7 +141,7 @@ export const ownedAuctionSummarySchema = z.object({
   updatedAt: dateTimeSchema,
   primaryImage: z
     .object({
-      url: z.url(),
+      url: assetUrlSchema,
       altText: z.string().nullable(),
     })
     .nullable(),

@@ -1,3 +1,4 @@
+import { assetUrlSchema } from '@/lib/schemas/asset-url.schema';
 import z from 'zod';
 
 const uuidV4Schema = z.uuid({ version: 'v4' });
@@ -14,7 +15,7 @@ export const publicAuctionStatusSchema = z.enum([
 ]);
 
 export const publicAuctionImageSchema = z.object({
-  url: z.url(),
+  url: assetUrlSchema,
   altText: z.string().nullable(),
 });
 
@@ -60,7 +61,7 @@ export const listHotAuctionsResponseSchema = z.object({
 
 export const publicAuctionDetailImageSchema = z.object({
   id: uuidV4Schema,
-  url: z.url(),
+  url: assetUrlSchema,
   altText: z.string().nullable(),
   position: z.number().int().nonnegative(),
   isPrimary: z.boolean(),
@@ -70,6 +71,12 @@ export const publicAuctionWinnerSchema = z.object({
   id: uuidV4Schema,
   displayName: z.string().min(1),
   avatarUrl: z.url().nullable(),
+});
+
+export const publicAuctionPodiumBidSchema = z.object({
+  sequenceNo: z.number().int().positive(),
+  amount: moneySchema,
+  bidderDisplayName: z.string().min(1),
 });
 
 export const publicAuctionDetailSchema = z.object({
@@ -93,6 +100,7 @@ export const publicAuctionDetailSchema = z.object({
   endedAt: dateTimeSchema.nullable(),
   extensionCount: z.number().int().nonnegative(),
   soldPrice: moneySchema.nullable(),
+  podiumBids: z.array(publicAuctionPodiumBidSchema).max(3),
   images: z.array(publicAuctionDetailImageSchema).min(1),
   category: publicAuctionCategorySchema,
   seller: publicAuctionSellerSchema,

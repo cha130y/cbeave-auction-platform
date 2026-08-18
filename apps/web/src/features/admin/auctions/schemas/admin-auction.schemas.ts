@@ -1,5 +1,6 @@
 import { ownedAuctionStatusSchema } from '@/features/auctions/schemas/auction-draft.schemas';
 import { publicAuctionCategorySchema } from '@/features/auctions/schemas/auction.schemas';
+import { assetUrlSchema } from '@/lib/schemas/asset-url.schema';
 import { z } from 'zod';
 
 const uuidV4Schema = z.uuid({ version: 'v4' });
@@ -13,7 +14,7 @@ const adminAuctionSellerSchema = z.object({
 });
 
 const adminAuctionPrimaryImageSchema = z.object({
-  url: z.url(),
+  url: assetUrlSchema,
   altText: z.string().nullable(),
 });
 
