@@ -3,13 +3,10 @@ import Image from 'next/image';
 
 type CBeaveLogoProps = {
   className?: string;
-  compact?: boolean;
+  compact?: boolean; // Your component’s smaller/mobile display mode
 };
 
-export function CBeaveLogo({
-  className,
-  compact = false,
-}: CBeaveLogoProps) {
+export function CBeaveLogo({ className, compact = false }: CBeaveLogoProps) {
   return (
     <span
       className={cn('inline-flex shrink-0 items-center', className)}
@@ -20,7 +17,7 @@ export function CBeaveLogo({
         alt=''
         width={720}
         height={184}
-        priority
+        priority // load the image early
         className={cn('h-auto object-contain', compact ? 'w-24' : 'w-40')}
       />
     </span>

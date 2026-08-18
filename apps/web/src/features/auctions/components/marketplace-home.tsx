@@ -1,6 +1,7 @@
 'use client';
 
 import { AuctionSection } from '@/features/auctions/components/auction-section';
+import { HeroAuctionShowcase } from '@/features/auctions/components/hero-auction-showcase';
 import {
   useHotAuctions,
   usePublicAuctions,
@@ -55,6 +56,24 @@ export function MarketplaceHome() {
       .slice(0, 4);
   }, [publicAuctionsQuery.data]);
 
+  const heroAuctions = useMemo(() => {
+    const candidates = [
+      ...(hotAuctionsQuery.data?.items ?? []),
+      ...endingSoonAuctions,
+      ...scheduledAuctions,
+      ...recentlyEndedAuctions,
+    ];
+
+    return Array.from(
+      new Map(candidates.map((auction) => [auction.id, auction])).values(),
+    ).slice(0, 4);
+  }, [
+    hotAuctionsQuery.data?.items,
+    endingSoonAuctions,
+    scheduledAuctions,
+    recentlyEndedAuctions,
+  ]);
+
   return (
     <>
       <section className='relative isolate overflow-hidden border-b border-border'>
@@ -67,21 +86,21 @@ export function MarketplaceHome() {
           className='absolute bottom-0 left-[8%] -z-10 size-72 rounded-full bg-accent/10 blur-3xl'
         />
 
-        <div className='mx-auto w-full max-w-360 px-4 py-20 sm:px-6 sm:py-28 lg:px-8 lg:py-32'>
+        <div className='grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(30rem,0.9fr)]'>
           <div className='max-w-4xl'>
-            <p className='text-xs font-black tracking-[0.28em] text-primary uppercase sm:text-sm'>
+            <p className='text-xs font-black tracking-[0.28em] text-primary uppercase sm:text-sm px-5'>
               Scheduled real-time auctions
             </p>
-            <h1 className='mt-5 text-5xl leading-[0.95] font-black tracking-[-0.045em] text-foreground sm:text-6xl lg:text-8xl'>
+            <h1 className='mt-5 px-5 text-5xl leading-[0.95] font-black tracking-[-0.045em] text-foreground sm:text-6xl lg:text-8xl'>
               Find it. Bid live.
               <span className='block text-primary'>Win it.</span>
             </h1>
 
-            <p className='mt-7 max-w-2xl text-lg leading-8 text-muted sm:text-xl'>
+            <p className='mt-7 px-5 max-w-2xl text-lg leading-8 text-muted sm:text-xl'>
               Discover standout items, enter the live arena, and compete through
               secure real-time bidding.
             </p>
-            <div className='mt-9 flex flex-col gap-3 sm:flex-row'>
+            <div className='mt-9 flex flex-col gap-3 px-5 sm:flex-row'>
               <Link
                 href='/#hot-auctions'
                 className='inline-flex min-h-12 items-center justify-center rounded-full bg-primary px-7 text-sm font-black text-background transition hover:bg-primary-strong'
@@ -98,6 +117,7 @@ export function MarketplaceHome() {
               </Link>{' '}
             </div>
           </div>
+          <HeroAuctionShowcase auctions={heroAuctions} />
         </div>
       </section>
 
