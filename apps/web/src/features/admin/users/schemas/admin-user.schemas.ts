@@ -2,10 +2,8 @@ import {
   userRoleSchema,
   userStatusSchema,
 } from '@/features/auth/schemas/auth.schemas';
+import { uuidV4Schema, dateTimeSchema } from '@/lib/schemas/primitives';
 import { z } from 'zod';
-
-const uuidV4Schema = z.uuid({ version: 'v4' });
-const dateTimeSchema = z.iso.datetime();
 
 export const adminUserProfileSchema = z.object({
   firstName: z.string(),

@@ -1,10 +1,20 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Interval } from '@nestjs/schedule';
 import { PrismaService } from '../../database/prisma.service';
-import { AuctionEventType, AuctionStatus } from '../../generated/prisma/enums';
+import {
+  AuctionEventType,
+  AuctionStatus,
+  Prisma,
+} from '../../generated/prisma/client';
 import { NotificationsService } from '../../notifications/notifications.service';
 import { AuctionBiddingGateway } from '../../bidding/gateways/auction-bidding.gateway';
-import { maskBidderDisplayName } from '../../bidding/utils/mask-bidder-display-name.util';
+import { maskBidderDisplayNameOrDefault } from '../../bidding/utils/mask-bidder-display-name.util';
+import { mapPodiumBid } from '../../bidding/mappers/map-podium-bid.mapper';
+import { bidderDisplayNameSelect } from '../../bidding/queries/bidder-display-name.select';
+import {
+  SoldAuctionResult,
+  UnsoldAuctionResult,
+} from '../../notifications/types/create-auction-result-notifications.input';
 
 const AUCTION_LIFECYCLE_INTERVAL_MS = 10_000;
 const AUCTION_LIFECYCLE_BATCH_SIZE = 50;
@@ -82,26 +92,16 @@ export class AuctionLifecycleService {
         bids: {
           orderBy: [
             {
-              amount: 'desc',
-            },
-            {
               sequenceNo: 'desc',
             },
           ],
-          take: 1,
+          take: 3,
           select: {
             id: true,
             bidderId: true,
             amount: true,
-            bidder: {
-              select: {
-                userProfile: {
-                  select: {
-                    displayName: true,
-                  },
-                },
-              },
-            },
+            sequenceNo: true,
+            bidder: bidderDisplayNameSelect,
           },
         },
       },
@@ -154,37 +154,16 @@ export class AuctionLifecycleService {
           },
         });
 
-        if (reserveMet) {
-          await this.notificationsService.createAuctionResultNotifications(
-            transaction,
-            {
-              auctionId: auction.id,
-              auctionTitle: auction.title,
-              sellerId: auction.sellerId,
-              currency: auction.currency,
-              result: {
-                sold: true,
-                winnerUserId: highestBid.bidderId,
-                winningBidId: highestBid.id,
-                soldPrice: highestBid.amount.toFixed(2),
-              },
-            },
-          );
-        } else {
-          await this.notificationsService.createAuctionResultNotifications(
-            transaction,
-            {
-              auctionId: auction.id,
-              auctionTitle: auction.title,
-              sellerId: auction.sellerId,
-              currency: auction.currency,
-              result: {
-                sold: false,
-                highestBidId: highestBid?.id ?? null,
-              },
-            },
-          );
-        }
+        await this.notificationsService.createAuctionResultNotifications(
+          transaction,
+          {
+            auctionId: auction.id,
+            auctionTitle: auction.title,
+            sellerId: auction.sellerId,
+            currency: auction.currency,
+            result: this.buildAuctionResult(reserveMet, highestBid),
+          },
+        );
 
         return true;
       });
@@ -194,9 +173,7 @@ export class AuctionLifecycleService {
 
         const winnerDisplayName =
           reserveMet && highestBid
-            ? maskBidderDisplayName(
-                highestBid.bidder.userProfile?.displayName ?? 'Bidder',
-              )
+            ? maskBidderDisplayNameOrDefault(highestBid.bidder)
             : null;
 
         this.auctionBiddingGateway.broadcastAuctionEnded({
@@ -208,6 +185,8 @@ export class AuctionLifecycleService {
           reserveMet,
           endedAt: now,
           winnerDisplayName,
+
+          podiumBids: reserveMet ? auction.bids.map(mapPodiumBid) : [],
         });
       }
     }
@@ -300,5 +279,28 @@ export class AuctionLifecycleService {
     }
 
     return activatedCount;
+  }
+
+  private buildAuctionResult(
+    reserveMet: boolean,
+    highestBid: {
+      id: string;
+      bidderId: string;
+      amount: Prisma.Decimal;
+    } | null,
+  ): SoldAuctionResult | UnsoldAuctionResult {
+    if (reserveMet && highestBid) {
+      return {
+        sold: true,
+        winnerUserId: highestBid.bidderId,
+        winningBidId: highestBid.id,
+        soldPrice: highestBid.amount.toFixed(2),
+      };
+    }
+
+    return {
+      sold: false,
+      highestBidId: highestBid?.id ?? null,
+    };
   }
 }

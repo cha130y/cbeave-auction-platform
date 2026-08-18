@@ -1,8 +1,8 @@
 'use client';
 
 import { usePublicAuction } from '@/features/auctions/queries/auction.queries';
+import { getPrimaryImage } from '@/features/auctions/utils/get-primary-image';
 import { useAuth } from '@/features/auth/use-auth';
-import { ActiveArenaPanel } from '@/features/live-arena/components/active-arena-panel';
 import { useCountdown } from '@/features/live-arena/hooks/use-countdown';
 import { useAuctionLobby } from '@/features/live-arena/realtime/use-auction-lobby';
 import { formatDateTime } from '@/lib/formatters';
@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { maskBidderDisplayName } from '@/lib/display-names';
 import Image from 'next/image';
 import { useEffect } from 'react';
+import { ActiveArenaPanel } from '@/features/live-arena/components/active-arena-panel';
 
 type AuctionLobbyScreenProps = {
   auctionId: string;
@@ -132,6 +133,7 @@ export function AuctionLobbyScreen({ auctionId }: AuctionLobbyScreenProps) {
           winnerDisplayName: auction.winner
             ? maskBidderDisplayName(auction.winner.displayName)
             : null,
+          podiumBids: auction.status === 'SOLD' ? auction.podiumBids : [],
         }
       : null;
 
@@ -171,8 +173,7 @@ export function AuctionLobbyScreen({ auctionId }: AuctionLobbyScreenProps) {
     );
   }
   const hasStarted = auction.status === 'ACTIVE' || startedEvent !== null;
-  const primaryImage =
-    auction.images.find((image) => image.isPrimary) ?? auction.images[0];
+  const primaryImage = getPrimaryImage(auction.images);
 
   return (
     <main className='mx-auto w-full max-w-5xl px-4 py-10 sm:px-6 sm:py-16 lg:px-8'>
@@ -197,19 +198,19 @@ export function AuctionLobbyScreen({ auctionId }: AuctionLobbyScreenProps) {
           </div>
 
           <div className='flex flex-col justify-center px-6 py-8 text-center sm:px-10 sm:py-12'>
-          <p className='text-xs font-black tracking-[0.22em] text-primary uppercase'>
-            {hasStarted ? 'Live Arena' : 'Live Arena lobby'}
-          </p>
-          <h1 className='mx-auto mt-4 max-w-3xl text-4xl leading-tight font-black text-foreground sm:text-5xl'>
-            {auction.title}
-          </h1>
+            <p className='text-xs font-black tracking-[0.22em] text-primary uppercase'>
+              {hasStarted ? 'Live Arena' : 'Live Arena lobby'}
+            </p>
+            <h1 className='mx-auto mt-4 max-w-3xl text-4xl leading-tight font-black text-foreground sm:text-5xl'>
+              {auction.title}
+            </h1>
 
-          <p className='mt-3 text-muted'>
-            {auction.category.name} · Listed by{' '}
-            <span className='font-bold text-foreground'>
-              {auction.seller.displayName}
-            </span>
-          </p>
+            <p className='mt-3 text-muted'>
+              {auction.category.name} · Listed by{' '}
+              <span className='font-bold text-foreground'>
+                {auction.seller.displayName}
+              </span>
+            </p>
           </div>
         </div>
 

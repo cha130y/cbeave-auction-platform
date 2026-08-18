@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title description">
+  <title id="title">Collectible watch</title>
+  <desc id="description">A stylized mechanical watch with a blue dial on a dark display surface.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#061018"/>
+      <stop offset="0.55" stop-color="#0e3547"/>
+      <stop offset="1" stop-color="#167f91"/>
+    </linearGradient>
+    <radialGradient id="dial">
+      <stop offset="0" stop-color="#12627b"/>
+      <stop offset="0.7" stop-color="#082d43"/>
+      <stop offset="1" stop-color="#04131e"/>
+    </radialGradient>
+    <linearGradient id="steel" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#65737b"/>
+      <stop offset="0.5" stop-color="#f4f8f9"/>
+      <stop offset="1" stop-color="#66747b"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#background)"/>
+  <circle cx="185" cy="130" r="280" fill="#00e5ff" opacity=".08"/>
+  <circle cx="1050" cy="710" r="360" fill="#08141e" opacity=".5"/>
+  <g transform="translate(600 400)">
+    <path d="M-125-390h250l-42 210H-83zM-125 390h250L83 180H-83z" fill="url(#steel)"/>
+    <circle r="245" fill="#10171b" stroke="url(#steel)" stroke-width="34"/>
+    <circle r="198" fill="url(#dial)" stroke="#9fdce4" stroke-width="5"/>
+    <g fill="#ddfaff">
+      <rect x="-7" y="-175" width="14" height="38" rx="7"/>
+      <rect x="-7" y="137" width="14" height="38" rx="7"/>
+      <rect x="137" y="-7" width="38" height="14" rx="7"/>
+      <rect x="-175" y="-7" width="38" height="14" rx="7"/>
+    </g>
+    <path d="M0 12V-125M0 12l105 62" stroke="#f5fbfc" stroke-width="16" stroke-linecap="round"/>
+    <path d="M0 12-82 102" stroke="#ffb84d" stroke-width="7" stroke-linecap="round"/>
+    <circle r="20" fill="#d7e6e9"/>
+  </g>
+  <text x="72" y="90" fill="#dffcff" font-family="Arial, sans-serif" font-size="34" font-weight="700" letter-spacing="8">HERITAGE TIME</text>
+</svg>

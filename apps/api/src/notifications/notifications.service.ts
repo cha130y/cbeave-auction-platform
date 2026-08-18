@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import {
   ListNotificationsResponseDto,
@@ -14,6 +10,8 @@ import { CreateOutbidNotificationInput } from './types/create-outbid-notificatio
 import { ListNotificationsInput } from './types/list-notifications.input';
 import { CreateAuctionResultNotificationsInput } from './types/create-auction-result-notifications.input';
 import { CreateAuctionCancellationNotificationsInput } from './types/create-auction-cancellation-notifications.input';
+import { assertCursorExists } from '../common/pagination/assert-cursor-exists.util';
+import { paginate } from '../common/pagination/paginate.util';
 
 @Injectable()
 export class NotificationsService {
@@ -23,18 +21,14 @@ export class NotificationsService {
     input: ListNotificationsInput,
   ): Promise<ListNotificationsResponseDto> {
     if (input.cursor) {
-      const cursorExists = await this.prisma.notification.findFirst({
-        where: {
+      await assertCursorExists(
+        this.prisma.notification,
+        {
           id: input.cursor,
           userId: input.userId,
         },
-        select: {
-          id: true,
-        },
-      });
-      if (!cursorExists) {
-        throw new BadRequestException('Invalid notification cursor');
-      }
+        'Invalid notification cursor',
+      );
     }
 
     const notifications = await this.prisma.notification.findMany({
@@ -71,12 +65,15 @@ export class NotificationsService {
       },
     });
 
-    const hasMore = notifications.length > input.limit;
-    const page = hasMore ? notifications.slice(0, input.limit) : notifications;
-    const lastNotification = page[page.length - 1];
+    const { page, nextCursor } = paginate(
+      notifications,
+      input.limit,
+      (notification) => notification.id,
+    );
+
     return {
       items: page,
-      nextCursor: hasMore && lastNotification ? lastNotification.id : null,
+      nextCursor,
     };
   }
 

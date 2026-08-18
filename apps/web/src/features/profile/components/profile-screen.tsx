@@ -1,5 +1,5 @@
 'use client';
-import { useAuth } from '@/features/auth/use-auth';
+import { useRequireAuth } from '@/features/auth/use-require-auth';
 import { updateProfile } from '@/features/profile/api/profile.api';
 import { ProfileAvatarForm } from '@/features/profile/components/profile-avatar-form';
 import {
@@ -8,7 +8,6 @@ import {
 } from '@/features/profile/schemas/profile.schemas';
 import { ApiError } from '@/lib/api/api-error';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -30,8 +29,7 @@ function readErrorMessage(error: unknown): string {
 }
 
 export function ProfileScreen() {
-  const router = useRouter();
-  const { refreshUser, status, user } = useAuth();
+  const { refreshUser, status, user } = useRequireAuth();
   const [requestError, setRequestError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -51,14 +49,6 @@ export function ProfileScreen() {
     },
     resolver: zodResolver(profileFormSchema),
   });
-
-  //This waits until authentication restoration finishes.
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      //replace() is used instead of push() so pressing the browser’s Back button does not return the unauthenticated user to the protected profile page.
-      router.replace('/auth');
-    }
-  }, [router, status]);
 
   useEffect(() => {
     if (!user?.profile) {

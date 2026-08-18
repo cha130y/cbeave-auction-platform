@@ -4,6 +4,8 @@ import {
   listAdminActions,
   ListAdminActionsParams,
 } from '@/features/admin/actions/api/admin-actions.api';
+import type { ListAdminActionsResponse } from '@/features/admin/actions/schemas/admin-action.schemas';
+import { cursorPagination } from '@/lib/api/cursor-pagination';
 import { useInfiniteQuery } from '@tanstack/react-query';
 
 type AdminActionListOptions = Omit<ListAdminActionsParams, 'cursor'>;
@@ -37,9 +39,7 @@ export function useInfiniteAdminActions(
         actionType,
       }),
 
-    initialPageParam: null as string | null,
-
-    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+    ...cursorPagination<ListAdminActionsResponse>(),
 
     enabled,
   });

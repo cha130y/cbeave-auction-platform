@@ -1,27 +1,18 @@
 'use client';
 
 import { AuctionCard } from '@/features/auctions/components/auction-card';
-import { useAuth } from '@/features/auth/use-auth';
+import { useRequireAuth } from '@/features/auth/use-require-auth';
 import {
   useInfiniteWatchlist,
   useUnwatchAuction,
 } from '@/features/watchlists/queries/watchlist.queries';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
 
 export function WatchlistScreen() {
-  const router = useRouter();
-  const { status } = useAuth();
+  const { status } = useRequireAuth();
 
   const watchlistQuery = useInfiniteWatchlist(12, status === 'authenticated');
 
   const unwatchMutation = useUnwatchAuction();
-
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.replace('/auth');
-    }
-  }, [router, status]);
 
   if (status !== 'authenticated' || watchlistQuery.isPending) {
     return (

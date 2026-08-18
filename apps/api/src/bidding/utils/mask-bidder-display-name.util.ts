@@ -1,3 +1,11 @@
+type MaskableBidder = {
+  userProfile?: { displayName: string | null } | null;
+};
+
+export function maskBidderDisplayNameOrDefault(bidder: MaskableBidder): string {
+  return maskBidderDisplayName(bidder.userProfile?.displayName ?? 'Bidder');
+}
+
 export function maskBidderDisplayName(displayName: string): string {
   const characters = Array.from(displayName.trim());
 

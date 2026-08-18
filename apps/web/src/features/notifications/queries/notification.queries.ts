@@ -5,6 +5,8 @@ import {
   markNotificationRead,
   type ListNotificationsParams,
 } from '@/features/notifications/api/notifications.api';
+import type { ListNotificationsResponse } from '@/features/notifications/schemas/notification.schemas';
+import { cursorPagination } from '@/lib/api/cursor-pagination';
 import {
   useInfiniteQuery,
   useMutation,
@@ -44,9 +46,7 @@ export function useInfiniteNotifications(
         cursor: pageParam ?? undefined,
       }),
 
-    initialPageParam: null as string | null,
-
-    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+    ...cursorPagination<ListNotificationsResponse>(),
 
     //determines whether the request is allowed to run.
     //authStatus = authenticated ==> enabled = true ==> GET /notifications

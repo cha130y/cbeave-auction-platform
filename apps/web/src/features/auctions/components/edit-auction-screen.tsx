@@ -8,10 +8,9 @@ import {
 } from '@/features/auctions/mappers/map-auction-draft-form-values';
 import { useOwnedAuctionDraft } from '@/features/auctions/queries/auction.queries';
 import { AuctionDraftFormValues } from '@/features/auctions/schemas/auction-draft.schemas';
-import { useAuth } from '@/features/auth/use-auth';
+import { useRequireAuth } from '@/features/auth/use-require-auth';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
 
 type EditAuctionScreenProps = {
   auctionId: string;
@@ -21,17 +20,11 @@ export function EditAuctionScreen({
   auctionId,
 }: EditAuctionScreenProps) {
   const router = useRouter();
-  const { status } = useAuth();
+  const { status } = useRequireAuth();
 
   const draftQuery = useOwnedAuctionDraft(
     status === 'authenticated' ? auctionId : '',
   );
-
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.replace('/auth');
-    }
-  }, [router, status]);
 
   if (status !== 'authenticated' || draftQuery.isPending) {
     return (

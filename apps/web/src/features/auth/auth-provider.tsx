@@ -48,6 +48,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [status, setStatus] = useState<AuthStatus>('loading');
   const [user, setUser] = useState<CurrentUser | null>(null);
 
+  ////run once when page re-render (include press F5)
+  //the refresh token will be regenerated only when a valid refresh-token cookie exists
   const restoreSession = useCallback(async (): Promise<void> => {
     try {
       const restoredUser = await loadAuthenticatedUser();

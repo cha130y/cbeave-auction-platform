@@ -21,10 +21,6 @@ export class UserSessionService {
 
     const expiresAt = this.createExpiresAt();
 
-    // const expiresAt = new Date(
-    //   Date.now() + refreshTokenTtlDays * 24 * 60 * 60 * 1000,
-    // );
-
     const session = await this.prisma.userSession.create({
       data: {
         userId,

@@ -6,6 +6,8 @@ import {
   suspendAdminUser,
   type ListAdminUsersParams,
 } from '@/features/admin/users/api/admin-users.api';
+import type { ListAdminUsersResponse } from '@/features/admin/users/schemas/admin-user.schemas';
+import { cursorPagination } from '@/lib/api/cursor-pagination';
 import {
   useInfiniteQuery,
   useMutation,
@@ -36,8 +38,7 @@ export function useInfiniteAdminUsers(
         limit,
         status,
       }),
-    initialPageParam: null as string | null,
-    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+    ...cursorPagination<ListAdminUsersResponse>(),
     enabled,
   });
 }

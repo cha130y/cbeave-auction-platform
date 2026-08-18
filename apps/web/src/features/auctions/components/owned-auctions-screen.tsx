@@ -6,12 +6,11 @@ import {
   useOwnedAuctions,
 } from '@/features/auctions/queries/auction.queries';
 import type { OwnedAuctionStatus } from '@/features/auctions/schemas/auction-draft.schemas';
-import { useAuth } from '@/features/auth/use-auth';
+import { useRequireAuth } from '@/features/auth/use-require-auth';
 import { formatDateTime, formatMoney } from '@/lib/formatters';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 const statusLabels: Record<OwnedAuctionStatus, string> = {
   DRAFT: 'Draft',
@@ -32,8 +31,7 @@ const statusClasses: Record<OwnedAuctionStatus, string> = {
 };
 
 export function OwnedAuctionsScreen() {
-  const router = useRouter();
-  const { status } = useAuth();
+  const { status } = useRequireAuth();
   const [statusFilter, setStatusFilter] = useState<OwnedAuctionStatus | ''>('');
   const [cancellingAuctionId, setCancellingAuctionId] = useState<string | null>(
     null,
@@ -45,12 +43,6 @@ export function OwnedAuctionsScreen() {
   });
 
   const deleteMutation = useDeleteOwnedAuctionDraft();
-
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.replace('/auth');
-    }
-  }, [router, status]);
 
   if (status !== 'authenticated' || auctionsQuery.isPending) {
     return (

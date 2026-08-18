@@ -5,7 +5,7 @@ import {
   ActiveArenaStateDto,
 } from '../dto/active-arena-state.dto';
 import { ActiveArenaStateRecord } from '../queries/active-arena-state.select';
-import { maskBidderDisplayName } from '../utils/mask-bidder-display-name.util';
+import { maskBidderDisplayNameOrDefault } from '../utils/mask-bidder-display-name.util';
 import { mapPublicBidHistoryResponse } from './map-public-bid-history-response.mapper';
 
 export function mapActiveArenaState(
@@ -22,9 +22,7 @@ export function mapActiveArenaState(
 
   const leader: ActiveArenaLeaderDto | null = highestBid
     ? {
-        bidderDisplayName: maskBidderDisplayName(
-          highestBid.bidder.userProfile?.displayName ?? 'Bidder',
-        ),
+        bidderDisplayName: maskBidderDisplayNameOrDefault(highestBid.bidder),
         amount: highestBid.amount.toFixed(2),
       }
     : null;

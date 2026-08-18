@@ -31,6 +31,22 @@ function readErrorMessage(error: unknown): string {
   return 'Your bid could not be placed. Please try again.';
 }
 
+function BidGateNotice({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className='rounded-2xl border border-border bg-surface-muted p-5'>
+      <p className='font-bold text-foreground'>{title}</p>
+
+      <p className='mt-1 text-sm text-muted'>{description}</p>
+    </div>
+  );
+}
+
 export function PlaceBidForm({
   auction,
   minimumNextBid,
@@ -82,13 +98,10 @@ export function PlaceBidForm({
 
   if (auction.status !== 'ACTIVE') {
     return (
-      <div className='rounded-2xl border border-border bg-surface-muted p-5'>
-        <p className='font-bold text-foreground'>Bidding is not open</p>
-
-        <p className='mt-1 text-sm text-muted'>
-          Bids can only be placed while this auction is live.
-        </p>
-      </div>
+      <BidGateNotice
+        title='Bidding is not open'
+        description='Bids can only be placed while this auction is live.'
+      />
     );
   }
 
@@ -121,41 +134,28 @@ export function PlaceBidForm({
 
   if (user.id === auction.seller.id) {
     return (
-      <div className='rounded-2xl border border-border bg-surface-muted p-5'>
-        <p className='font-bold text-foreground'>This is your auction</p>
-
-        <p className='mt-1 text-sm text-muted'>
-          Sellers cannot bid on their own auctions.
-        </p>
-      </div>
+      <BidGateNotice
+        title='This is your auction'
+        description='Sellers cannot bid on their own auctions.'
+      />
     );
   }
 
   if (user.role !== 'USER') {
     return (
-      <div className='rounded-2xl border border-border bg-surface-muted p-5'>
-        <p className='font-bold text-foreground'>
-          Bidding is unavailable for this account
-        </p>
-
-        <p className='mt-1 text-sm text-muted'>
-          Only regular user accounts can place bids.
-        </p>
-      </div>
+      <BidGateNotice
+        title='Bidding is unavailable for this account'
+        description='Only regular user accounts can place bids.'
+      />
     );
   }
 
   if (!canBid) {
     return (
-      <div className='rounded-2xl border border-border bg-surface-muted p-5'>
-        <p className='font-bold text-foreground'>
-          Bidding is unavailable for this account
-        </p>
-
-        <p className='mt-1 text-sm text-muted'>
-          This account is not eligible to bid in the current auction.
-        </p>
-      </div>
+      <BidGateNotice
+        title='Bidding is unavailable for this account'
+        description='This account is not eligible to bid in the current auction.'
+      />
     );
   }
 

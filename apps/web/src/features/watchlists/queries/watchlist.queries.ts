@@ -6,6 +6,8 @@ import {
   unwatchAuction,
   watchAuction,
 } from '@/features/watchlists/api/watchlists.api';
+import type { ListWatchlistResponse } from '@/features/watchlists/schemas/watchlist.schemas';
+import { cursorPagination } from '@/lib/api/cursor-pagination';
 import {
   useInfiniteQuery,
   useMutation,
@@ -43,9 +45,7 @@ export function useInfiniteWatchlist(limit = 12, enabled = true) {
         cursor: pageParam ?? undefined,
       }),
 
-    initialPageParam: null as string | null,
-
-    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+    ...cursorPagination<ListWatchlistResponse>(),
 
     enabled,
   });

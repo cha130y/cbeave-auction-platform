@@ -1,8 +1,6 @@
 import { ownedAuctionStatusSchema } from '@/features/auctions/schemas/auction-draft.schemas';
+import { uuidV4Schema, dateTimeSchema } from '@/lib/schemas/primitives';
 import z from 'zod';
-
-const uuidV4Schema = z.uuid({ version: 'v4' });
-const dateTimeSchema = z.iso.datetime();
 
 export const adminActionTypes = [
   'SUSPEND_USER',

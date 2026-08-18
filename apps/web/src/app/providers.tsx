@@ -1,12 +1,9 @@
-"use client";
+'use client';
 
-import { ApiError } from "@/lib/api/api-error";
-import { AuthProvider } from "@/features/auth/auth-provider";
-import {
-  QueryClient,
-  QueryClientProvider,
-} from "@tanstack/react-query";
-import { useState, type ReactNode } from "react";
+import { ApiError } from '@/lib/api/api-error';
+import { AuthProvider } from '@/features/auth/auth-provider';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useState, type ReactNode } from 'react';
 
 type AppProvidersProps = {
   children: ReactNode;
@@ -18,17 +15,20 @@ export function AppProviders({ children }: AppProvidersProps) {
       new QueryClient({
         defaultOptions: {
           queries: {
+            //set refetchOnWindowFocus: false when switch back to the tab won't auctomatically refetch data
             refetchOnWindowFocus: false,
             retry: (failureCount, error) => {
               if (error instanceof ApiError && error.status < 500) {
                 return false;
               }
 
+              //if error status > 500
               return failureCount < 2;
             },
             staleTime: 30_000,
           },
           mutations: {
+            //mutations(create/update/delete) never retry automaticlly
             retry: false,
           },
         },

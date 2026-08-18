@@ -1,9 +1,9 @@
-import { Transform } from 'class-transformer';
+import { Type } from 'class-transformer';
 import { IsInt, IsOptional, IsUUID, Max, Min } from 'class-validator';
 
 export class ListPublicAuctionsQueryDto {
   @IsOptional()
-  @Transform(({ value }) => Number(value))
+  @Type(() => Number)
   @IsInt()
   @Min(1)
   @Max(50)

@@ -24,6 +24,7 @@ import { mapPublicBidHistoryResponse } from './mappers/map-public-bid-history-re
 import { AuctionBiddingGateway } from './gateways/auction-bidding.gateway';
 import { mapBidAcceptedEvent } from './mappers/map-bid-accepted-event.mapper';
 import { NotificationsService } from '../notifications/notifications.service';
+import { paginate } from '../common/pagination/paginate.util';
 
 const ANTI_SNIPING_WINDOW_MS = 2 * 60 * 1000;
 const ANTI_SNIPING_EXTENSION_MS = 2 * 60 * 1000;
@@ -82,13 +83,15 @@ export class BiddingService {
       take: input.limit + 1,
     });
 
-    const hasMore = bids.length > input.limit;
-    const page = hasMore ? bids.slice(0, input.limit) : bids;
-    const lastBid = page[page.length - 1];
+    const { page, nextCursor } = paginate(
+      bids,
+      input.limit,
+      (bid) => bid.sequenceNo,
+    );
 
     return {
       items: page.map(mapPublicBidHistoryResponse),
-      nextCursor: hasMore && lastBid ? lastBid.sequenceNo : null,
+      nextCursor,
     };
   }
 

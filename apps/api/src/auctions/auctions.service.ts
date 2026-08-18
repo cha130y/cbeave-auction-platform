@@ -48,6 +48,13 @@ import { CancelOwnedAuctionResponseDto } from './dto/cancel-owned-auction-respon
 import { cancellableOwnedAuctionSelect } from './queries/cancellable-owned-auction.select';
 import { CancelOwnedAuctionInput } from './types/cancel-owned-auction.input';
 import { mapCancelOwnedAuctionResponse } from './mappers/map-cancel-owned-auction-response.mapper';
+import { assertValidAuctionPricing } from './utils/assert-valid-auction-pricing.util';
+import { assertValidAuctionSchedule } from './utils/assert-valid-auction-schedule.util';
+import {
+  ownedDraftImageCountSelect,
+  ownedDraftWhere,
+} from './queries/owned-draft-image-count.select';
+import { paginate } from '../common/pagination/paginate.util';
 
 const PUBLIC_AUCTION_STATUSES: AuctionStatus[] = [
   AuctionStatus.SCHEDULED,
@@ -114,13 +121,15 @@ export class AuctionsService {
       select: ownedAuctionSummarySelect,
     });
 
-    const hasMore = auctions.length > input.limit;
-    const page = hasMore ? auctions.slice(0, input.limit) : auctions;
-    const lastAuction = page[page.length - 1];
+    const { page, nextCursor } = paginate(
+      auctions,
+      input.limit,
+      (auction) => auction.id,
+    );
 
     return {
       items: page.map(mapOwnedAuctionSummaryResponse),
-      nextCursor: hasMore && lastAuction ? lastAuction.id : null,
+      nextCursor,
     };
   }
 
@@ -324,17 +333,15 @@ export class AuctionsService {
       select: publicAuctionSummarySelect,
     });
 
-    const hasNextPage = auctions.length > input.limit;
-
-    if (hasNextPage) {
-      auctions.pop(); //remove last element(auction)
-    }
-
-    const lastAuction = auctions[auctions.length - 1];
+    const { page, nextCursor } = paginate(
+      auctions,
+      input.limit,
+      (auction) => auction.id,
+    );
 
     return {
-      items: auctions.map(mapPublicAuctionSummaryResponse),
-      nextCursor: hasNextPage && lastAuction ? lastAuction.id : null,
+      items: page.map(mapPublicAuctionSummaryResponse),
+      nextCursor,
     };
   }
 
@@ -349,43 +356,12 @@ export class AuctionsService {
         ? new Prisma.Decimal(input.reservePrice)
         : null;
 
-    if (
-      //lte means “less than or equal to.”
-      startingPrice.lte(0) ||
-      minBidIncrement.lte(0) ||
-      reservePrice?.lte(0)
-    ) {
-      throw new BadRequestException('Auction prices must be greater than zero');
-    }
-
-    if (reservePrice && reservePrice.lt(startingPrice)) {
-      //lt means “strictly less than.”
-      throw new BadRequestException(
-        'Reserve price cannot be lower than starting price',
-      );
-    }
+    assertValidAuctionPricing(startingPrice, minBidIncrement, reservePrice);
 
     const scheduledStartAt = input.scheduledStartAt ?? null;
     const scheduledEndAt = input.scheduledEndAt ?? null;
 
-    const hasScheduledStart = scheduledStartAt !== null;
-    const hasScheduledEnd = scheduledEndAt !== null;
-
-    if (hasScheduledStart !== hasScheduledEnd) {
-      throw new BadRequestException(
-        'Scheduled start and end times must be supplied together',
-      );
-    }
-
-    if (
-      scheduledStartAt &&
-      scheduledEndAt &&
-      scheduledEndAt <= scheduledStartAt
-    ) {
-      throw new BadRequestException(
-        'Scheduled end time must be later than start time',
-      );
-    }
+    assertValidAuctionSchedule(scheduledStartAt, scheduledEndAt);
 
     const auction = await this.prisma.$transaction(async (transaction) => {
       const category = await transaction.category.findUnique({
@@ -541,21 +517,7 @@ export class AuctionsService {
             ? null
             : new Prisma.Decimal(input.reservePrice);
 
-      if (
-        startingPrice.lte(0) ||
-        minBidIncrement.lte(0) ||
-        reservePrice?.lte(0)
-      ) {
-        throw new BadRequestException(
-          'Auction prices must be greater than zero',
-        );
-      }
-
-      if (reservePrice && reservePrice.lt(startingPrice)) {
-        throw new BadRequestException(
-          'Reserve price cannot be lower than starting price',
-        );
-      }
+      assertValidAuctionPricing(startingPrice, minBidIncrement, reservePrice);
 
       const scheduledStartAt =
         input.scheduledStartAt === undefined
@@ -567,24 +529,7 @@ export class AuctionsService {
           ? currentAuction.originalEndAt
           : input.scheduledEndAt;
 
-      const hasScheduledStart = scheduledStartAt !== null;
-      const hasScheduledEnd = scheduledEndAt !== null;
-
-      if (hasScheduledStart !== hasScheduledEnd) {
-        throw new BadRequestException(
-          'Scheduled start and end times must be supplied together',
-        );
-      }
-
-      if (
-        scheduledStartAt &&
-        scheduledEndAt &&
-        scheduledEndAt <= scheduledStartAt
-      ) {
-        throw new BadRequestException(
-          'Scheduled end time must be later than start time',
-        );
-      }
+      assertValidAuctionSchedule(scheduledStartAt, scheduledEndAt);
 
       return transaction.auction.update({
         where: {
@@ -622,19 +567,8 @@ export class AuctionsService {
     input: AddAuctionImageInput,
   ): Promise<AuctionImageResponseDto> {
     const draft = await this.prisma.auction.findFirst({
-      where: {
-        id: input.auctionId,
-        sellerId: input.sellerId,
-        status: AuctionStatus.DRAFT,
-        deletedAt: null,
-      },
-      select: {
-        _count: {
-          select: {
-            auctionImages: true,
-          },
-        },
-      },
+      where: ownedDraftWhere(input.auctionId, input.sellerId),
+      select: ownedDraftImageCountSelect,
     });
 
     if (!draft) {
@@ -663,19 +597,8 @@ export class AuctionsService {
     try {
       const image = await this.prisma.$transaction(async (transaction) => {
         const currentDraft = await transaction.auction.findFirst({
-          where: {
-            id: input.auctionId,
-            sellerId: input.sellerId,
-            status: AuctionStatus.DRAFT,
-            deletedAt: null,
-          },
-          select: {
-            _count: {
-              select: {
-                auctionImages: true,
-              },
-            },
-          },
+          where: ownedDraftWhere(input.auctionId, input.sellerId),
+          select: ownedDraftImageCountSelect,
         });
 
         if (!currentDraft) {
@@ -962,23 +885,11 @@ export class AuctionsService {
         if (!auction.category.isActive) {
           throw new BadRequestException('Auction category must be active');
         }
-        if (
-          auction.startingPrice.lte(0) ||
-          auction.minBidIncrement.lte(0) ||
-          auction.reservePrice?.lte(0)
-        ) {
-          throw new BadRequestException(
-            'Auction prices must be greater than zero',
-          );
-        }
-        if (
-          auction.reservePrice &&
-          auction.reservePrice.lt(auction.startingPrice)
-        ) {
-          throw new BadRequestException(
-            'Reserve price cannot be lower than starting price',
-          );
-        }
+        assertValidAuctionPricing(
+          auction.startingPrice,
+          auction.minBidIncrement,
+          auction.reservePrice,
+        );
         if (!auction.scheduledStartAt || !auction.currentEndAt) {
           throw new BadRequestException(
             'Auction schedule is required before publication',

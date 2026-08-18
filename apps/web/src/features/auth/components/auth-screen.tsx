@@ -88,7 +88,7 @@ function SocialButton({
     <button
       type='button'
       onClick={() => window.location.assign(getSocialLoginUrl(provider))}
-      className='flex h-11 items-center justify-center gap-2.5 rounded-xl border border-border-strong bg-white/[0.025] text-sm font-semibold text-white/82 transition hover:border-white/25 hover:bg-white/[0.055] focus-visible:outline-2 focus-visible:outline-primary'
+      className='flex h-11 items-center justify-center gap-2.5 rounded-xl border border-border-strong bg-white/2.5 text-sm font-semibold text-white/82 transition hover:border-white/25 hover:bg-white/5.5 focus-visible:outline-2 focus-visible:outline-primary'
     >
       <span
         className={cn(

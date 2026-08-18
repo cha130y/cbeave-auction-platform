@@ -1,7 +1,5 @@
+import { uuidV4Schema, dateTimeSchema } from '@/lib/schemas/primitives';
 import { z } from 'zod';
-
-const uuidV4Schema = z.uuid({ version: 'v4' });
-const dateTimeSchema = z.iso.datetime();
 
 const categoryNameSchema = z
   .string()

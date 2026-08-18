@@ -9,6 +9,7 @@ import {
   type ListAdminAuctionsResponse,
 } from '@/features/admin/auctions/schemas/admin-auction.schemas';
 import { apiRequest } from '@/lib/api/api-client';
+import { createQueryString } from '@/lib/api/query-string';
 
 export type ListAdminAuctionsParams = {
   cursor?: string;
@@ -20,35 +21,11 @@ export type CancelAdminAuctionParams = CancelAdminAuctionFormValues & {
   auctionId: string;
 };
 
-function createAdminAuctionsQueryString(
-  params: ListAdminAuctionsParams,
-): string {
-  const searchParams = new URLSearchParams();
-
-  if (params.cursor) {
-    searchParams.set('cursor', params.cursor);
-  }
-
-  if (params.limit !== undefined) {
-    searchParams.set('limit', String(params.limit));
-  }
-
-  if (params.status) {
-    searchParams.set('status', params.status);
-  }
-
-  const queryString = searchParams.toString();
-
-  return queryString ? `?${queryString}` : '';
-}
-
 export async function listAdminAuctions(
   params: ListAdminAuctionsParams = {},
 ): Promise<ListAdminAuctionsResponse> {
   return listAdminAuctionsResponseSchema.parse(
-    await apiRequest<unknown>(
-      `/admin/auctions${createAdminAuctionsQueryString(params)}`,
-    ),
+    await apiRequest<unknown>(`/admin/auctions${createQueryString(params)}`),
   );
 }
 
