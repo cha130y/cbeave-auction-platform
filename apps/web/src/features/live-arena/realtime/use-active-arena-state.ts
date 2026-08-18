@@ -9,6 +9,8 @@ import {
 } from '@/features/live-arena/schemas/live-arena.schemas';
 import { getAuctionSocket } from '@/lib/realtime/auction-socket';
 import { useEffect, useState } from 'react';
+import { createSocketRetry } from './create-socket-retry';
+import { parseAuctionPayload } from './parse-auction-payload';
 
 type ActiveArenaStateStatus = 'idle' | 'loading' | 'success' | 'error';
 
@@ -40,30 +42,12 @@ export function useActiveArenaState(
     let requestInFlight = false;
     let refreshQueued = false;
     let failedAttempts = 0;
-    let retryTimer: number | null = null;
 
-    const clearRetry = () => {
-      if (retryTimer !== null) {
-        window.clearTimeout(retryTimer);
-        retryTimer = null;
-      }
-    };
-
-    const scheduleRetry = (delay: number) => {
-      if (!mounted || retryTimer !== null) {
-        return;
-      }
-
-      retryTimer = window.setTimeout(() => {
-        retryTimer = null;
-
-        if (socket.connected) {
-          requestState();
-        } else {
-          socket.connect();
-        }
-      }, delay);
-    };
+    const retry = createSocketRetry({
+      socket,
+      isActive: () => mounted,
+      onRetry: () => requestState(),
+    });
 
     const handleRequestFailure = (message: string) => {
       failedAttempts += 1;
@@ -75,7 +59,7 @@ export function useActiveArenaState(
         setStatus('loading');
       }
 
-      scheduleRetry(failedAttempts >= 3 ? 2_000 : 750);
+      retry.schedule(failedAttempts >= 3 ? 2_000 : 750);
     };
 
     const requestState = () => {
@@ -84,7 +68,7 @@ export function useActiveArenaState(
       }
 
       if (!socket.connected) {
-        scheduleRetry(500);
+        retry.schedule(500);
         return;
       }
 
@@ -120,19 +104,23 @@ export function useActiveArenaState(
             return;
           }
 
-          const result = activeArenaStateSchema.safeParse(payload);
+          const arena = parseAuctionPayload(
+            activeArenaStateSchema,
+            payload,
+            auctionId,
+          );
 
-          if (!result.success || result.data.auctionId !== auctionId) {
+          if (!arena) {
             handleRequestFailure(
               'The Live Arena returned an invalid auction state.',
             );
             return;
           }
 
-          clearRetry();
+          retry.clear();
           failedAttempts = 0;
           hasLoadedState = true;
-          setArenaState(result.data);
+          setArenaState(arena);
           setStatus('success');
 
           if (refreshQueued) {
@@ -144,9 +132,7 @@ export function useActiveArenaState(
     };
 
     const handleBidAccepted = (payload: unknown) => {
-      const result = bidAcceptedEventSchema.safeParse(payload);
-
-      if (!result.success || result.data.auctionId !== auctionId) {
+      if (!parseAuctionPayload(bidAcceptedEventSchema, payload, auctionId)) {
         return;
       }
 
@@ -155,13 +141,17 @@ export function useActiveArenaState(
     };
 
     const handleAuctionExtended = (payload: unknown) => {
-      const result = auctionExtendedEventSchema.safeParse(payload);
+      const extension = parseAuctionPayload(
+        auctionExtendedEventSchema,
+        payload,
+        auctionId,
+      );
 
-      if (!result.success || result.data.auctionId !== auctionId) {
+      if (!extension) {
         return;
       }
 
-      setLatestExtension(result.data);
+      setLatestExtension(extension);
       requestState();
     };
 
@@ -188,7 +178,7 @@ export function useActiveArenaState(
     // the effect needs to register a new listener.
     return () => {
       mounted = false;
-      clearRetry();
+      retry.clear();
       //Stop calling this particular handleBidAccepted function for this event
       socket.off('auction:bid-accepted', handleBidAccepted);
       socket.off('auction:extended', handleAuctionExtended);
