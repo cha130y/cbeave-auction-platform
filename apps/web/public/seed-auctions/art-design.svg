@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title description">
+  <title id="title">Art and design object</title>
+  <desc id="description">A geometric gallery composition with a handcrafted ceramic vase.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f1d8ad"/>
+      <stop offset="0.55" stop-color="#d66a4b"/>
+      <stop offset="1" stop-color="#622746"/>
+    </linearGradient>
+    <linearGradient id="vase" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#d9f1cf"/>
+      <stop offset="0.55" stop-color="#79ad91"/>
+      <stop offset="1" stop-color="#315d58"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#background)"/>
+  <rect x="85" y="145" width="300" height="300" fill="#f4c542" transform="rotate(-9 235 295)"/>
+  <circle cx="935" cy="215" r="185" fill="#173b57"/>
+  <path d="M85 720 495 170l230 550z" fill="#f3e8d1" opacity=".78"/>
+  <g transform="translate(690 180)">
+    <ellipse cx="165" cy="485" rx="190" ry="38" fill="#35152b" opacity=".35"/>
+    <path d="M108 25h114c-15 86-4 138 56 212 62 77 72 221 15 270-54 46-202 46-256 0-57-49-47-193 15-270 60-74 71-126 56-212z" fill="url(#vase)" stroke="#e2f2d9" stroke-width="9"/>
+    <ellipse cx="165" cy="27" rx="57" ry="19" fill="#244b48" stroke="#dff0d7" stroke-width="7"/>
+    <path d="M54 330c78-35 145-34 227 5M48 390c82-31 164-29 239 4" fill="none" stroke="#d9edd0" stroke-width="7" opacity=".4"/>
+  </g>
+  <text x="72" y="90" fill="#3b1630" font-family="Arial, sans-serif" font-size="34" font-weight="700" letter-spacing="8">ART + FORM</text>
+</svg>

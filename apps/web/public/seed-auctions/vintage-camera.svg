@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title description">
+  <title id="title">Vintage camera</title>
+  <desc id="description">A stylized vintage rangefinder camera on a warm studio background.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2a1715"/>
+      <stop offset="0.55" stop-color="#9c4937"/>
+      <stop offset="1" stop-color="#f3b36f"/>
+    </linearGradient>
+    <radialGradient id="lens">
+      <stop offset="0" stop-color="#62d9ef"/>
+      <stop offset="0.45" stop-color="#173c51"/>
+      <stop offset="1" stop-color="#07090d"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#background)"/>
+  <circle cx="1000" cy="115" r="250" fill="#ffd9a5" opacity=".18"/>
+  <circle cx="170" cy="690" r="310" fill="#21100f" opacity=".35"/>
+  <g transform="translate(220 225)">
+    <rect x="0" y="95" width="760" height="350" rx="54" fill="#17181b" stroke="#e5c39b" stroke-width="10"/>
+    <path d="M105 95 165 10h210l52 85" fill="#24252a" stroke="#e5c39b" stroke-width="10"/>
+    <rect x="46" y="137" width="160" height="65" rx="18" fill="#b7a183"/>
+    <circle cx="515" cy="270" r="150" fill="#07090c" stroke="#b7a183" stroke-width="18"/>
+    <circle cx="515" cy="270" r="105" fill="url(#lens)" stroke="#333a42" stroke-width="16"/>
+    <circle cx="515" cy="270" r="35" fill="#d7fbff" opacity=".6"/>
+    <circle cx="675" cy="145" r="28" fill="#f0c36c"/>
+  </g>
+  <text x="72" y="90" fill="#fff4e8" font-family="Arial, sans-serif" font-size="34" font-weight="700" letter-spacing="8">VINTAGE OPTICS</text>
+</svg>

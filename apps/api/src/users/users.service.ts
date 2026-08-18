@@ -85,9 +85,6 @@ export class UsersService {
     }
   }
 
-  //Directly return one Prisma query → no async needed
-  //Multiple operations, try/catch, or result transformation → use async
-
   findForAuthenticationByEmail(email: string) {
     return this.prisma.user.findUnique({
       where: { email },
