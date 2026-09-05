@@ -52,7 +52,12 @@ pnpm dev:api
 pnpm dev:web
 ```
 
-Open `http://localhost:3000`. The API runs at `http://localhost:3001`.
+Open `http://localhost:3002`. The API runs at `http://localhost:3001`.
+
+The web port is pinned to 3002 in `package.json` so it never drifts when another
+project already holds 3000. If you change it, update `WEB_APP_URL` in
+`apps/api/.env` to match — the API derives its REST CORS origin, WebSocket CORS
+origin, and social-login redirect target from that one variable.
 
 ## Quality checks
 
