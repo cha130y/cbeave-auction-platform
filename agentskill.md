@@ -126,7 +126,7 @@ Copy environment templates only when local execution requires them:
 - `apps/api/.env.example` -> `apps/api/.env`
 - `apps/web/.env.example` -> `apps/web/.env.local`
 
-Use PostgreSQL on `127.0.0.1:5433`, the API on `http://localhost:3001`, and the web app on `http://localhost:3000` unless configuration explicitly overrides them.
+Use PostgreSQL on `127.0.0.1:5434`, the API on `http://localhost:3001`, and the web app on `http://localhost:3002` unless configuration explicitly overrides them.
 
 ## Verify proportionally
 
