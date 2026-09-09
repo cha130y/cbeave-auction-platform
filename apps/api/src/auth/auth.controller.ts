@@ -43,7 +43,7 @@ export class AuthController {
     response.cookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken, {
       httpOnly: true,
       secure: isProduction,
-      sameSite: 'lax',
+      sameSite: isProduction ? 'none' : 'lax',
       path: REFRESH_TOKEN_COOKIE_PATH,
       expires: expiresAt,
     });
@@ -64,7 +64,7 @@ export class AuthController {
     response.clearCookie(REFRESH_TOKEN_COOKIE_NAME, {
       httpOnly: true,
       secure: isProduction,
-      sameSite: 'lax',
+      sameSite: isProduction ? 'none' : 'lax',
       path: REFRESH_TOKEN_COOKIE_PATH,
     });
   }
