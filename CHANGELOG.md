@@ -58,6 +58,10 @@ The format follows Keep a Changelog principles. Product releases will use semant
 - Added responsive administrator audit history with administrator-only routing, action-type filtering, newest-first cursor pagination, typed user, auction, and category targets, audit notes, timestamps, and mobile-friendly action cards.
 - Improved Facebook OAuth cancellation by returning denied consent to the web login screen with a friendly message while preserving OAuth state validation.
 - Added a Vitest and Testing Library frontend unit-test foundation with shared jsdom setup and initial coverage for money calculations, authentication validation, and authenticated bid submission.
+- Added a production container image and Railway deployment for the API with Prisma migrations applied on start, container health checks, and a single replica so scheduled auction closing never runs concurrently.
+- Added the Vercel deployment for the web application, including the build-time production API URL, cross-site refresh-cookie support, and CORS restricted to the deployed web origin.
+- Added a GitHub Actions verification workflow that lints, runs the API and web test suites, and builds both applications on pull requests targeting `main` and on pushes to `main`.
+- Improved Google sign-in by always requesting account selection so a person already signed in to one Google account can choose a different one.
 
 ### Documentation
 
