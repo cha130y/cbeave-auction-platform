@@ -1,29 +1,30 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
-import { AppModule } from './../src/app.module';
+import { createE2eApp } from './utils/create-e2e-app';
 
-describe('AppController (e2e)', () => {
+// Unlike the unit suites, which mock PrismaService, these tests boot the whole
+// application. Running them needs all three of:
+//
+//   1. PostgreSQL reachable at DATABASE_URL
+//   2. Migrations applied: pnpm --dir apps/api prisma migrate deploy
+//   3. Every variable in src/config/env.validation.ts present in apps/api/.env
+//
+// Run with: pnpm --dir apps/api test:e2e
+describe('API (e2e)', () => {
   let app: INestApplication<App>;
 
   beforeAll(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
-
-    app = moduleFixture.createNestApplication();
-    await app.init();
+    app = await createE2eApp();
   });
 
-  it('/ (GET)', () => {
-    return request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Hello World!');
+  afterAll(async () => {
+    await app.close();
   });
 
-  it('/health/database (GET)', () => {
+  // A boot smoke test: it fails whenever module wiring breaks or the database
+  // is unreachable, which is what the rest of the suite will depend on.
+  it('reports a reachable database', () => {
     return request(app.getHttpServer())
       .get('/health/database')
       .expect(200)
@@ -42,9 +43,5 @@ describe('AppController (e2e)', () => {
         );
         expect(body.timestamp).toEqual(expect.any(String));
       });
-  });
-
-  afterAll(async () => {
-    await app.close();
   });
 });
