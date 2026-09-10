@@ -1,9 +1,12 @@
 import {
   Body,
+  ConflictException,
   Controller,
+  ForbiddenException,
   Get,
   HttpCode,
   HttpStatus,
+  Logger,
   Post,
   Req,
   Res,
@@ -19,14 +22,32 @@ import { LoginDto } from './dto/login.dto';
 import { LoginResponseDto } from './dto/login-response.dto';
 import { RefreshResponseDto } from './dto/refresh-response.dto';
 import type { SocialAuthenticatedRequest } from './social/types/social-authenticated-request.type';
+import type { LoginResult } from './types/login-result.type';
 import { GoogleAuthGuard } from './social/guards/google-auth.guard';
 import { FacebookAuthGuard } from './social/guards/facebook-auth.guard';
 
 const REFRESH_TOKEN_COOKIE_NAME = 'refresh_token';
 const REFRESH_TOKEN_COOKIE_PATH = '/auth';
 
+// Codes the web sign-in screen knows how to phrase. The provider callbacks are
+// top-level navigations, so anything not turned into one of these is shown to
+// the person as this API's raw JSON error body.
+function resolveSocialErrorCode(error: unknown): string {
+  if (error instanceof ForbiddenException) {
+    return 'account_suspended';
+  }
+
+  if (error instanceof ConflictException) {
+    return 'email_in_use';
+  }
+
+  return 'social_failed';
+}
+
 @Controller('auth')
 export class AuthController {
+  private readonly logger = new Logger(AuthController.name);
+
   constructor(
     private readonly authService: AuthService,
     private readonly configService: ConfigService<EnvVariable, true>,
@@ -74,7 +95,26 @@ export class AuthController {
     response: Response,
     provider: 'google' | 'facebook',
   ): Promise<void> {
-    const result = await this.authService.loginWithSocialProfile(request.user);
+    let result: LoginResult;
+
+    try {
+      result = await this.authService.loginWithSocialProfile(request.user);
+    } catch (error) {
+      const oauthError = resolveSocialErrorCode(error);
+
+      // A suspended account or a clashing email is an expected outcome that the
+      // redirect already explains. Anything else is a fault, and the redirect
+      // would otherwise be the only trace it ever left.
+      if (oauthError === 'social_failed') {
+        this.logger.error(
+          `Unexpected ${provider} sign-in failure`,
+          error instanceof Error ? error.stack : String(error),
+        );
+      }
+
+      this.redirectToAuthScreen(response, oauthError);
+      return;
+    }
 
     this.setRefreshTokenCookie(
       response,
@@ -90,6 +130,17 @@ export class AuthController {
     webCallbackUrl.searchParams.set('provider', provider);
 
     response.redirect(webCallbackUrl.toString());
+  }
+
+  private redirectToAuthScreen(response: Response, oauthError: string): void {
+    const webAuthUrl = new URL(
+      '/auth',
+      this.configService.get('WEB_APP_URL', { infer: true }),
+    );
+
+    webAuthUrl.searchParams.set('oauthError', oauthError);
+
+    response.redirect(webAuthUrl.toString());
   }
 
   @Post('register')
@@ -187,14 +238,7 @@ export class AuthController {
     @Res() response: Response,
   ): Promise<void> {
     if (request.query.error === 'access_denied') {
-      const webAuthUrl = new URL(
-        '/auth',
-        this.configService.get('WEB_APP_URL', { infer: true }),
-      );
-
-      webAuthUrl.searchParams.set('oauthError', 'facebook_cancelled');
-
-      response.redirect(webAuthUrl.toString());
+      this.redirectToAuthScreen(response, 'facebook_cancelled');
       return;
     }
 
