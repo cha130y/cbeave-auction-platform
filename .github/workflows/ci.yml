@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Lint, test, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      # No version input: the action reads the pinned pnpm from the
+      # packageManager field in package.json, so both stay in sync
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      # The postinstall script in apps/api runs prisma generate, which both the
+      # build and the tests need because src/generated/prisma is not committed
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      # The api lint script runs eslint with --fix, so it exits 0 after quietly
+      # repairing a file. A dirty tree is the only signal that something failed.
+      - name: Fail if lint rewrote files
+        run: git diff --exit-code
+
+      - name: Test
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
