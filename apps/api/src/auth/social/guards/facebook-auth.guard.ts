@@ -39,7 +39,7 @@ export class FacebookAuthGuard extends AuthGuard('facebook') {
   }
   getAuthenticateOptions(
     context: ExecutionContext,
-  ): { state: string } | undefined {
+  ): { state: string; authType: string } | undefined {
     const request = context.switchToHttp().getRequest<Request>();
 
     if (this.isCallbackRequest(request)) {
@@ -53,6 +53,7 @@ export class FacebookAuthGuard extends AuthGuard('facebook') {
         response,
         FACEBOOK_STATE_CONFIGURATION,
       ),
+      authType: 'reauthenticate',
     };
   }
 
