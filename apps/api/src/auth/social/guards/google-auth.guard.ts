@@ -36,7 +36,7 @@ export class GoogleAuthGuard extends AuthGuard('google') {
 
   getAuthenticateOptions(
     context: ExecutionContext,
-  ): { state: string } | undefined {
+  ): { state: string; prompt: string } | undefined {
     const request = context.switchToHttp().getRequest<Request>();
 
     if (this.isCallbackRequest(request)) {
@@ -50,6 +50,7 @@ export class GoogleAuthGuard extends AuthGuard('google') {
         response,
         GOOGLE_STATE_CONFIGURATION,
       ),
+      prompt: 'select_account',
     };
   }
 
