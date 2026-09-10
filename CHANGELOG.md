@@ -63,6 +63,7 @@ The format follows Keep a Changelog principles. Product releases will use semant
 - Added a GitHub Actions verification workflow that lints, runs the API and web test suites, and builds both applications on pull requests targeting `main` and on pushes to `main`.
 - Improved Google sign-in by always requesting account selection so a person already signed in to one Google account can choose a different one.
 - Added an operator script that promotes existing accounts to administrator by email, deliberately without any endpoint that can change a role, with case-insensitive matching, harmless re-runs, and a failing exit code when a listed address has no account.
+- Improved a blocked social sign-in by returning a suspended or conflicting account to the web login screen with an explanation instead of this API's raw error body, logging only the failures that are genuinely unexpected, and matching that wording in the password form.
 
 ### Documentation
 
