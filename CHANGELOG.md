@@ -62,6 +62,7 @@ The format follows Keep a Changelog principles. Product releases will use semant
 - Added the Vercel deployment for the web application, including the build-time production API URL, cross-site refresh-cookie support, and CORS restricted to the deployed web origin.
 - Added a GitHub Actions verification workflow that lints, runs the API and web test suites, and builds both applications on pull requests targeting `main` and on pushes to `main`.
 - Improved Google sign-in by always requesting account selection so a person already signed in to one Google account can choose a different one.
+- Added an operator script that promotes existing accounts to administrator by email, deliberately without any endpoint that can change a role, with case-insensitive matching, harmless re-runs, and a failing exit code when a listed address has no account.
 
 ### Documentation
 
