@@ -1,5 +1,6 @@
 'use client';
 
+import { filterControlClassName } from '@/components/ui/field-styles';
 import { AdminGateSkeleton } from '@/features/admin/components/admin-gate-skeleton';
 import { useInfiniteAdminActions } from '@/features/admin/actions/queries/admin-action.queries';
 import {
@@ -109,7 +110,7 @@ export function AdminActionsScreen() {
 
           <select
             value={actionTypeFilter}
-            className='h-11 w-full rounded-xl border border-border bg-surface px-4 text-sm text-foreground outline-none transition focus:border-primary/70'
+            className={filterControlClassName}
             onChange={(event) => {
               setActionTypeFilter(event.target.value as ActionTypeFilter);
             }}

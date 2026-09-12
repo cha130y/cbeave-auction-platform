@@ -1,390 +1,25 @@
 'use client';
 
 import { CBeaveLogo } from '@/components/brand/cbeave-logo';
-import {
-  getSocialLoginUrl,
-  register as registerRequest,
-} from '@/features/auth/api/auth.api';
-import {
-  loginCredentialsSchema,
-  registerCredentialsSchema,
-  type LoginFormValues,
-  type RegisterFormValues,
-} from '@/features/auth/schemas/auth.schemas';
+import { readOauthErrorMessage } from '@/features/auth/auth-messages';
+import { AuthLoadingScreen } from '@/features/auth/components/auth-loading-screen';
+import { AuthenticationStatus } from '@/features/auth/components/auth-status';
+import { LoginForm } from '@/features/auth/components/login-form';
+import { RegisterForm } from '@/features/auth/components/register-form';
+import { SocialButton } from '@/features/auth/components/social-button';
 import { useAuth } from '@/features/auth/use-auth';
-import { ApiError } from '@/lib/api/api-error';
 import { cn } from '@/lib/utils/cn';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { useForm, useWatch, type UseFormRegisterReturn } from 'react-hook-form';
 
 type AuthMode = 'login' | 'register';
 
-const fieldClassName =
-  'h-12 w-full rounded-xl border border-border bg-[#0d0d12]/85 px-4 text-[15px] text-white outline-none transition placeholder:text-white/25 focus:border-primary/70 focus:ring-3 focus:ring-primary/10';
+const AUTH_MODES: AuthMode[] = ['login', 'register'];
 
-function FieldError({ message }: { message?: string }) {
-  if (!message) {
-    return null;
-  }
-
-  return (
-    <p className='mt-1.5 text-xs font-medium text-danger' role='alert'>
-      {message}
-    </p>
-  );
-}
-
-function PasswordField({
-  autoComplete,
-  error,
-  label,
-  registration,
-}: {
-  autoComplete: string;
-  error?: string;
-  label: string;
-  registration: UseFormRegisterReturn;
-}) {
-  const [isVisible, setIsVisible] = useState(false);
-
-  return (
-    <label className='block'>
-      <span className='mb-2 block text-[11px] font-bold tracking-[0.14em] text-white/48'>
-        {label}
-      </span>
-      <span className='relative block'>
-        <input
-          {...registration}
-          className={cn(fieldClassName, 'pr-16')}
-          type={isVisible ? 'text' : 'password'}
-          autoComplete={autoComplete}
-        />
-        <button
-          type='button'
-          onClick={() => setIsVisible((value) => !value)}
-          className='absolute inset-y-0 right-1 flex items-center rounded-lg px-3 text-xs font-semibold text-white/45 transition hover:text-primary focus-visible:outline-2 focus-visible:outline-primary'
-          aria-label={`${isVisible ? 'Hide' : 'Show'} ${label.toLowerCase()}`}
-        >
-          {isVisible ? 'Hide' : 'Show'}
-        </button>
-      </span>
-      <FieldError message={error} />
-    </label>
-  );
-}
-
-function SocialButton({
-  label,
-  mark,
-  provider,
-}: {
-  label: string;
-  mark: string;
-  provider: 'google' | 'facebook';
-}) {
-  return (
-    <button
-      type='button'
-      onClick={() => window.location.assign(getSocialLoginUrl(provider))}
-      className='flex h-11 items-center justify-center gap-2.5 rounded-xl border border-border-strong bg-white/2.5 text-sm font-semibold text-white/82 transition hover:border-white/25 hover:bg-white/5.5 focus-visible:outline-2 focus-visible:outline-primary'
-    >
-      <span
-        className={cn(
-          'grid size-5 place-items-center rounded-full bg-white text-xs font-black',
-          provider === 'google' ? 'text-[#4285f4]' : 'bg-[#1877f2] text-white',
-        )}
-        aria-hidden='true'
-      >
-        {mark}
-      </span>
-      {label}
-    </button>
-  );
-}
-
-function AuthenticationStatus({
-  message,
-  tone = 'error',
-}: {
-  message: string | null;
-  tone?: 'error' | 'success';
-}) {
-  if (!message) {
-    return null;
-  }
-
-  return (
-    <div
-      className={cn(
-        'rounded-xl border px-3.5 py-3 text-sm',
-        tone === 'success'
-          ? 'border-success/25 bg-success/8 text-[#8df0d5]'
-          : 'border-danger/25 bg-danger/8 text-[#ff8fa5]',
-      )}
-      role={tone === 'error' ? 'alert' : 'status'}
-    >
-      {message}
-    </div>
-  );
-}
-
-const SUSPENDED_ACCOUNT_MESSAGE =
-  'This account has been suspended, so it cannot be used to sign in. Contact an administrator if you think this is a mistake.';
-
-// apps/api answers a suspended account with a short status phrase. It is
-// accurate but tells the person nothing about what to do next, and a suspended
-// account can arrive here from the password form or from a provider callback,
-// so both routes say the same sentence.
-const API_MESSAGE_OVERRIDES: Record<string, string> = {
-  'Account is not active': SUSPENDED_ACCOUNT_MESSAGE,
+const MODE_LABELS: Record<AuthMode, string> = {
+  login: 'Log In',
+  register: 'Register',
 };
-
-function readErrorMessage(error: unknown): string {
-  if (error instanceof ApiError || error instanceof Error) {
-    return API_MESSAGE_OVERRIDES[error.message] ?? error.message;
-  }
-
-  return 'Something went wrong. Please try again.';
-}
-
-function LoginForm() {
-  const { login } = useAuth();
-  const [requestError, setRequestError] = useState<string | null>(null);
-  const {
-    formState: { errors, isSubmitting },
-    register,
-    handleSubmit,
-  } = useForm<LoginFormValues>({
-    defaultValues: {
-      email: '',
-      password: '',
-      // rememberMe: false,
-    },
-    resolver: zodResolver(loginCredentialsSchema),
-  });
-
-  const submit = handleSubmit(async ({ email, password }) => {
-    setRequestError(null);
-
-    try {
-      await login({ email, password });
-    } catch (error) {
-      setRequestError(readErrorMessage(error));
-    }
-  });
-
-  return (
-    <form className='space-y-4' onSubmit={submit} noValidate>
-      <AuthenticationStatus message={requestError} />
-
-      <label className='block'>
-        <span className='mb-2 block text-[11px] font-bold tracking-[0.14em] text-white/48'>
-          EMAIL ADDRESS
-        </span>
-        <input
-          {...register('email')}
-          className={fieldClassName}
-          type='email'
-          inputMode='email'
-          autoComplete='email'
-          placeholder='you@example.com'
-        />
-        <FieldError message={errors.email?.message} />
-      </label>
-
-      <PasswordField
-        autoComplete='current-password'
-        error={errors.password?.message}
-        label='PASSWORD'
-        registration={register('password')}
-      />
-
-      <div className='flex items-center justify-between gap-4 text-xs'>
-        {/* <label className='flex cursor-pointer items-center gap-2 text-white/55'>
-          <input
-            {...register('rememberMe')}
-            type='checkbox'
-            className='size-4 rounded border-border bg-surface accent-primary'
-          />
-          Remember me
-        </label>
-        <span
-          className='cursor-not-allowed font-semibold text-primary/45'
-          title='Password reset is planned after the V1 release'
-          aria-disabled='true'
-        >
-          Forgot password?
-        </span> */}
-      </div>
-
-      <button
-        type='submit'
-        disabled={isSubmitting}
-        className='h-12 w-full rounded-xl bg-primary text-sm font-extrabold text-[#041216] shadow-[0_0_28px_rgba(0,229,255,0.18)] transition hover:bg-[#42edff] disabled:cursor-wait disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
-      >
-        {isSubmitting ? 'Signing in…' : 'Log In'}
-      </button>
-    </form>
-  );
-}
-
-function RegisterForm({
-  onRegistered,
-}: {
-  onRegistered: (email: string, message: string) => void;
-}) {
-  const [requestError, setRequestError] = useState<string | null>(null);
-  const {
-    control,
-    formState: { errors, isSubmitting },
-    handleSubmit,
-    register,
-  } = useForm<RegisterFormValues>({
-    defaultValues: {
-      firstName: '',
-      lastName: '',
-      displayName: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-    },
-    resolver: zodResolver(registerCredentialsSchema),
-  });
-  const password = useWatch({
-    control,
-    name: 'password',
-  });
-  const strength = [
-    password.length >= 8,
-    /[a-z]/.test(password) && /[A-Z]/.test(password),
-    /\d/.test(password),
-    /[^A-Za-z0-9]/.test(password),
-  ].filter(Boolean).length;
-
-  const submit = handleSubmit(async (values) => {
-    setRequestError(null);
-
-    try {
-      const lastName = values.lastName.trim();
-      const message = await registerRequest({
-        firstName: values.firstName.trim(),
-        ...(lastName ? { lastName } : {}),
-        displayName: values.displayName.trim(),
-        email: values.email,
-        password: values.password,
-      });
-
-      onRegistered(values.email, message);
-    } catch (error) {
-      setRequestError(readErrorMessage(error));
-    }
-  });
-
-  return (
-    <form className='space-y-4' onSubmit={submit} noValidate>
-      <AuthenticationStatus message={requestError} />
-
-      <div className='grid gap-4 sm:grid-cols-2'>
-        <label className='block'>
-          <span className='mb-2 block text-[11px] font-bold tracking-[0.14em] text-white/48'>
-            FIRST NAME
-          </span>
-          <input
-            {...register('firstName')}
-            className={fieldClassName}
-            autoComplete='given-name'
-            placeholder='John'
-          />
-          <FieldError message={errors.firstName?.message} />
-        </label>
-
-        <label className='block'>
-          <span className='mb-2 block text-[11px] font-bold tracking-[0.14em] text-white/48'>
-            LAST NAME
-          </span>
-          <input
-            {...register('lastName')}
-            className={fieldClassName}
-            autoComplete='family-name'
-            placeholder='Smith'
-          />
-          <FieldError message={errors.lastName?.message} />
-        </label>
-      </div>
-      <label className='block'>
-        <span className='mb-2 block text-[11px] font-bold tracking-[0.14em] text-white/48'>
-          DISPLAY NAME
-        </span>
-        <input
-          {...register('displayName')}
-          className={fieldClassName}
-          autoComplete='nickname'
-          placeholder='AuctionJohn'
-        />
-        <FieldError message={errors.displayName?.message} />
-      </label>
-      <label className='block'>
-        <span className='mb-2 block text-[11px] font-bold tracking-[0.14em] text-white/48'>
-          EMAIL ADDRESS
-        </span>
-        <input
-          {...register('email')}
-          className={fieldClassName}
-          type='email'
-          inputMode='email'
-          autoComplete='email'
-          placeholder='you@example.com'
-        />
-        <FieldError message={errors.email?.message} />
-      </label>
-
-      <PasswordField
-        autoComplete='new-password'
-        error={errors.password?.message}
-        label='PASSWORD'
-        registration={register('password')}
-      />
-
-      <div
-        className='-mt-1 grid grid-cols-4 gap-1.5'
-        aria-label='Password strength'
-      >
-        {[1, 2, 3, 4].map((level) => (
-          <span
-            key={level}
-            className={cn(
-              'h-1 rounded-full transition',
-              strength >= level
-                ? strength <= 1
-                  ? 'bg-danger'
-                  : strength <= 3
-                    ? 'bg-primary'
-                    : 'bg-success'
-                : 'bg-white/8',
-            )}
-          />
-        ))}
-      </div>
-
-      <PasswordField
-        autoComplete='new-password'
-        error={errors.confirmPassword?.message}
-        label='CONFIRM PASSWORD'
-        registration={register('confirmPassword')}
-      />
-
-      <button
-        type='submit'
-        disabled={isSubmitting}
-        className='h-12 w-full rounded-xl bg-primary text-sm font-extrabold text-[#041216] shadow-[0_0_28px_rgba(0,229,255,0.18)] transition hover:bg-[#42edff] disabled:cursor-wait disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
-      >
-        {isSubmitting ? 'Creating account…' : 'Create Account'}
-      </button>
-    </form>
-  );
-}
 
 function AuthenticatedRedirect() {
   const router = useRouter();
@@ -393,52 +28,18 @@ function AuthenticatedRedirect() {
     router.replace('/');
   }, [router]);
 
-  return (
-    <main className='grid min-h-svh place-items-center bg-background px-5'>
-      <div className='flex flex-col items-center gap-5 text-center'>
-        <CBeaveLogo />
-        <div className='size-7 animate-spin rounded-full border-2 border-white/10 border-t-primary' />
-        <p className='text-sm text-muted'>Opening the marketplace…</p>
-      </div>
-    </main>
-  );
+  return <AuthLoadingScreen message='Opening the marketplace…' />;
 }
 
-type AuthScreenProps = {
-  oauthError?: string;
-};
-
-// Keyed by the codes apps/api sends back on a failed provider callback. An
-// unknown code still reaches a person, so it falls back to the generic line
-// rather than leaving the screen silent about why sign-in stopped.
-const OAUTH_ERROR_MESSAGES: Record<string, string> = {
-  facebook_cancelled:
-    'Facebook login was cancelled. No account changes were made.',
-  account_suspended: SUSPENDED_ACCOUNT_MESSAGE,
-  email_in_use:
-    'This email already belongs to a CBeave account. Sign in the way you did the first time.',
-  social_failed: 'Sign-in could not be completed. Please try again.',
-};
-
-export function AuthScreen({ oauthError }: AuthScreenProps) {
+export function AuthScreen({ oauthError }: { oauthError?: string }) {
   const { status } = useAuth();
   const [mode, setMode] = useState<AuthMode>('login');
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const oauthErrorMessage = oauthError
-    ? (OAUTH_ERROR_MESSAGES[oauthError] ?? OAUTH_ERROR_MESSAGES.social_failed)
-    : null;
+  const oauthErrorMessage = readOauthErrorMessage(oauthError);
 
   if (status === 'loading') {
-    return (
-      <main className='grid min-h-svh place-items-center bg-background px-5'>
-        <div className='flex flex-col items-center gap-5 text-center'>
-          <CBeaveLogo />
-          <div className='size-7 animate-spin rounded-full border-2 border-white/10 border-t-primary' />
-          <p className='text-sm text-muted'>Restoring your secure session…</p>
-        </div>
-      </main>
-    );
+    return <AuthLoadingScreen message='Restoring your secure session…' />;
   }
 
   if (status === 'authenticated') {
@@ -455,7 +56,7 @@ export function AuthScreen({ oauthError }: AuthScreenProps) {
 
         <section className='w-full rounded-[1.7rem] border border-border bg-surface/92 p-5 shadow-[0_28px_90px_rgba(0,0,0,0.45)] backdrop-blur-xl sm:p-8'>
           <div className='grid grid-cols-2 rounded-xl bg-[#0b0b10] p-1'>
-            {(['login', 'register'] as const).map((tab) => {
+            {AUTH_MODES.map((tab) => {
               const isActive = tab === mode;
 
               return (
@@ -474,7 +75,7 @@ export function AuthScreen({ oauthError }: AuthScreenProps) {
                   )}
                   aria-pressed={isActive}
                 >
-                  {tab === 'login' ? 'Log In' : 'Register'}
+                  {MODE_LABELS[tab]}
                 </button>
               );
             })}
@@ -492,17 +93,11 @@ export function AuthScreen({ oauthError }: AuthScreenProps) {
           </header>
 
           {mode === 'login' ? (
-            <>
-              <>
-                <AuthenticationStatus message={oauthErrorMessage} />
-                {oauthErrorMessage && <div className='h-4' />}
-
-                <AuthenticationStatus message={successMessage} tone='success' />
-                {successMessage && <div className='h-4' />}
-
-                <LoginForm />
-              </>
-            </>
+            <div className='space-y-4'>
+              <AuthenticationStatus message={oauthErrorMessage} />
+              <AuthenticationStatus message={successMessage} tone='success' />
+              <LoginForm />
+            </div>
           ) : (
             <RegisterForm
               onRegistered={(email, message) => {

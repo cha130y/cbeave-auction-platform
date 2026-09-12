@@ -1,6 +1,10 @@
 'use client';
 
 import {
+  paddedFieldClassName,
+  textareaClassName,
+} from '@/components/ui/field-styles';
+import {
   useCreateAdminCategory,
   useUpdateAdminCategory,
 } from '@/features/admin/categories/queries/admin-category.queries';
@@ -21,9 +25,6 @@ type AdminCategoryFormProps = {
   onCancel: () => void;
   onSuccess: () => void;
 };
-
-const fieldClassName =
-  'w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground outline-none transition placeholder:text-muted/50 focus:border-primary/70 focus:ring-3 focus:ring-primary/10';
 
 export function AdminCategoryForm({
   category,
@@ -97,7 +98,7 @@ export function AdminCategoryForm({
           <input
             {...register('name')}
             autoFocus
-            className={fieldClassName}
+            className={paddedFieldClassName}
             placeholder='Bikes and Bicycles'
           />
 
@@ -114,7 +115,7 @@ export function AdminCategoryForm({
               Parent category
             </span>
 
-            <select {...register('parentId')} className={fieldClassName}>
+            <select {...register('parentId')} className={paddedFieldClassName}>
               <option value=''>No parent — create a root category</option>
 
               {rootCategories.map((rootCategory) => (
@@ -141,7 +142,7 @@ export function AdminCategoryForm({
         <textarea
           {...register('description')}
           rows={4}
-          className={`${fieldClassName} resize-y`}
+          className={textareaClassName}
           placeholder='Describe the auctions that belong in this category.'
         />
 

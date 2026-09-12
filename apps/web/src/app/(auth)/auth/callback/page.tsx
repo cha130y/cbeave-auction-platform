@@ -1,6 +1,7 @@
 'use client';
 
 import { CBeaveLogo } from '@/components/brand/cbeave-logo';
+import { AuthSpinner } from '@/features/auth/components/auth-loading-screen';
 import { useAuth } from '@/features/auth/use-auth';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -52,7 +53,7 @@ export default function SocialAuthenticationCallbackPage() {
           </>
         ) : (
           <>
-            <div className='mx-auto mt-8 size-7 animate-spin rounded-full border-2 border-white/10 border-t-primary' />
+            <AuthSpinner className='mx-auto mt-8' />
             <h1 className='mt-5 text-xl font-extrabold'>
               Completing secure sign-in
             </h1>

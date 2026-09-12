@@ -7,6 +7,7 @@ import { AuthService } from './auth.service';
 import { UserRole } from '../generated/prisma/enums';
 import { LoginDto } from './dto/login.dto';
 import type { SocialAuthenticatedRequest } from './social/types/social-authenticated-request.type';
+import { RefreshTokenCookieService } from './services/refresh-token-cookie.service';
 
 describe('AuthController refresh token cookie', () => {
   let authController: AuthController;
@@ -70,6 +71,7 @@ describe('AuthController refresh token cookie', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
       providers: [
+        RefreshTokenCookieService,
         {
           provide: AuthService,
           useValue: {
@@ -213,6 +215,7 @@ describe('AuthController social callback failures', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
       providers: [
+        RefreshTokenCookieService,
         {
           provide: AuthService,
           useValue: {

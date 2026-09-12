@@ -16,7 +16,11 @@ import {
   HttpStatus,
   Query,
 } from '@nestjs/common';
-import { AuctionsService } from './auctions.service';
+import { AuctionCatalogService } from './services/auction-catalog.service';
+import { AuctionDraftService } from './services/auction-draft.service';
+import { AuctionImageService } from './services/auction-image.service';
+import { AuctionPublishingService } from './services/auction-publishing.service';
+import { OwnedAuctionService } from './services/owned-auction.service';
 import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -46,13 +50,19 @@ import { CancelOwnedAuctionResponseDto } from './dto/cancel-owned-auction-respon
 
 @Controller('auctions')
 export class AuctionsController {
-  constructor(private readonly auctionsService: AuctionsService) {}
+  constructor(
+    private readonly auctionCatalogService: AuctionCatalogService,
+    private readonly auctionDraftService: AuctionDraftService,
+    private readonly auctionImageService: AuctionImageService,
+    private readonly auctionPublishingService: AuctionPublishingService,
+    private readonly ownedAuctionService: OwnedAuctionService,
+  ) {}
 
   @Get()
   listPublic(
     @Query() query: ListPublicAuctionsQueryDto,
   ): Promise<ListPublicAuctionsResponseDto> {
-    return this.auctionsService.listPublic(query);
+    return this.auctionCatalogService.listPublic(query);
   }
 
   // Keep this static route before the dynamic ':auctionId' route.
@@ -60,7 +70,7 @@ export class AuctionsController {
   listHot(
     @Query() query: ListHotAuctionsQueryDto,
   ): Promise<ListHotAuctionsResponseDto> {
-    return this.auctionsService.listHot({
+    return this.auctionCatalogService.listHot({
       limit: query.limit,
     });
   }
@@ -72,7 +82,7 @@ export class AuctionsController {
     @CurrentUser() currentUser: AccessTokenPayload,
     @Query() query: ListOwnedAuctionsQueryDto,
   ): Promise<ListOwnedAuctionsResponseDto> {
-    return this.auctionsService.listOwned({
+    return this.ownedAuctionService.listOwned({
       sellerId: currentUser.sub,
       cursor: query.cursor,
       limit: query.limit,
@@ -85,7 +95,7 @@ export class AuctionsController {
     @Param('auctionId', new ParseUUIDPipe({ version: '4' }))
     auctionId: string,
   ): Promise<PublicAuctionDetailResponseDto> {
-    return this.auctionsService.findPublicById(auctionId);
+    return this.auctionCatalogService.findPublicById(auctionId);
   }
 
   @Get(':auctionId/draft')
@@ -96,7 +106,10 @@ export class AuctionsController {
     auctionId: string,
     @CurrentUser() currentUser: AccessTokenPayload,
   ): Promise<AuctionDraftResponseDto> {
-    return this.auctionsService.findOwnedDraftById(auctionId, currentUser.sub);
+    return this.auctionDraftService.findOwnedDraftById(
+      auctionId,
+      currentUser.sub,
+    );
   }
 
   @Patch(':auctionId/draft')
@@ -108,7 +121,7 @@ export class AuctionsController {
     @CurrentUser() currentUser: AccessTokenPayload,
     @Body() updateAuctionDraftDto: UpdateAuctionDraftDto,
   ): Promise<AuctionDraftResponseDto> {
-    return this.auctionsService.updateOwnedDraft({
+    return this.auctionDraftService.updateOwnedDraft({
       ...updateAuctionDraftDto,
       auctionId,
       sellerId: currentUser.sub,
@@ -124,7 +137,7 @@ export class AuctionsController {
     auctionId: string,
     @CurrentUser() currentUser: AccessTokenPayload,
   ): Promise<void> {
-    return this.auctionsService.deleteOwnedDraft({
+    return this.auctionDraftService.deleteOwnedDraft({
       auctionId,
       sellerId: currentUser.sub,
     });
@@ -139,7 +152,7 @@ export class AuctionsController {
     @CurrentUser() currentUser: AccessTokenPayload,
     @Body() body: CancelOwnedAuctionDto,
   ): Promise<CancelOwnedAuctionResponseDto> {
-    return this.auctionsService.cancelOwnedScheduled({
+    return this.ownedAuctionService.cancelOwnedScheduled({
       auctionId,
       sellerId: currentUser.sub,
       reason: body.reason,
@@ -153,7 +166,7 @@ export class AuctionsController {
     @CurrentUser() currentUser: AccessTokenPayload,
     @Body() createAuctionDraftDto: CreateAuctionDraftDto,
   ): Promise<AuctionDraftResponseDto> {
-    return this.auctionsService.createDraft({
+    return this.auctionDraftService.createDraft({
       ...createAuctionDraftDto,
       sellerId: currentUser.sub,
     });
@@ -188,7 +201,7 @@ export class AuctionsController {
     )
     image: Express.Multer.File,
   ): Promise<AuctionImageResponseDto> {
-    return this.auctionsService.addImage({
+    return this.auctionImageService.addImage({
       auctionId,
       sellerId: currentUser.sub,
       fileBuffer: image.buffer,
@@ -205,7 +218,7 @@ export class AuctionsController {
     auctionId: string,
     @CurrentUser() currentUser: AccessTokenPayload,
   ): Promise<PublishAuctionResponseDto> {
-    return this.auctionsService.publish({
+    return this.auctionPublishingService.publish({
       auctionId,
       sellerId: currentUser.sub,
     });
@@ -222,7 +235,7 @@ export class AuctionsController {
     imageId: string,
     @CurrentUser() currentUser: AccessTokenPayload,
   ): Promise<void> {
-    return this.auctionsService.deleteImage({
+    return this.auctionImageService.deleteImage({
       auctionId,
       imageId,
       sellerId: currentUser.sub,

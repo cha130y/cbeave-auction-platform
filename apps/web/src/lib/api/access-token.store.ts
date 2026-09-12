@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 let accessToken: string | null = null;
 

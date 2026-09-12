@@ -5,15 +5,15 @@ type ApiErrorPayload = {
 };
 
 function readMessage(payload: ApiErrorPayload | null): string | null {
-  if (typeof payload?.message === "string") {
+  if (typeof payload?.message === 'string') {
     return payload.message;
   }
 
   if (
     Array.isArray(payload?.message) &&
-    payload.message.every((message) => typeof message === "string")
+    payload.message.every((message) => typeof message === 'string')
   ) {
-    return payload.message.join(", ");
+    return payload.message.join(', ');
   }
 
   return null;
@@ -26,7 +26,7 @@ export class ApiError extends Error {
     readonly code: string | null = null,
   ) {
     super(message);
-    this.name = "ApiError";
+    this.name = 'ApiError';
   }
 
   static async fromResponse(response: Response): Promise<ApiError> {
@@ -38,8 +38,8 @@ export class ApiError extends Error {
     const message =
       readMessage(payload) ||
       response.statusText ||
-      "The request could not be completed";
-    const code = typeof payload?.error === "string" ? payload.error : null;
+      'The request could not be completed';
+    const code = typeof payload?.error === 'string' ? payload.error : null;
 
     return new ApiError(response.status, message, code);
   }

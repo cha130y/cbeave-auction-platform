@@ -1,10 +1,7 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 const publicEnvSchema = z.object({
-  NEXT_PUBLIC_API_URL: z
-    .string()
-    .url()
-    .default("http://localhost:3001"),
+  NEXT_PUBLIC_API_URL: z.string().url().default('http://localhost:3001'),
 });
 
 export const publicEnv = publicEnvSchema.parse({
