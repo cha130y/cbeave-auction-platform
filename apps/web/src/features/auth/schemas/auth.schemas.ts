@@ -41,7 +41,6 @@ export const messageResponseSchema = z.object({
 export const loginCredentialsSchema = z.object({
   email: z.string().trim().email('Enter a valid email address'),
   password: z.string().min(1, 'Password is required').max(72),
-  // rememberMe: z.boolean().optional(),
 });
 
 export const registerCredentialsSchema = z
