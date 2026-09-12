@@ -5,6 +5,7 @@ import { HashModule } from '../infrastructure/hash/hash.module';
 import { AuthController } from './auth.controller';
 import { RefreshTokenService } from './services/refresh-token.service';
 import { UserSessionService } from './services/user-session.service';
+import { RefreshTokenCookieService } from './services/refresh-token-cookie.service';
 import { AccessControlModule } from './access-control.module';
 import { PassportModule } from '@nestjs/passport';
 import { GoogleStrategy } from './social/strategies/google.strategy';
@@ -18,6 +19,7 @@ import { FacebookAuthGuard } from './social/guards/facebook-auth.guard';
     AuthService,
     RefreshTokenService,
     UserSessionService,
+    RefreshTokenCookieService,
     GoogleStrategy,
     GoogleAuthGuard,
     OAuthStateService,

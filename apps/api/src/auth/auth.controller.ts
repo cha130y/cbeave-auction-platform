@@ -1,8 +1,6 @@
 import {
   Body,
-  ConflictException,
   Controller,
-  ForbiddenException,
   Get,
   HttpCode,
   HttpStatus,
@@ -25,24 +23,8 @@ import type { SocialAuthenticatedRequest } from './social/types/social-authentic
 import type { LoginResult } from './types/login-result.type';
 import { GoogleAuthGuard } from './social/guards/google-auth.guard';
 import { FacebookAuthGuard } from './social/guards/facebook-auth.guard';
-
-const REFRESH_TOKEN_COOKIE_NAME = 'refresh_token';
-const REFRESH_TOKEN_COOKIE_PATH = '/auth';
-
-// Codes the web sign-in screen knows how to phrase. The provider callbacks are
-// top-level navigations, so anything not turned into one of these is shown to
-// the person as this API's raw JSON error body.
-function resolveSocialErrorCode(error: unknown): string {
-  if (error instanceof ForbiddenException) {
-    return 'account_suspended';
-  }
-
-  if (error instanceof ConflictException) {
-    return 'email_in_use';
-  }
-
-  return 'social_failed';
-}
+import { RefreshTokenCookieService } from './services/refresh-token-cookie.service';
+import { resolveSocialErrorCode } from './social/utils/resolve-social-error-code.util';
 
 @Controller('auth')
 export class AuthController {
@@ -51,44 +33,8 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly configService: ConfigService<EnvVariable, true>,
+    private readonly refreshTokenCookieService: RefreshTokenCookieService,
   ) {}
-
-  private setRefreshTokenCookie(
-    response: Response,
-    refreshToken: string,
-    expiresAt: Date,
-  ): void {
-    const isProduction =
-      this.configService.get('NODE_ENV', { infer: true }) === 'production';
-
-    response.cookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken, {
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: isProduction ? 'none' : 'lax',
-      path: REFRESH_TOKEN_COOKIE_PATH,
-      expires: expiresAt,
-    });
-  }
-
-  private getRefreshToken(request: Request): string | undefined {
-    const cookies = request.cookies as Record<string, unknown> | undefined;
-
-    return typeof cookies?.refresh_token === 'string'
-      ? cookies.refresh_token
-      : undefined;
-  }
-
-  private clearRefreshTokenCookie(response: Response): void {
-    const isProduction =
-      this.configService.get('NODE_ENV', { infer: true }) === 'production';
-
-    response.clearCookie(REFRESH_TOKEN_COOKIE_NAME, {
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: isProduction ? 'none' : 'lax',
-      path: REFRESH_TOKEN_COOKIE_PATH,
-    });
-  }
 
   private async completeSocialLogin(
     request: SocialAuthenticatedRequest,
@@ -116,16 +62,13 @@ export class AuthController {
       return;
     }
 
-    this.setRefreshTokenCookie(
+    this.refreshTokenCookieService.set(
       response,
       result.refreshToken,
       result.refreshTokenExpiresAt,
     );
 
-    const webCallbackUrl = new URL(
-      '/auth/callback',
-      this.configService.get('WEB_APP_URL', { infer: true }),
-    );
+    const webCallbackUrl = this.createWebAppUrl('/auth/callback');
 
     webCallbackUrl.searchParams.set('provider', provider);
 
@@ -133,14 +76,18 @@ export class AuthController {
   }
 
   private redirectToAuthScreen(response: Response, oauthError: string): void {
-    const webAuthUrl = new URL(
-      '/auth',
-      this.configService.get('WEB_APP_URL', { infer: true }),
-    );
+    const webAuthUrl = this.createWebAppUrl('/auth');
 
     webAuthUrl.searchParams.set('oauthError', oauthError);
 
     response.redirect(webAuthUrl.toString());
+  }
+
+  private createWebAppUrl(path: string): URL {
+    return new URL(
+      path,
+      this.configService.get('WEB_APP_URL', { infer: true }),
+    );
   }
 
   @Post('register')
@@ -157,14 +104,13 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async login(
     @Body() loginDto: LoginDto,
-    //HTTP response access
-    //passthrough : modify headers or cookies ; ex ==> response.cookie(...);
-    //Response is the Express response object. It is needed to add the refresh-token cookie
+    // passthrough keeps Nest serialising the returned body while the Express
+    // response is still available for the refresh-token cookie.
     @Res({ passthrough: true }) response: Response,
   ): Promise<LoginResponseDto> {
     const result = await this.authService.login(loginDto);
 
-    this.setRefreshTokenCookie(
+    this.refreshTokenCookieService.set(
       response,
       result.refreshToken,
       result.refreshTokenExpiresAt,
@@ -182,11 +128,11 @@ export class AuthController {
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
   ): Promise<RefreshResponseDto> {
-    const currentRefreshToken = this.getRefreshToken(request);
+    const currentRefreshToken = this.refreshTokenCookieService.read(request);
 
     const result = await this.authService.refresh(currentRefreshToken);
 
-    this.setRefreshTokenCookie(
+    this.refreshTokenCookieService.set(
       response,
       result.refreshToken,
       result.refreshTokenExpiresAt,
@@ -203,11 +149,11 @@ export class AuthController {
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
   ): Promise<void> {
-    const currentRefreshToken = this.getRefreshToken(request);
+    const currentRefreshToken = this.refreshTokenCookieService.read(request);
 
     await this.authService.logout(currentRefreshToken);
 
-    this.clearRefreshTokenCookie(response);
+    this.refreshTokenCookieService.clear(response);
   }
 
   @Get('google')
