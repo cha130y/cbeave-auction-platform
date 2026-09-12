@@ -1,5 +1,10 @@
 'use client';
 
+import {
+  dangerTextareaClassName,
+  textareaClassName,
+} from '@/components/ui/field-styles';
+import { readErrorMessage } from '@/lib/api/error-message';
 import type { ReactNode, SubmitEventHandler } from 'react';
 import type { UseFormRegisterReturn } from 'react-hook-form';
 
@@ -14,14 +19,12 @@ const accentClassNames: Record<
   danger: {
     form: 'rounded-2xl border border-danger/30 bg-danger/5 p-5 sm:p-6',
     eyebrow: 'text-xs font-black tracking-wider text-danger uppercase',
-    textarea:
-      'w-full resize-y rounded-xl border border-border bg-background px-4 py-3 text-foreground outline-none transition placeholder:text-muted/50 focus:border-danger/70 focus:ring-3 focus:ring-danger/10',
+    textarea: dangerTextareaClassName,
   },
   primary: {
     form: 'rounded-2xl border border-primary/30 bg-primary/5 p-5 sm:p-6',
     eyebrow: 'text-xs font-black tracking-wider text-primary uppercase',
-    textarea:
-      'w-full resize-y rounded-xl border border-border bg-background px-4 py-3 text-foreground outline-none transition placeholder:text-muted/50 focus:border-primary/70 focus:ring-3 focus:ring-primary/10',
+    textarea: textareaClassName,
   },
 };
 
@@ -33,9 +36,7 @@ export function readMutationError(
     return null;
   }
 
-  return mutation.error instanceof Error
-    ? mutation.error.message
-    : fallbackMessage;
+  return readErrorMessage(mutation.error, fallbackMessage);
 }
 
 type AdminAuditFormProps = {

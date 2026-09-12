@@ -1,27 +1,21 @@
 'use client';
 
+import { cn } from '@/lib/utils/cn';
+import {
+  fieldClassName,
+  textareaClassName,
+} from '@/components/ui/field-styles';
+import { readErrorMessage } from '@/lib/api/error-message';
 import {
   auctionDraftFormSchema,
   type AuctionDraftFormValues,
 } from '@/features/auctions/schemas/auction-draft.schemas';
 import { useActiveCategories } from '@/features/categories/queries/category.queries';
-import { ApiError } from '@/lib/api/api-error';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState, useSyncExternalStore } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 
-const fieldClassName =
-  'h-12 w-full rounded-xl border border-border bg-background px-4 text-foreground outline-none transition placeholder:text-muted/50 focus:border-primary/70 focus:ring-3 focus:ring-primary/10';
-
 const dateTimeFieldClassName = `${fieldClassName} scheme-dark`;
-
-function readErrorMessage(error: unknown): string {
-  if (error instanceof ApiError || error instanceof Error) {
-    return error.message;
-  }
-
-  return 'The auction draft could not be saved. Please try again.';
-}
 
 const pad = (value: number) => String(value).padStart(2, '0');
 
@@ -151,7 +145,12 @@ export function AuctionDraftForm({
     try {
       await onSubmit(values);
     } catch (error) {
-      setRequestError(readErrorMessage(error));
+      setRequestError(
+        readErrorMessage(
+          error,
+          'The auction draft could not be saved. Please try again.',
+        ),
+      );
     }
   });
 
@@ -238,7 +237,7 @@ export function AuctionDraftForm({
 
           <textarea
             {...register('description')}
-            className='min-h-36 w-full resize-y rounded-xl border border-border bg-background px-4 py-3 text-foreground outline-none transition placeholder:text-muted/50 focus:border-primary/70 focus:ring-3 focus:ring-primary/10'
+            className={cn(textareaClassName, 'min-h-36')}
             placeholder='Describe the item, its condition, and important details.'
           />
 

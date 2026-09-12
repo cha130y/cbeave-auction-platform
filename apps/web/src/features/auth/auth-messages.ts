@@ -1,4 +1,4 @@
-import { ApiError } from '@/lib/api/api-error';
+import { readErrorMessage } from '@/lib/api/error-message';
 
 export const SUSPENDED_ACCOUNT_MESSAGE =
   'This account has been suspended, so it cannot be used to sign in. Contact an administrator if you think this is a mistake.';
@@ -24,11 +24,12 @@ const OAUTH_ERROR_MESSAGES: Record<string, string> = {
 };
 
 export function readAuthErrorMessage(error: unknown): string {
-  if (error instanceof ApiError || error instanceof Error) {
-    return API_MESSAGE_OVERRIDES[error.message] ?? error.message;
-  }
+  const message = readErrorMessage(
+    error,
+    'Something went wrong. Please try again.',
+  );
 
-  return 'Something went wrong. Please try again.';
+  return API_MESSAGE_OVERRIDES[message] ?? message;
 }
 
 export function readOauthErrorMessage(oauthError: string | undefined) {

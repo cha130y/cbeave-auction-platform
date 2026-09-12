@@ -1,5 +1,8 @@
 'use client';
 
+import { cn } from '@/lib/utils/cn';
+import { fieldClassName } from '@/components/ui/field-styles';
+import { readErrorMessage } from '@/lib/api/error-message';
 import type { PublicAuctionDetail } from '@/features/auctions/schemas/auction.schemas';
 import { useAuth } from '@/features/auth/use-auth';
 import { usePlaceBid } from '@/features/bidding/queries/bidding.queries';
@@ -22,14 +25,6 @@ type PlaceBidFormProps = {
   minimumNextBid?: string;
   canBid?: boolean;
 };
-
-function readErrorMessage(error: unknown): string {
-  if (error instanceof Error) {
-    return error.message;
-  }
-
-  return 'Your bid could not be placed. Please try again.';
-}
 
 function BidGateNotice({
   title,
@@ -92,7 +87,12 @@ export function PlaceBidForm({
         amount: '',
       });
     } catch (error) {
-      setRequestError(readErrorMessage(error));
+      setRequestError(
+        readErrorMessage(
+          error,
+          'Your bid could not be placed. Please try again.',
+        ),
+      );
     }
   });
 
@@ -212,7 +212,7 @@ export function PlaceBidForm({
             type='text'
             inputMode='decimal'
             placeholder={minimumBid}
-            className='h-12 w-full rounded-xl border border-border bg-background px-4 font-mono text-foreground outline-none transition placeholder:text-muted/50 focus:border-primary/70 focus:ring-3 focus:ring-primary/10'
+            className={cn(fieldClassName, 'font-mono')}
             aria-invalid={Boolean(errors.amount)}
             {...register('amount')}
           />

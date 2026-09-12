@@ -1,4 +1,10 @@
 'use client';
+
+import {
+  fieldClassName,
+  textareaClassName,
+} from '@/components/ui/field-styles';
+import { readErrorMessage } from '@/lib/api/error-message';
 import { useRequireAuth } from '@/features/auth/use-require-auth';
 import { updateProfile } from '@/features/profile/api/profile.api';
 import { ProfileAvatarForm } from '@/features/profile/components/profile-avatar-form';
@@ -6,26 +12,15 @@ import {
   profileFormSchema,
   ProfileFormValues,
 } from '@/features/profile/schemas/profile.schemas';
-import { ApiError } from '@/lib/api/api-error';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-
-const fieldClassName =
-  'h-12 w-full rounded-xl border border-border bg-background px-4 text-foreground outline-none transition placeholder:text-muted/50 focus:border-primary/70 focus:ring-3 focus:ring-primary/10';
 
 //The backend uses null to represent an optional profile value
 function optionalValue(value: string): string | null {
   const trimmedValue = value.trim();
 
   return trimmedValue.length > 0 ? trimmedValue : null;
-}
-
-function readErrorMessage(error: unknown): string {
-  if (error instanceof ApiError || error instanceof Error) {
-    return error.message;
-  }
-  return 'Your profile could not be updated. Please try again.';
 }
 
 export function ProfileScreen() {
@@ -85,7 +80,12 @@ export function ProfileScreen() {
       await refreshUser();
       setSuccessMessage('Your profile has been updated.');
     } catch (error) {
-      setRequestError(readErrorMessage(error));
+      setRequestError(
+        readErrorMessage(
+          error,
+          'Your profile could not be updated. Please try again.',
+        ),
+      );
     }
   });
 
@@ -199,7 +199,7 @@ export function ProfileScreen() {
             <textarea
               {...register('bio')}
               rows={5}
-              className='w-full resize-y rounded-xl border border-border bg-background px-4 py-3 text-foreground outline-none transition placeholder:text-muted/50 focus:border-primary/70 focus:ring-3 focus:ring-primary/10'
+              className={textareaClassName}
               placeholder='Tell buyers and sellers a little about yourself.'
             />
             {errors.bio && (

@@ -1,5 +1,6 @@
 'use client';
 
+import { filterControlClassName } from '@/components/ui/field-styles';
 import { AdminGateSkeleton } from '@/features/admin/components/admin-gate-skeleton';
 import { AdminAuctionCancellationForm } from '@/features/admin/auctions/components/admin-auction-cancellation-form';
 import { useInfiniteAdminAuctions } from '@/features/admin/auctions/queries/admin-auction.queries';
@@ -94,7 +95,7 @@ export function AdminAuctionsScreen() {
 
           <select
             value={statusFilter}
-            className='h-11 w-full rounded-xl border border-border bg-surface px-4 text-sm text-foreground outline-none transition focus:border-primary/70'
+            className={filterControlClassName}
             onChange={(event) => {
               setStatusFilter(event.target.value as StatusFilter);
               setSelectedAuction(null);

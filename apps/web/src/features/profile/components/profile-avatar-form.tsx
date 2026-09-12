@@ -1,8 +1,9 @@
 'use client';
 
+import { readErrorMessage } from '@/lib/api/error-message';
+
 import { useAuth } from '@/features/auth/use-auth';
 import { updateProfileAvatar } from '@/features/profile/api/profile.api';
-import { ApiError } from '@/lib/api/api-error';
 import Image from 'next/image';
 import { useRef, useState, type ChangeEvent, type SubmitEvent } from 'react';
 
@@ -23,14 +24,6 @@ function createInitials(displayName: string): string {
     .map((word) => word[0])
     .join('')
     .toUpperCase();
-}
-
-function readErrorMessage(error: unknown): string {
-  if (error instanceof ApiError || error instanceof Error) {
-    return error.message;
-  }
-
-  return 'Your avatar could not be updated. Please try again.';
 }
 
 export function ProfileAvatarForm() {
@@ -96,7 +89,12 @@ export function ProfileAvatarForm() {
         inputRef.current.value = '';
       }
     } catch (error) {
-      setRequestError(readErrorMessage(error));
+      setRequestError(
+        readErrorMessage(
+          error,
+          'Your avatar could not be updated. Please try again.',
+        ),
+      );
     } finally {
       setIsUploading(false);
     }

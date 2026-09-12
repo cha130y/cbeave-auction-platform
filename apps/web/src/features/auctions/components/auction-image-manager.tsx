@@ -1,5 +1,7 @@
 'use client';
 
+import { readErrorMessage } from '@/lib/api/error-message';
+
 import {
   addAuctionImage,
   deleteAuctionImage,
@@ -18,14 +20,6 @@ type AuctionImageManagerProps = {
   auctionId: string;
   images: AuctionDraftImage[];
 };
-
-function readErrorMessage(error: unknown): string {
-  if (error instanceof Error) {
-    return error.message;
-  }
-
-  return 'The image request could not be completed.';
-}
 
 export function AuctionImageManager({
   auctionId,
@@ -77,7 +71,9 @@ export function AuctionImageManager({
       form.reset();
       await refreshDraft();
     } catch (error) {
-      setRequestError(readErrorMessage(error));
+      setRequestError(
+        readErrorMessage(error, 'The image request could not be completed.'),
+      );
     } finally {
       setIsUploading(false);
     }
@@ -103,7 +99,9 @@ export function AuctionImageManager({
 
       await refreshDraft();
     } catch (error) {
-      setRequestError(readErrorMessage(error));
+      setRequestError(
+        readErrorMessage(error, 'The image request could not be completed.'),
+      );
     } finally {
       setDeletingImageId(null);
     }
