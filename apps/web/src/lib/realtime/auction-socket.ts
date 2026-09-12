@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { getAccessToken } from "@/lib/api/access-token.store";
-import { apiBaseUrl } from "@/lib/api/api-client";
-import { io, type Socket } from "socket.io-client";
+import { getAccessToken } from '@/lib/api/access-token.store';
+import { apiBaseUrl } from '@/lib/api/api-client';
+import { io, type Socket } from 'socket.io-client';
 
 let auctionSocket: Socket | null = null;
 
@@ -14,7 +14,7 @@ export function getAuctionSocket(): Socket {
       });
     },
     autoConnect: false,
-    transports: ["websocket"],
+    transports: ['websocket'],
     withCredentials: true,
   });
 

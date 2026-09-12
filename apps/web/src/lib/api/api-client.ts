@@ -1,13 +1,10 @@
-"use client";
+'use client';
 
-import { publicEnv } from "@/config/public-env";
-import {
-  getAccessToken,
-  setAccessToken,
-} from "./access-token.store";
-import { ApiError } from "./api-error";
+import { publicEnv } from '@/config/public-env';
+import { getAccessToken, setAccessToken } from './access-token.store';
+import { ApiError } from './api-error';
 
-export const apiBaseUrl = publicEnv.NEXT_PUBLIC_API_URL.replace(/\/+$/, "");
+export const apiBaseUrl = publicEnv.NEXT_PUBLIC_API_URL.replace(/\/+$/, '');
 
 type ApiRequestInit = RequestInit & {
   retryUnauthorized?: boolean;
@@ -20,30 +17,30 @@ type RefreshResponse = {
 let refreshRequest: Promise<string> | null = null;
 
 function createUrl(path: string): string {
-  return `${apiBaseUrl}/${path.replace(/^\/+/, "")}`;
+  return `${apiBaseUrl}/${path.replace(/^\/+/, '')}`;
 }
 
 function createHeaders(init: RequestInit): Headers {
   const headers = new Headers(init.headers);
   const token = getAccessToken();
   const isFormData =
-    typeof FormData !== "undefined" && init.body instanceof FormData;
+    typeof FormData !== 'undefined' && init.body instanceof FormData;
 
-  if (init.body && !isFormData && !headers.has("Content-Type")) {
-    headers.set("Content-Type", "application/json");
+  if (init.body && !isFormData && !headers.has('Content-Type')) {
+    headers.set('Content-Type', 'application/json');
   }
 
-  if (token && !headers.has("Authorization")) {
-    headers.set("Authorization", `Bearer ${token}`);
+  if (token && !headers.has('Authorization')) {
+    headers.set('Authorization', `Bearer ${token}`);
   }
 
   return headers;
 }
 
 async function requestAccessTokenRefresh(): Promise<string> {
-  const response = await fetch(createUrl("/auth/refresh"), {
-    credentials: "include",
-    method: "POST",
+  const response = await fetch(createUrl('/auth/refresh'), {
+    credentials: 'include',
+    method: 'POST',
   });
 
   if (!response.ok) {
@@ -53,9 +50,9 @@ async function requestAccessTokenRefresh(): Promise<string> {
 
   const payload = (await response.json()) as RefreshResponse;
 
-  if (typeof payload.accessToken !== "string" || !payload.accessToken) {
+  if (typeof payload.accessToken !== 'string' || !payload.accessToken) {
     setAccessToken(null);
-    throw new ApiError(502, "The API returned an invalid refresh response");
+    throw new ApiError(502, 'The API returned an invalid refresh response');
   }
 
   setAccessToken(payload.accessToken);
@@ -79,8 +76,8 @@ export async function apiRequest<T>(
   const executeRequest = (): Promise<Response> =>
     fetch(createUrl(path), {
       ...requestInit,
-      cache: requestInit.cache ?? "no-store",
-      credentials: "include",
+      cache: requestInit.cache ?? 'no-store',
+      credentials: 'include',
       headers: createHeaders(requestInit),
     });
 

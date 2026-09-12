@@ -157,7 +157,9 @@ export function useAuctionLobby(
 
     const handleConnectionError = () => {
       setConnectionStatus('error');
-      setErrorMessage('The Live Arena is reconnecting. No refresh is required.');
+      setErrorMessage(
+        'The Live Arena is reconnecting. No refresh is required.',
+      );
     };
 
     const handleDisconnect = () => {

@@ -16,9 +16,7 @@ type EditAuctionScreenProps = {
   auctionId: string;
 };
 
-export function EditAuctionScreen({
-  auctionId,
-}: EditAuctionScreenProps) {
+export function EditAuctionScreen({ auctionId }: EditAuctionScreenProps) {
   const router = useRouter();
   const { status } = useRequireAuth();
 
