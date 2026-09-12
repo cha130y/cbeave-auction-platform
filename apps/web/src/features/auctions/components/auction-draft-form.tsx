@@ -7,8 +7,8 @@ import {
 import { useActiveCategories } from '@/features/categories/queries/category.queries';
 import { ApiError } from '@/lib/api/api-error';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useState, useSyncExternalStore } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 
 const fieldClassName =
   'h-12 w-full rounded-xl border border-border bg-background px-4 text-foreground outline-none transition placeholder:text-muted/50 focus:border-primary/70 focus:ring-3 focus:ring-primary/10';
@@ -22,6 +22,50 @@ function readErrorMessage(error: unknown): string {
 
   return 'The auction draft could not be saved. Please try again.';
 }
+
+const pad = (value: number) => String(value).padStart(2, '0');
+
+/**
+ * A `datetime-local` input expects `YYYY-MM-DDTHH:mm` in local time. Reading
+ * the parts off the date directly keeps the timezone offset from shifting it.
+ */
+function formatDateTimeLocal(date: Date): string {
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+// The strings are fixed-width and zero-padded, so comparing them as text
+// compares the instants they name.
+const earliest = (a: string, b: string) => (!a ? b : !b ? a : a < b ? a : b);
+const latest = (a: string, b: string) => (!a ? b : !b ? a : a > b ? a : b);
+
+/**
+ * `min` is inclusive, so the earliest minute the end may sit on is the one
+ * after the start rather than the start itself.
+ */
+function nextMinute(local: string): string {
+  if (!local) {
+    return '';
+  }
+
+  const date = new Date(local);
+
+  if (Number.isNaN(date.getTime())) {
+    return '';
+  }
+
+  date.setMinutes(date.getMinutes() + 1);
+
+  return formatDateTimeLocal(date);
+}
+
+/**
+ * "Now", to the minute. Reading the clock during the server pass would bake a
+ * different instant into the HTML than hydration computes, so the server
+ * renders no bound at all and the client fills one in afterwards.
+ */
+const subscribeToClock = () => () => {};
+const readMinuteNow = () => formatDateTimeLocal(new Date());
+const readNoMinute = () => '';
 
 type AuctionDraftFormProps = {
   defaultValues: AuctionDraftFormValues;
@@ -48,6 +92,7 @@ export function AuctionDraftForm({
   const [requestError, setRequestError] = useState<string | null>(null);
 
   const {
+    control,
     formState: { errors, isSubmitting },
     handleSubmit,
     register,
@@ -55,6 +100,39 @@ export function AuctionDraftForm({
     defaultValues,
     resolver: zodResolver(auctionDraftFormSchema),
   });
+
+  const now = useSyncExternalStore(
+    subscribeToClock,
+    readMinuteNow,
+    readNoMinute,
+  );
+
+  const scheduledStartAt = useWatch({
+    control,
+    name: 'scheduledStartAt',
+  });
+
+  const scheduledEndAt = useWatch({
+    control,
+    name: 'scheduledEndAt',
+  });
+
+  /**
+   * A schedule pointing into the past is a slip, so the picker greys it out.
+   * A draft saved earlier is the exception: its schedule may already have gone
+   * by, and clamping to now would mark the prefilled value out of range. The
+   * floor therefore drops only for a value that is still the one that loaded.
+   */
+  const startMin =
+    scheduledStartAt === defaultValues.scheduledStartAt
+      ? earliest(defaultValues.scheduledStartAt, now)
+      : now;
+
+  const endFloor = latest(now, nextMinute(scheduledStartAt));
+  const endMin =
+    scheduledEndAt === defaultValues.scheduledEndAt
+      ? earliest(defaultValues.scheduledEndAt, endFloor)
+      : endFloor;
 
   const categoryOptions = categories.flatMap((category) => [
     {
@@ -243,6 +321,7 @@ export function AuctionDraftForm({
               {...register('scheduledStartAt')}
               className={dateTimeFieldClassName}
               type='datetime-local'
+              min={startMin}
             />
 
             {errors.scheduledStartAt && (
@@ -264,6 +343,7 @@ export function AuctionDraftForm({
               {...register('scheduledEndAt')}
               className={dateTimeFieldClassName}
               type='datetime-local'
+              min={endMin}
             />
 
             {errors.scheduledEndAt && (
