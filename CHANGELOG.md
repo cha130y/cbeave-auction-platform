@@ -76,6 +76,7 @@ The format follows Keep a Changelog principles. Product releases will use semant
 
 ### Changed
 
+- Bounded the seller auction schedule pickers to valid local times by flooring the start at the current minute and the end at the minute after the selected start, while keeping an untouched prefilled draft schedule selectable.
 - Streamlined the web authentication experience with direct marketplace redirects after local or social sign-in, a non-stale authenticated `/auth` transition, and a dismissible account menu with Profile and resilient Sign out actions.
 - Clarified that Guest is an unauthenticated state, while persisted roles are `USER` and `ADMIN`.
 - Clarified that one normal user account can both buy and sell.
