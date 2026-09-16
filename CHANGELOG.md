@@ -2,9 +2,13 @@
 
 All notable repository and product changes are documented here.
 
-The format follows Keep a Changelog principles. Product releases will use semantic versioning once the application is deployable.
+The format follows Keep a Changelog principles. Product releases use semantic versioning.
 
 ## [Unreleased]
+
+## [1.0.0] - 2026-09-16
+
+The first release: the complete Version 1 auction journey, deployed, with every traced requirement verified by an automated acceptance test.
 
 ### Added
 
@@ -112,5 +116,3 @@ The format follows Keep a Changelog principles. Product releases will use semant
 - Required every persisted notification to reference an auction while keeping its bid reference optional.
 - Deferred Buy Now, payments, shipping, messaging, reviews, storefronts, native applications, PWA support, and advanced analytics.
 - Hardened public auction discovery and detail queries to exclude incomplete records that lack required lifecycle timestamps or a primary image.
-
-> This entry records approved documentation and scope changes. It does not claim that application features are already implemented.
