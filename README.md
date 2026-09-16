@@ -84,8 +84,10 @@ DRAFT / SCHEDULED ───────→ CANCELLED
 
 ## Current status
 
-**Backend feature implementation and the Docker development workflow are complete for the current traced scope; frontend implementation is next.**
+**The Version 1 journey is implemented across both applications and is being closed out against its acceptance tests. 31 of the 35 traced requirements are verified; 4 are awaiting a browser end-to-end test.**
 
-The NestJS API now covers identity, profiles, categories, auction management and discovery, transactional bidding, real-time Live Arena events, watchlists, notifications, and focused administration. The PostgreSQL 17 Docker workflow, Prisma schema, committed migration, and database health check have also been manually verified.
+The NestJS API covers identity, profiles, categories, auction management and discovery, transactional bidding, real-time Live Arena events, watchlists, notifications, and focused administration. The Next.js application covers discovery, auction details, the seller flow, the Live Arena, the watchlist, notifications, profiles, and administration, and both are deployed.
 
-The remaining delivery work is centered on the Next.js user interface, REST and Socket.IO integration, automated coverage, and release stabilization. The Version 1 requirements and data model remain frozen for the delivery window; consult the requirements traceability matrix for the current verification state.
+Automated coverage is 334 API unit tests, 13 API end-to-end tests against PostgreSQL, and 139 web tests. Every pull request lints, tests, and builds both applications, validates the development Compose file, and runs the end-to-end suite against a PostgreSQL 17 service with the committed migrations applied.
+
+The four requirements still marked in progress — real-time bid updates, sudden death, the result screen, and the Live Arena polish boundary — have their broadcast and parsing contracts covered; what remains is a browser test that drives two clients through a live auction. The Version 1 requirements and data model remain frozen; consult the requirements traceability matrix for the current state of each requirement.

@@ -48,6 +48,16 @@ The next delivery phase is the frontend:
 
 The weekly plan below remains the approved delivery sequence; this checkpoint records actual progress and does not expand Version 1 scope.
 
+## Implementation checkpoint — September 16, 2026
+
+Every P0 and P1 scope item above is implemented across both applications, deployed, and covered by automated tests, with one exception noted below. The frontend phase from the July checkpoint is complete: the shell, API client, authentication and query state, and every marketplace, seller, Live Arena, engagement, profile, and administration screen are in place and connected to the API over REST and Socket.IO.
+
+Acceptance coverage now stands at 334 API unit tests, 13 API end-to-end tests against PostgreSQL, and 139 web tests. Continuous integration lints, tests, and builds both applications, validates the development Compose file, and runs the end-to-end suite against a PostgreSQL 17 service with the committed migrations applied, so the rules that need a real database — request idempotency, Serializable isolation under simultaneous bids, anti-sniping and its cap, and scheduled completion — are checked on every pull request.
+
+The release blocker still open is the browser end-to-end test named in the P0 list. Four requirements depend on it: real-time bid updates, sudden death, the Live Arena result screen, and the polish boundary. Their server broadcasts and client parsing contracts are covered; what is missing is a test that drives two browser clients through one live auction, which is the Week 3 exit criterion.
+
+This checkpoint records actual progress and does not expand Version 1 scope.
+
 ## Four-week plan
 
 ### Week 1 — Freeze, foundation, and identity

@@ -55,6 +55,11 @@ jobs:
       - name: Build
         run: pnpm build
 
+      # The documented local database workflow is part of the delivery, so a
+      # malformed compose file should fail here rather than on a new machine
+      - name: Validate the development Compose file
+        run: docker compose -f infra/docker/compose.dev.yml config --quiet
+
   e2e:
     name: API end-to-end
     runs-on: ubuntu-latest
