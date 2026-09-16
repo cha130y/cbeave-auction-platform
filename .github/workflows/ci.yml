@@ -61,9 +61,9 @@ jobs:
         run: docker compose -f infra/docker/compose.dev.yml config --quiet
 
   e2e:
-    name: API end-to-end
+    name: End-to-end (API and browser)
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
 
     # The suites boot the whole application against a real database, so they
     # cover what the mocked unit tests cannot: the unique client_request_id
@@ -129,5 +129,26 @@ jobs:
       - name: Apply migrations
         run: pnpm --dir apps/api exec prisma migrate deploy
 
-      - name: Run end-to-end tests
+      - name: Run API end-to-end tests
         run: pnpm --dir apps/api test:e2e
+
+      # The browser suite drives the built web app against the built API, so
+      # both are built here rather than started in development mode
+      - name: Build both applications
+        run: pnpm build
+
+      - name: Install the Playwright browser
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run browser end-to-end tests
+        run: pnpm exec playwright test --config tests/e2e/playwright.config.ts
+
+      # Traces and failure screenshots are the only way to see what a headless
+      # browser saw, so keep them whenever the suite fails
+      - name: Keep browser test artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-test-results
+          path: test-results/browser
+          retention-days: 7
