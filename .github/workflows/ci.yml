@@ -54,3 +54,75 @@ jobs:
 
       - name: Build
         run: pnpm build
+
+  e2e:
+    name: API end-to-end
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    # The suites boot the whole application against a real database, so they
+    # cover what the mocked unit tests cannot: the unique client_request_id
+    # constraint, Serializable isolation under simultaneous bids, and the
+    # scheduled lifecycle reconciler.
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: cbeave
+          POSTGRES_USER: cbeave
+          POSTGRES_PASSWORD: cbeave_ci_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U cbeave -d cbeave"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    # src/config/env.validation.ts requires every one of these before the
+    # application will boot. The end-to-end suites never call Google, Facebook,
+    # or Cloudinary, so placeholders are deliberate here: no real credential
+    # belongs in a workflow file, and a missing variable would fail the boot
+    # rather than silently skip a test.
+    env:
+      DATABASE_URL: postgresql://cbeave:cbeave_ci_password@127.0.0.1:5432/cbeave
+      PORT: 3001
+      NODE_ENV: test
+      ACCESS_TOKEN_SECRET: ci-access-token-secret-at-least-32-characters
+      ACCESS_TOKEN_TTL_SECONDS: 900
+      REFRESH_TOKEN_TTL_DAYS: 7
+      WEB_APP_URL: http://localhost:3002
+      GOOGLE_CLIENT_ID: ci-placeholder
+      GOOGLE_CLIENT_SECRET: ci-placeholder
+      GOOGLE_CALLBACK_URL: http://localhost:3001/auth/google/callback
+      FACEBOOK_APP_ID: ci-placeholder
+      FACEBOOK_APP_SECRET: ci-placeholder
+      FACEBOOK_CALLBACK_URL: http://localhost:3001/auth/facebook/callback
+      FACEBOOK_GRAPH_API_VERSION: v24.0
+      CLOUDINARY_CLOUD_NAME: ci-placeholder
+      CLOUDINARY_API_KEY: ci-placeholder
+      CLOUDINARY_API_SECRET: ci-placeholder
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # deploy, not dev: CI applies the committed migrations and fails on a
+      # drift rather than generating a new one
+      - name: Apply migrations
+        run: pnpm --dir apps/api exec prisma migrate deploy
+
+      - name: Run end-to-end tests
+        run: pnpm --dir apps/api test:e2e
