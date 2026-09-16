@@ -51,4 +51,4 @@ Add stable REST shapes, enums, and WebSocket event payloads here as frontend int
 
 Apply schema changes through migrations. Never edit a shared or production database manually without a migration.
 
-Seed and demonstration data remain release-stabilization work.
+Demonstration data is seeded through `prisma:seed:demo` and `prisma:seed:users`.

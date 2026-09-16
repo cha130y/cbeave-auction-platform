@@ -247,7 +247,7 @@ An authenticated User can add or remove a public auction from their watchlist. T
 
 ### WAT-002 — Watchlist view
 
-A User can view watched auctions and their current status, countdown, current price, and result.
+A User can view watched auctions with their current status, current price, scheduled start or closing time, and final result. The continuously updating countdown is provided on the auction detail and Live Arena screens, which the watchlist links to, rather than on each watchlist card.
 
 ## 10. Notification requirements
 

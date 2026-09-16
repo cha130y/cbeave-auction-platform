@@ -12,3 +12,5 @@ coverage/
 .claude/
 tmp/
 output/
+test-results/
+playwright-report/

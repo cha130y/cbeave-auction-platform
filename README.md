@@ -84,8 +84,10 @@ DRAFT / SCHEDULED ───────→ CANCELLED
 
 ## Current status
 
-**Backend feature implementation and the Docker development workflow are complete for the current traced scope; frontend implementation is next.**
+**The Version 1 journey is implemented across both applications and verified: all 35 traced requirements have a passing acceptance test.**
 
-The NestJS API now covers identity, profiles, categories, auction management and discovery, transactional bidding, real-time Live Arena events, watchlists, notifications, and focused administration. The PostgreSQL 17 Docker workflow, Prisma schema, committed migration, and database health check have also been manually verified.
+The NestJS API covers identity, profiles, categories, auction management and discovery, transactional bidding, real-time Live Arena events, watchlists, notifications, and focused administration. The Next.js application covers discovery, auction details, the seller flow, the Live Arena, the watchlist, notifications, profiles, and administration, and both are deployed.
 
-The remaining delivery work is centered on the Next.js user interface, REST and Socket.IO integration, automated coverage, and release stabilization. The Version 1 requirements and data model remain frozen for the delivery window; consult the requirements traceability matrix for the current verification state.
+Automated coverage is 334 API unit tests, 13 API end-to-end tests against PostgreSQL, 139 web tests, and a Playwright browser test in which two bidders complete a live auction — a bid reaching the other browser, sudden death, and the pushed result — without either page reloading. Every pull request lints, tests, and builds both applications, validates the development Compose file, and runs both end-to-end suites against a PostgreSQL 17 service with the committed migrations applied.
+
+The Version 1 requirements and data model remain frozen; consult the requirements traceability matrix for the test behind each requirement, and [`tests/e2e`](tests/e2e/README.md) for running the browser suite.

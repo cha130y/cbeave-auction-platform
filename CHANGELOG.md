@@ -64,6 +64,15 @@ The format follows Keep a Changelog principles. Product releases will use semant
 - Improved Google sign-in by always requesting account selection so a person already signed in to one Google account can choose a different one.
 - Added an operator script that promotes existing accounts to administrator by email, deliberately without any endpoint that can change a role, with case-insensitive matching, harmless re-runs, and a failing exit code when a listed address has no account.
 - Improved a blocked social sign-in by returning a suspended or conflicting account to the web login screen with an explanation instead of this API's raw error body, logging only the failures that are genuinely unexpected, and matching that wording in the password form.
+- Added automated API coverage for the previously untested profile, category, watchlist, notification, administration, arena-participation, arena-state, and bidding-gateway domains, concentrating on reserve and password-hash privacy, social identity resolution, idempotent repeat requests, optimistic concurrency, deduplicated cancellation notices, and multi-tab-safe arena participation.
+- Added an API end-to-end suite that proves against PostgreSQL what mocked tests cannot: a repeated client request id is refused without writing a second bid, two simultaneous equal bids end with one acceptance and one refusal, never a second accepted bid, a bid in the final two minutes extends the deadline by exactly two minutes and stops at the fifth extension, the reconciler settles sold, below-reserve, and bidless auctions and records one ENDED event however often it runs, and the reserve amount reaches no public response.
+- Added web coverage for the shared API client, including its 401 refresh-and-replay and the single refresh shared by simultaneous failures, and for the runtime response contracts of auctions, bidding, the Live Arena, notifications, and the watchlist.
+- Added continuous-integration steps that validate the development Compose file and run the API end-to-end suite against a PostgreSQL 17 service with the committed migrations applied.
+- Added a Playwright browser end-to-end suite in which two bidders, signed in through the real login form in separate browser contexts, complete one live auction against the built web app and API: a bid in one browser reaches the other, a final-window bid shows sudden death in both, both bidders can still bid during sudden death with and without reduced motion, and closing the auction pushes both to the Sold result with a masked winner, with neither page reloading. The suite runs in CI and keeps traces and screenshots when it fails.
+
+### Fixed
+
+- Corrected the internal profile-update input, which declared a misspelled first-name key; the update already worked because the controller passes the transport object straight through, but the internal contract no longer described it and TypeScript could not catch a genuine mistake.
 
 ### Documentation
 
@@ -73,6 +82,8 @@ The format follows Keep a Changelog principles. Product releases will use semant
 - Added editable Version 1 and future-state DBML diagrams.
 - Added a four-week delivery roadmap and repository module map.
 - Refreshed the project status, roadmap checkpoint, module map, API and web setup guides, traceability headings, and example Docker database connection before frontend implementation; also replaced the starter's build-time Google font dependency and placeholder metadata.
+- Traced the three approved requirements that had no row in the matrix, repaired two malformed rows, and recorded each requirement against the test that now covers it; amended the watchlist requirement so it describes the delivered card rather than a countdown that lives on the screens it links to.
+- Refreshed the project status and roadmap checkpoint for the completed frontend phase and the current acceptance coverage, and corrected the module-map note that still called demonstration data outstanding.
 
 ### Changed
 

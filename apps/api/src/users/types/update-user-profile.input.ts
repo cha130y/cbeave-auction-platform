@@ -1,5 +1,5 @@
 export type UpdateUserProfileInput = {
-  firstname?: string;
+  firstName?: string;
   lastName?: string | null;
   displayName?: string;
   bio?: string | null;

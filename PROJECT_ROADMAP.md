@@ -48,6 +48,16 @@ The next delivery phase is the frontend:
 
 The weekly plan below remains the approved delivery sequence; this checkpoint records actual progress and does not expand Version 1 scope.
 
+## Implementation checkpoint — September 16, 2026
+
+Every P0 and P1 scope item above is implemented across both applications, deployed, and covered by automated tests. The frontend phase from the July checkpoint is complete: the shell, API client, authentication and query state, and every marketplace, seller, Live Arena, engagement, profile, and administration screen are in place and connected to the API over REST and Socket.IO.
+
+Acceptance coverage now stands at 334 API unit tests, 13 API end-to-end tests against PostgreSQL, and 139 web tests. Continuous integration lints, tests, and builds both applications, validates the development Compose file, and runs the end-to-end suite against a PostgreSQL 17 service with the committed migrations applied, so the rules that need a real database — request idempotency, Serializable isolation under simultaneous bids, anti-sniping and its cap, and scheduled completion — are checked on every pull request.
+
+The Week 3 exit criterion is now an automated test. A Playwright suite signs two bidders into separate browser contexts and runs one live auction to completion: a bid in one browser reaches the other, a final-window bid puts both into sudden death, and closing the auction pushes both to the Sold result — with a window marker proving neither page reloaded. It runs in the same CI job as the API end-to-end suite, which closes the last P0 release blocker and moves all 35 traced requirements to Verified.
+
+This checkpoint records actual progress and does not expand Version 1 scope.
+
 ## Four-week plan
 
 ### Week 1 — Freeze, foundation, and identity
