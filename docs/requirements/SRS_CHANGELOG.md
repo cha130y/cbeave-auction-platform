@@ -58,6 +58,14 @@ Status: **Approved for implementation**
 | CHG-028 | Notification auction reference | Notification auction references were optional | Require `auction_id`; retain optional `bid_id` for notification types not caused by one bid | Matches the auction-specific notification scope and preserves flexible result/cancellation events |
 | CHG-029 | Category activation audit | V1 audit values included deactivation but not explicit reactivation | Add `ACTIVATE_CATEGORY` alongside create, update, and deactivate | Makes category activation/deactivation administration fully traceable |
 
+## Version 1.1 amendment — 2026-09-16
+
+Status: **Approved for implementation**
+
+| ID | Change | Previous position | Updated decision | Impact |
+|---|---|---|---|---|
+| CHG-030 | Watchlist countdown | WAT-002 required a countdown on the watchlist itself | The watchlist shows status, current price, scheduled start or closing time, and final result; the live countdown stays on the auction detail and Live Arena screens the watchlist links to | Matches the shared auction card already used by discovery, and keeps one countdown implementation on the screens where bidding happens |
+
 ## Migration note
 
 Version 1.0 remains available as the historical baseline. Version 1.1 is the source of truth for implementation and testing during the one-month project.
