@@ -291,13 +291,20 @@ describe('Auction bidding (e2e)', () => {
         placeBid(auctionId, secondBidder, '110.00'),
       ]);
 
-      const statuses = responses.map((response) => response.status).sort();
+      const statuses = responses
+        .map((response) => response.status)
+        .sort((left, right) => left - right);
 
-      expect(statuses).toHaveLength(2);
-      expect(statuses.filter((status) => status === 201)).toHaveLength(1);
-      // The loser is refused by Serializable isolation or the row-version
-      // guard; either way it is a conflict, never a second accepted bid.
-      expect(statuses.filter((status) => status === 409)).toHaveLength(1);
+      // Exactly one bid is accepted. How the other is refused depends on
+      // timing the test cannot control: a transaction that overlapped the
+      // winner is stopped by Serializable isolation or the row-version guard
+      // (409), while one that began just after the winner committed reads the
+      // new price and is below the minimum (400). Both are correct refusals;
+      // a second 201 or any 5xx is not, and the received pair is printed.
+      expect([
+        [201, 400],
+        [201, 409],
+      ]).toContainEqual(statuses);
 
       const storedBids = await prisma.bid.findMany({
         where: { auctionId },
