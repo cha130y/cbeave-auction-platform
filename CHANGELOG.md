@@ -68,6 +68,7 @@ The format follows Keep a Changelog principles. Product releases will use semant
 - Added an API end-to-end suite that proves against PostgreSQL what mocked tests cannot: a repeated client request id is refused without writing a second bid, two simultaneous equal bids end as one acceptance and one conflict, a bid in the final two minutes extends the deadline by exactly two minutes and stops at the fifth extension, the reconciler settles sold, below-reserve, and bidless auctions and records one ENDED event however often it runs, and the reserve amount reaches no public response.
 - Added web coverage for the shared API client, including its 401 refresh-and-replay and the single refresh shared by simultaneous failures, and for the runtime response contracts of auctions, bidding, the Live Arena, notifications, and the watchlist.
 - Added continuous-integration steps that validate the development Compose file and run the API end-to-end suite against a PostgreSQL 17 service with the committed migrations applied.
+- Added a Playwright browser end-to-end suite in which two bidders, signed in through the real login form in separate browser contexts, complete one live auction against the built web app and API: a bid in one browser reaches the other, a final-window bid shows sudden death in both, both bidders can still bid during sudden death with and without reduced motion, and closing the auction pushes both to the Sold result with a masked winner, with neither page reloading. The suite runs in CI and keeps traces and screenshots when it fails.
 
 ### Fixed
 

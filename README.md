@@ -84,10 +84,10 @@ DRAFT / SCHEDULED ───────→ CANCELLED
 
 ## Current status
 
-**The Version 1 journey is implemented across both applications and is being closed out against its acceptance tests. 31 of the 35 traced requirements are verified; 4 are awaiting a browser end-to-end test.**
+**The Version 1 journey is implemented across both applications and verified: all 35 traced requirements have a passing acceptance test.**
 
 The NestJS API covers identity, profiles, categories, auction management and discovery, transactional bidding, real-time Live Arena events, watchlists, notifications, and focused administration. The Next.js application covers discovery, auction details, the seller flow, the Live Arena, the watchlist, notifications, profiles, and administration, and both are deployed.
 
-Automated coverage is 334 API unit tests, 13 API end-to-end tests against PostgreSQL, and 139 web tests. Every pull request lints, tests, and builds both applications, validates the development Compose file, and runs the end-to-end suite against a PostgreSQL 17 service with the committed migrations applied.
+Automated coverage is 334 API unit tests, 13 API end-to-end tests against PostgreSQL, 139 web tests, and a Playwright browser test in which two bidders complete a live auction — a bid reaching the other browser, sudden death, and the pushed result — without either page reloading. Every pull request lints, tests, and builds both applications, validates the development Compose file, and runs both end-to-end suites against a PostgreSQL 17 service with the committed migrations applied.
 
-The four requirements still marked in progress — real-time bid updates, sudden death, the result screen, and the Live Arena polish boundary — have their broadcast and parsing contracts covered; what remains is a browser test that drives two clients through a live auction. The Version 1 requirements and data model remain frozen; consult the requirements traceability matrix for the current state of each requirement.
+The Version 1 requirements and data model remain frozen; consult the requirements traceability matrix for the test behind each requirement, and [`tests/e2e`](tests/e2e/README.md) for running the browser suite.
