@@ -1,7 +1,7 @@
 'use client';
 
+import { AuctionImageGallery } from '@/features/auctions/components/auction-image-gallery';
 import { usePublicAuction } from '@/features/auctions/queries/auction.queries';
-import { getPrimaryImage } from '@/features/auctions/utils/get-primary-image';
 import { useAuth } from '@/features/auth/use-auth';
 import { useCountdown } from '@/features/live-arena/hooks/use-countdown';
 import { useAuctionLobby } from '@/features/live-arena/realtime/use-auction-lobby';
@@ -10,7 +10,6 @@ import { AuctionResultPanel } from '@/features/live-arena/components/auction-res
 import type { AuctionEndedEvent } from '@/features/live-arena/schemas/live-arena.schemas';
 import Link from 'next/link';
 import { maskBidderDisplayName } from '@/lib/display-names';
-import Image from 'next/image';
 import { useEffect } from 'react';
 import { ActiveArenaPanel } from '@/features/live-arena/components/active-arena-panel';
 
@@ -173,7 +172,6 @@ export function AuctionLobbyScreen({ auctionId }: AuctionLobbyScreenProps) {
     );
   }
   const hasStarted = auction.status === 'ACTIVE' || startedEvent !== null;
-  const primaryImage = getPrimaryImage(auction.images);
 
   return (
     <main className='mx-auto w-full max-w-5xl px-4 py-10 sm:px-6 sm:py-16 lg:px-8'>
@@ -186,15 +184,14 @@ export function AuctionLobbyScreen({ auctionId }: AuctionLobbyScreenProps) {
 
       <section className='mt-7 overflow-hidden rounded-3xl border border-border bg-surface'>
         <div className='grid border-b border-border lg:grid-cols-[20rem_1fr]'>
-          <div className='relative min-h-56 overflow-hidden bg-background lg:min-h-72'>
-            <Image
-              src={primaryImage.url}
-              alt={primaryImage.altText ?? auction.title}
-              fill
-              priority
-              sizes='(max-width: 1024px) 100vw, 320px'
-              className='object-cover'
-            />
+          <div className='bg-background p-4'>
+            <div className='mx-auto w-full max-w-md lg:max-w-none'>
+              <AuctionImageGallery
+                images={auction.images}
+                title={auction.title}
+                sizes='(max-width: 1024px) 448px, 288px'
+              />
+            </div>
           </div>
 
           <div className='flex flex-col justify-center px-6 py-8 text-center sm:px-10 sm:py-12'>

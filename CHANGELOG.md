@@ -6,6 +6,10 @@ The format follows Keep a Changelog principles. Product releases use semantic ve
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed the public auction detail page and the Live Arena lobby showing only the primary image of an auction with several images; both now render an image gallery with thumbnails that switch the main image, and the discovery cards keep showing the primary image.
+
 ## [1.0.0] - 2026-09-16
 
 The first release: the complete Version 1 auction journey, deployed, with every traced requirement verified by an automated acceptance test.

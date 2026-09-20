@@ -1,11 +1,10 @@
 'use client';
 
+import { AuctionImageGallery } from '@/features/auctions/components/auction-image-gallery';
 import { usePublicAuction } from '@/features/auctions/queries/auction.queries';
-import { getPrimaryImage } from '@/features/auctions/utils/get-primary-image';
 import { PublicBidHistory } from '@/features/bidding/components/public-bid-history';
 import { WatchAuctionButton } from '@/features/watchlists/components/watch-auction-button';
 import { formatDateTime, formatMoney } from '@/lib/formatters';
-import Image from 'next/image';
 import Link from 'next/link';
 
 type PublicAuctionDetailProps = {
@@ -45,7 +44,6 @@ export function PublicAuctionDetail({ auctionId }: PublicAuctionDetailProps) {
   }
 
   const auction = auctionQuery.data;
-  const primaryImage = getPrimaryImage(auction.images);
 
   return (
     <div className='mx-auto w-full max-w-360 px-4 py-10 sm:px-6 lg:px-8'>
@@ -57,16 +55,7 @@ export function PublicAuctionDetail({ auctionId }: PublicAuctionDetailProps) {
       </Link>
 
       <div className='mt-7 grid gap-8 lg:grid-cols-2'>
-        <div className='relative aspect-4/3 overflow-hidden rounded-3xl border border-border bg-surface'>
-          <Image
-            src={primaryImage.url}
-            alt={primaryImage.altText ?? auction.title}
-            fill
-            priority
-            sizes='(max-width: 1024px) 100vw, 50vw'
-            className='object-cover'
-          />
-        </div>
+        <AuctionImageGallery images={auction.images} title={auction.title} />
 
         <section className='rounded-3xl border border-border bg-surface p-6 sm:p-8'>
           <div className='flex flex-wrap items-center gap-3'>
