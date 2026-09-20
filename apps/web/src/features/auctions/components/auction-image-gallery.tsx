@@ -26,7 +26,24 @@ export function AuctionImageGallery({
 
   return (
     <div>
-      <div className='relative aspect-4/3 overflow-hidden rounded-3xl border border-border bg-surface'>
+      {/*
+        The frame stays square so the page does not jump between pictures of
+        different shapes, and the picture is fitted inside it whole instead of
+        cropped. What it leaves empty is filled by a blurred, over-scaled copy
+        of the same picture; it is the same URL and `sizes`, so the browser
+        does not fetch it twice.
+      */}
+      <div className='relative aspect-square overflow-hidden rounded-3xl border border-border bg-surface'>
+        <Image
+          key={`backdrop-${selectedImage.id}`}
+          src={selectedImage.url}
+          alt=''
+          fill
+          sizes={sizes}
+          aria-hidden='true'
+          className='scale-125 object-cover blur-xl'
+        />
+
         <Image
           key={selectedImage.id}
           src={selectedImage.url}
@@ -34,7 +51,7 @@ export function AuctionImageGallery({
           fill
           priority
           sizes={sizes}
-          className='object-cover'
+          className='object-contain'
         />
       </div>
 
@@ -53,7 +70,7 @@ export function AuctionImageGallery({
                   className={`relative block aspect-square w-full overflow-hidden rounded-xl border-2 bg-surface transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
                     isSelected
                       ? 'border-primary'
-                      : 'border-border opacity-70 hover:opacity-100'
+                      : 'border-transparent hover:border-border'
                   }`}
                 >
                   <Image
