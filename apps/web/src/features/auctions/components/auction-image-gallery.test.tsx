@@ -79,6 +79,34 @@ describe('AuctionImageGallery', () => {
     ).toHaveAttribute('aria-pressed', 'true');
   });
 
+  it('fits the main image inside the frame instead of cropping it', () => {
+    render(
+      <AuctionImageGallery
+        title='Vintage camera'
+        images={[createImage(1, { isPrimary: true })]}
+      />,
+    );
+
+    expect(screen.getByRole('img', { name: 'View 1' })).toHaveClass(
+      'object-contain',
+    );
+  });
+
+  it('fills the empty frame with a decorative copy of the main image', () => {
+    const { container } = render(
+      <AuctionImageGallery
+        title='Vintage camera'
+        images={[createImage(1, { isPrimary: true })]}
+      />,
+    );
+
+    const backdrop = container.querySelector('img[aria-hidden="true"]');
+    const mainImage = screen.getByRole('img', { name: 'View 1' });
+
+    expect(backdrop).toHaveAttribute('alt', '');
+    expect(backdrop).toHaveAttribute('src', mainImage.getAttribute('src'));
+  });
+
   it('passes the sizes hint to the main image', () => {
     render(
       <AuctionImageGallery
