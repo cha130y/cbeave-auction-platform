@@ -9,6 +9,7 @@
 "build" : "pnpm -r build",
 "lint" : "pnpm -r lint",
 "test" : "pnpm -r test",
+"check" : "pnpm lint && pnpm test && pnpm test:browser",
 "test:browser" : "pnpm build && playwright test --config tests/e2e/playwright.config.ts"
 },
 "devDependencies" : {
