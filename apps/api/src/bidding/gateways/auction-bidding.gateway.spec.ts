@@ -3,7 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { WsException } from '@nestjs/websockets';
 import type { Server, Socket } from 'socket.io';
 import { SocketAuthenticationService } from '../../auth/services/socket-authentication.service';
-import { UserRole } from '../../generated/prisma/enums';
+import { AuctionStatus, UserRole } from '../../generated/prisma/enums';
 import { BidAcceptedEventDto } from '../dto/bid-accepted-event.dto';
 import { ActiveArenaService } from '../services/active-arena.service';
 import { AuctionParticipantsService } from '../services/auction-participants.service';
@@ -339,8 +339,10 @@ describe('AuctionBiddingGateway', () => {
     it('emits the auction start to its room', () => {
       gateway.broadcastAuctionStarted({
         auctionId: AUCTION_ID,
-        currentEndAt: NEW_END_AT,
-      } as Parameters<AuctionBiddingGateway['broadcastAuctionStarted']>[0]);
+        status: AuctionStatus.ACTIVE,
+        startedAt: PLACED_AT.toISOString(),
+        currentEndAt: NEW_END_AT.toISOString(),
+      });
 
       expect(toMock).toHaveBeenCalledWith(ROOM);
       expect(emittedEvents()).toEqual(['auction:started']);
