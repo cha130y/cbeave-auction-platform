@@ -18,7 +18,10 @@ describe('AuthController refresh token cookie', () => {
 
   const configGetMock = jest.fn() as jest.MockedFunction<() => string>;
 
-  const cookieMock = jest.fn() as jest.MockedFunction<Response['cookie']>;
+  const cookieMock = jest.fn<
+    void,
+    [name: string, value: string, options?: CookieOptions]
+  >();
   const clearCookieMock = jest.fn() as jest.MockedFunction<
     Response['clearCookie']
   >;
@@ -52,7 +55,7 @@ describe('AuthController refresh token cookie', () => {
   };
 
   const setCookieOptions = (): CookieOptions =>
-    cookieMock.mock.calls[0][2] as CookieOptions;
+    cookieMock.mock.calls[0][2]!;
 
   const clearCookieOptions = (): CookieOptions =>
     clearCookieMock.mock.calls[0][1] as CookieOptions;
@@ -183,7 +186,7 @@ describe('AuthController social callback failures', () => {
     AuthService['loginWithSocialProfile']
   >;
 
-  const redirectMock = jest.fn() as jest.MockedFunction<Response['redirect']>;
+  const redirectMock = jest.fn<void, [url: string]>();
   const cookieMock = jest.fn() as jest.MockedFunction<Response['cookie']>;
 
   const responseMock = {
@@ -199,7 +202,7 @@ describe('AuthController social callback failures', () => {
     query: { error: 'access_denied' },
   } as unknown as SocialAuthenticatedRequest;
 
-  const redirectedTo = (): string => redirectMock.mock.calls[0][0] as string;
+  const redirectedTo = (): string => redirectMock.mock.calls[0][0];
 
   let loggerErrorSpy: jest.SpyInstance;
 
