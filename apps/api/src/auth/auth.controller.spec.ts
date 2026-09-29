@@ -54,8 +54,7 @@ describe('AuthController refresh token cookie', () => {
     },
   };
 
-  const setCookieOptions = (): CookieOptions =>
-    cookieMock.mock.calls[0][2]!;
+  const setCookieOptions = (): CookieOptions => cookieMock.mock.calls[0][2]!;
 
   const clearCookieOptions = (): CookieOptions =>
     clearCookieMock.mock.calls[0][1] as CookieOptions;
