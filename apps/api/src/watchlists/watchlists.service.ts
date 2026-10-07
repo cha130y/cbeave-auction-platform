@@ -1,5 +1,4 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { AuctionStatus } from '../generated/prisma/enums';
 import { PrismaService } from '../database/prisma.service';
 import { WatchlistEntryResponseDto } from './dto/watchlist-entry-response.dto';
 import { WatchAuctionInput } from './types/watch-auction.input';
@@ -8,13 +7,7 @@ import { ListWatchlistResponseDto } from './dto/list-watchlist-response.dto';
 import { watchlistItemSelect } from './queries/watchlist-item.select';
 import { mapWatchlistItemResponse } from './mappers/map-watchlist-item-response.mapper';
 import { paginate } from '../common/pagination/paginate.util';
-
-const PUBLIC_AUCTION_STATUSES: AuctionStatus[] = [
-  AuctionStatus.SCHEDULED,
-  AuctionStatus.ACTIVE,
-  AuctionStatus.SOLD,
-  AuctionStatus.UNSOLD,
-];
+import { PUBLIC_AUCTION_STATUSES } from '../auctions/constants/public-auction.constant';
 
 @Injectable()
 export class WatchlistsService {

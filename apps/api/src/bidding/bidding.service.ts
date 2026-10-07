@@ -25,17 +25,11 @@ import { AuctionBiddingGateway } from './gateways/auction-bidding.gateway';
 import { mapBidAcceptedEvent } from './mappers/map-bid-accepted-event.mapper';
 import { NotificationsService } from '../notifications/notifications.service';
 import { paginate } from '../common/pagination/paginate.util';
+import { PUBLIC_AUCTION_STATUSES } from '../auctions/constants/public-auction.constant';
 
 const ANTI_SNIPING_WINDOW_MS = 2 * 60 * 1000;
 const ANTI_SNIPING_EXTENSION_MS = 2 * 60 * 1000;
 const MAX_AUCTION_EXTENSIONS = 5;
-
-const PUBLIC_AUCTION_STATUSES: AuctionStatus[] = [
-  AuctionStatus.SCHEDULED,
-  AuctionStatus.ACTIVE,
-  AuctionStatus.SOLD,
-  AuctionStatus.UNSOLD,
-];
 
 @Injectable()
 export class BiddingService {
