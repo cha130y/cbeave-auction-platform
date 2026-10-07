@@ -11,13 +11,7 @@ import { publicAuctionSummarySelect } from '../queries/public-auction-summary.se
 import { mapPublicAuctionDetailResponse } from '../mappers/map-public-auction-detail-response.mapper';
 import { mapPublicAuctionSummaryResponse } from '../mappers/map-public-auction-summary-response.mapper';
 import { paginate } from '../../common/pagination/paginate.util';
-
-const PUBLIC_AUCTION_STATUSES: AuctionStatus[] = [
-  AuctionStatus.SCHEDULED,
-  AuctionStatus.ACTIVE,
-  AuctionStatus.SOLD,
-  AuctionStatus.UNSOLD,
-];
+import { PUBLIC_AUCTION_STATUSES } from '../constants/public-auction.constant';
 
 const PUBLIC_AUCTION_REQUIREMENTS = {
   scheduledStartAt: {
