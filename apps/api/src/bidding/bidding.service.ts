@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   ConflictException,
-  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -14,7 +13,10 @@ import {
   Prisma,
 } from '../generated/prisma/client';
 import { AcceptedBidResult } from './types/accepted-bid-result.type';
-import { placeBidAuctionSelect } from './queries/place-bid-auction.select';
+import {
+  placeBidAuctionSelect,
+  PlaceBidAuctionRecord,
+} from './queries/place-bid-auction.select';
 import { mapPlaceBidResponse } from './mappers/map-place-bid-response.mapper';
 import { PrismaClientKnownRequestError } from '../generated/prisma/internal/prismaNamespace';
 import { ListPublicBidsInput } from './types/list-public-bids.input';
@@ -26,10 +28,22 @@ import { mapBidAcceptedEvent } from './mappers/map-bid-accepted-event.mapper';
 import { NotificationsService } from '../notifications/notifications.service';
 import { paginate } from '../common/pagination/paginate.util';
 import { PUBLIC_AUCTION_STATUSES } from '../auctions/constants/public-auction.constant';
+import { assertBidIsAcceptable } from './utils/assert-bid-is-acceptable.util';
+import {
+  resolveAntiSnipingExtension,
+  type AntiSnipingExtension,
+} from './utils/resolve-anti-sniping-extension.util';
 
-const ANTI_SNIPING_WINDOW_MS = 2 * 60 * 1000;
-const ANTI_SNIPING_EXTENSION_MS = 2 * 60 * 1000;
-const MAX_AUCTION_EXTENSIONS = 5;
+type AcceptedBidWrite = {
+  auction: PlaceBidAuctionRecord;
+  amount: Prisma.Decimal;
+  bidderId: string;
+  clientRequestId: string;
+  sequenceNo: number;
+  placedAt: Date;
+  extension: AntiSnipingExtension;
+  extensionNumber: number;
+};
 
 @Injectable()
 export class BiddingService {
@@ -99,198 +113,7 @@ export class BiddingService {
 
     try {
       const acceptedBid = await this.prisma.$transaction(
-        async (transaction): Promise<AcceptedBidResult> => {
-          const duplicateRequest = await transaction.bid.findUnique({
-            where: {
-              clientRequestId: input.clientRequestId,
-            },
-            select: {
-              id: true,
-            },
-          });
-
-          if (duplicateRequest) {
-            throw new ConflictException(
-              'Bid request has already been processed',
-            );
-          }
-
-          const auction = await transaction.auction.findFirst({
-            where: {
-              id: input.auctionId,
-              deletedAt: null,
-            },
-            select: placeBidAuctionSelect,
-          });
-
-          if (!auction) {
-            throw new NotFoundException('Auction not found');
-          }
-
-          if (auction.status !== AuctionStatus.ACTIVE) {
-            throw new ConflictException('Auction is not active');
-          }
-
-          if (auction.sellerId === input.bidderId) {
-            throw new ForbiddenException(
-              'The auction seller cannot bid on this auction',
-            );
-          }
-
-          if (
-            !auction.currentEndAt ||
-            auction.currentEndAt.getTime() <= now.getTime()
-          ) {
-            throw new ConflictException('Auction has ended');
-          }
-
-          const minimumBid = auction.currentPrice.plus(auction.minBidIncrement);
-
-          if (amount.lt(minimumBid)) {
-            throw new BadRequestException(
-              `Bid amount must be at least ${minimumBid.toFixed(2)}`,
-            );
-          }
-
-          const remainingTimeMs =
-            auction.currentEndAt.getTime() - now.getTime();
-
-          const shouldExtend =
-            remainingTimeMs <= ANTI_SNIPING_WINDOW_MS &&
-            auction.extensionCount < MAX_AUCTION_EXTENSIONS;
-
-          const previousEndAt = auction.currentEndAt;
-          const newEndAt = shouldExtend
-            ? new Date(
-                auction.currentEndAt.getTime() + ANTI_SNIPING_EXTENSION_MS,
-              )
-            : auction.currentEndAt;
-
-          const sequenceNo = auction.bidCount + 1;
-          const extensionNumber = auction.extensionCount + 1;
-
-          const updateResult = await transaction.auction.updateMany({
-            where: {
-              id: auction.id,
-              status: AuctionStatus.ACTIVE,
-              currentEndAt: {
-                gt: now,
-              },
-              deletedAt: null,
-              rowVersion: auction.rowVersion,
-            },
-            data: {
-              currentPrice: amount,
-              bidCount: {
-                increment: 1,
-              },
-              rowVersion: {
-                increment: 1,
-              },
-              ...(shouldExtend
-                ? {
-                    currentEndAt: newEndAt,
-                    extensionCount: {
-                      increment: 1,
-                    },
-                  }
-                : {}),
-            },
-          });
-
-          if (updateResult.count !== 1) {
-            throw new ConflictException(
-              'Auction changed; reload and try again',
-            );
-          }
-
-          const bid = await transaction.bid.create({
-            data: {
-              auctionId: auction.id,
-              bidderId: input.bidderId,
-              amount,
-              sequenceNo,
-              clientRequestId: input.clientRequestId,
-              placedAt: now,
-            },
-            select: {
-              id: true,
-              auctionId: true,
-              clientRequestId: true,
-              amount: true,
-              sequenceNo: true,
-              placedAt: true,
-            },
-          });
-
-          const previousHighestBid = auction.bids[0] ?? null;
-
-          if (
-            previousHighestBid &&
-            previousHighestBid.bidderId !== input.bidderId
-          ) {
-            await this.notificationsService.createOutbidNotification(
-              transaction,
-              {
-                userId: previousHighestBid.bidderId,
-                auctionId: auction.id,
-                //new higher bid ID
-                bidId: bid.id,
-                auctionTitle: auction.title,
-                currentPrice: amount.toFixed(2),
-                currency: auction.currency,
-              },
-            );
-          }
-
-          await transaction.auctionEvent.create({
-            data: {
-              auctionId: auction.id,
-              actorUserId: input.bidderId,
-              bidId: bid.id,
-              eventType: AuctionEventType.BID_PLACED,
-            },
-          });
-
-          let extension: AcceptedBidResult['extension'] = null;
-
-          if (shouldExtend) {
-            extension = await transaction.auctionExtension.create({
-              data: {
-                auctionId: auction.id,
-                triggeredByBidId: bid.id,
-                extensionNumber,
-                previousEndAt,
-                newEndAt,
-              },
-              select: {
-                extensionNumber: true,
-                previousEndAt: true,
-                newEndAt: true,
-              },
-            });
-
-            await transaction.auctionEvent.create({
-              data: {
-                auctionId: auction.id,
-                actorUserId: input.bidderId,
-                bidId: bid.id,
-                eventType: AuctionEventType.EXTENDED,
-              },
-            });
-          }
-
-          return {
-            bid,
-            auction: {
-              currentPrice: amount,
-              reservePrice: auction.reservePrice,
-              bidCount: sequenceNo,
-              currentEndAt: newEndAt,
-            },
-            extension,
-          };
-        },
+        (transaction) => this.acceptBid(transaction, input, amount, now),
         {
           //handle transactions that nearly the same time only one transaction can be accepted
           isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
@@ -298,6 +121,9 @@ export class BiddingService {
       );
 
       const response = mapPlaceBidResponse(acceptedBid);
+
+      // Broadcast only once the transaction committed, so nobody is shown a
+      // price that a rolled-back bid never set.
       this.auctionBiddingGateway.broadcastAcceptedBid(
         mapBidAcceptedEvent(response),
       );
@@ -315,5 +141,195 @@ export class BiddingService {
       }
       throw error;
     }
+  }
+
+  /**
+   * Claims the auction for this bid: the request has to be new, the auction has
+   * to accept it, and the price move has to win the row-version race. Only then
+   * are the bid and its side effects written.
+   */
+  private async acceptBid(
+    transaction: Prisma.TransactionClient,
+    input: PlaceBidInput,
+    amount: Prisma.Decimal,
+    now: Date,
+  ): Promise<AcceptedBidResult> {
+    const duplicateRequest = await transaction.bid.findUnique({
+      where: {
+        clientRequestId: input.clientRequestId,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (duplicateRequest) {
+      throw new ConflictException('Bid request has already been processed');
+    }
+
+    const auction = await transaction.auction.findFirst({
+      where: {
+        id: input.auctionId,
+        deletedAt: null,
+      },
+      select: placeBidAuctionSelect,
+    });
+
+    if (!auction) {
+      throw new NotFoundException('Auction not found');
+    }
+
+    const currentEndAt = assertBidIsAcceptable(
+      auction,
+      amount,
+      input.bidderId,
+      now,
+    );
+
+    const extension = resolveAntiSnipingExtension(
+      currentEndAt,
+      auction.extensionCount,
+      now,
+    );
+
+    const sequenceNo = auction.bidCount + 1;
+
+    const updateResult = await transaction.auction.updateMany({
+      where: {
+        id: auction.id,
+        status: AuctionStatus.ACTIVE,
+        currentEndAt: {
+          gt: now,
+        },
+        deletedAt: null,
+        rowVersion: auction.rowVersion,
+      },
+      data: {
+        currentPrice: amount,
+        bidCount: {
+          increment: 1,
+        },
+        rowVersion: {
+          increment: 1,
+        },
+        ...(extension.shouldExtend
+          ? {
+              currentEndAt: extension.newEndAt,
+              extensionCount: {
+                increment: 1,
+              },
+            }
+          : {}),
+      },
+    });
+
+    if (updateResult.count !== 1) {
+      throw new ConflictException('Auction changed; reload and try again');
+    }
+
+    return this.writeAcceptedBid(transaction, {
+      auction,
+      amount,
+      bidderId: input.bidderId,
+      clientRequestId: input.clientRequestId,
+      sequenceNo,
+      placedAt: now,
+      extension,
+      extensionNumber: auction.extensionCount + 1,
+    });
+  }
+
+  /**
+   * Persists the accepted bid with everything that has to land in the same
+   * transaction: the outbid notice, the lifecycle events, and the extension
+   * record. `BID_PLACED` is written before `EXTENDED`, so the event history
+   * reads in the order the two happened.
+   */
+  private async writeAcceptedBid(
+    transaction: Prisma.TransactionClient,
+    write: AcceptedBidWrite,
+  ): Promise<AcceptedBidResult> {
+    const { auction, amount, bidderId, extension } = write;
+
+    const bid = await transaction.bid.create({
+      data: {
+        auctionId: auction.id,
+        bidderId,
+        amount,
+        sequenceNo: write.sequenceNo,
+        clientRequestId: write.clientRequestId,
+        placedAt: write.placedAt,
+      },
+      select: {
+        id: true,
+        auctionId: true,
+        clientRequestId: true,
+        amount: true,
+        sequenceNo: true,
+        placedAt: true,
+      },
+    });
+
+    const previousHighestBid = auction.bids[0] ?? null;
+
+    if (previousHighestBid && previousHighestBid.bidderId !== bidderId) {
+      await this.notificationsService.createOutbidNotification(transaction, {
+        userId: previousHighestBid.bidderId,
+        auctionId: auction.id,
+        //new higher bid ID
+        bidId: bid.id,
+        auctionTitle: auction.title,
+        currentPrice: amount.toFixed(2),
+        currency: auction.currency,
+      });
+    }
+
+    await transaction.auctionEvent.create({
+      data: {
+        auctionId: auction.id,
+        actorUserId: bidderId,
+        bidId: bid.id,
+        eventType: AuctionEventType.BID_PLACED,
+      },
+    });
+
+    let recordedExtension: AcceptedBidResult['extension'] = null;
+
+    if (extension.shouldExtend) {
+      recordedExtension = await transaction.auctionExtension.create({
+        data: {
+          auctionId: auction.id,
+          triggeredByBidId: bid.id,
+          extensionNumber: write.extensionNumber,
+          previousEndAt: extension.previousEndAt,
+          newEndAt: extension.newEndAt,
+        },
+        select: {
+          extensionNumber: true,
+          previousEndAt: true,
+          newEndAt: true,
+        },
+      });
+
+      await transaction.auctionEvent.create({
+        data: {
+          auctionId: auction.id,
+          actorUserId: bidderId,
+          bidId: bid.id,
+          eventType: AuctionEventType.EXTENDED,
+        },
+      });
+    }
+
+    return {
+      bid,
+      auction: {
+        currentPrice: amount,
+        reservePrice: auction.reservePrice,
+        bidCount: write.sequenceNo,
+        currentEndAt: extension.newEndAt,
+      },
+      extension: recordedExtension,
+    };
   }
 }
