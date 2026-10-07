@@ -6,6 +6,10 @@ The format follows Keep a Changelog principles. Product releases use semantic ve
 
 ## [Unreleased]
 
+### Changed
+
+- Split the 228-line place-bid transaction into named parts and moved the bid acceptance rules and the anti-sniping window into their own tested utilities, and gave the four publicly visible auction statuses one shared definition instead of three copies; no bidding behaviour, route, or payload changed.
+
 ### Fixed
 
 - Fixed the public auction detail page and the Live Arena lobby showing only the primary image of an auction with several images; both now render an image gallery with thumbnails that switch the main image, and the discovery cards keep showing the primary image.
